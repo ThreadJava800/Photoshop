@@ -10,18 +10,25 @@ public:
 };
 
 class Widget : public Renderable {
-private:
+protected:
+    MPoint         position   = MPoint();
     List<Widget*>* subWindows = nullptr;
 
 public:
-    virtual bool onKeyPressed (MKeyboard key) = 0;
-    virtual bool onKeyReleased(MKeyboard key) = 0;
+    explicit Widget(MPoint _position);
+    explicit Widget(MPoint _position, List<Widget*>* subWindows);
+    ~Widget();
 
-    virtual bool onMousePressed (MPoint pos, MMouse btn) = 0;
-    virtual bool onMouseReleased(MPoint pos, MMouse btn) = 0;
-    virtual bool onMouseMove    (MPoint pos, MMouse btn) = 0;
+    virtual bool onKeyPressed (MKeyboard key) {return false;};
+    virtual bool onKeyReleased(MKeyboard key) {return false;};
 
-    virtual void registerObject(Widget* widget) = 0;
+    virtual bool onMousePressed (MPoint pos, MMouse btn) {return false;};
+    virtual bool onMouseReleased(MPoint pos, MMouse btn) {return false;};
+    virtual bool onMouseMove    (MPoint pos, MMouse btn) {return false;};
+
+    virtual void registerObject(Widget* widget) {};
 };
+
+
 
 #endif

@@ -7,6 +7,7 @@ struct MPoint {
     double x = 0;
     double y = 0;
 
+    explicit MPoint();
     explicit MPoint(double _x, double _y);
     explicit MPoint(sf::Vector2f _point);
 
@@ -21,6 +22,7 @@ struct MColor {
     unsigned char b = 0;
     unsigned char a = 0;
 
+    explicit MColor();
     explicit MColor(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a);
     explicit MColor(sf::Color _color);
 
@@ -36,6 +38,7 @@ private:
 public:
     const char* fontFile = nullptr;
 
+    explicit MFont();
     explicit MFont(const char* _fontFile);
 
     ~MFont();
@@ -54,11 +57,13 @@ enum MMouse {
 
 class RenderTarget {
 private:
-    sf::RenderTexture* sprite  = nullptr;
-    sf::RenderTexture* texture = nullptr;
+    MPoint             position = MPoint();
+    sf::RenderTexture* texture  = nullptr;
+    sf::Sprite*        sprite   = nullptr;
+    sf::RenderWindow*  window   = nullptr;
 
 public:
-    explicit RenderTarget(sf::RenderTexture* _sprite, sf::RenderTexture* _texture);
+    explicit RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window);
     ~RenderTarget();
 
     void drawLine  (MPoint start,  MPoint end,    MColor color);
