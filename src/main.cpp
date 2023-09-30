@@ -5,7 +5,7 @@ void runMainCycle() {
     sf::RenderWindow window(sf::VideoMode(), "Photoshop", sf::Style::Fullscreen);
     window.setPosition(sf::Vector2i(0, 0));
 
-    Window mainWindow = Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(window.getSize().x - 2 * MAIN_WIN_BRD_SHIFT, window.getSize().y - 2 * MAIN_WIN_BRD_SHIFT));
+    Window mainWindow = Window(              MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(window.getSize().x - 2 * MAIN_WIN_BRD_SHIFT, window.getSize().y - 2 * MAIN_WIN_BRD_SHIFT));
     RenderTarget renderTarget = RenderTarget(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(window.getSize().x - 2 * MAIN_WIN_BRD_SHIFT, window.getSize().y - 2 * MAIN_WIN_BRD_SHIFT), &window);
 
     while (window.isOpen())

@@ -21,6 +21,18 @@ sf::Vector2f MPoint::toSfVector() {
     return sf::Vector2f(x, y);
 }
 
+void operator+=(MPoint& a, const MPoint& b) {
+    a.x += b.x;
+    a.y += b.y;
+}
+
+MPoint operator+ (const MPoint& a, const MPoint& b) {
+    MPoint res = a;
+    res += b;
+
+    return res;
+}
+
 MColor::MColor() :
     r(0),
     g(0),
@@ -71,6 +83,27 @@ sf::Font* MFont::getSfFont() {
     return font;
 }
 
+MImage::MImage() :
+    img    (nullptr),
+    imgPath(nullptr)    {}
+
+MImage::MImage(const char* _imgPath) :
+    imgPath(_imgPath) {
+        img = new sf::Texture();
+        ON_ERROR(!img, "Unable to alloc memory",);
+
+        ON_ERROR(!img->loadFromFile(_imgPath), "No such file!",);
+    }
+
+MImage::~MImage() {
+    img     = nullptr;
+    imgPath = nullptr;
+}
+
+sf::Texture* MImage::getSfTexture() {
+    return img;
+}
+
 RenderTarget::RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window) :
     position(_position),
     window  (_window)    {
@@ -87,10 +120,10 @@ RenderTarget::RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _wi
 RenderTarget::~RenderTarget() {
     window = nullptr;
 
-    delete texture;
+    if (texture) delete texture;
     texture = nullptr;
 
-    delete sprite;
+    if (sprite) delete sprite;
     sprite = nullptr;
 }
 
@@ -105,17 +138,19 @@ void RenderTarget::drawLine(MPoint start, MPoint end, MColor color) {
     line[1].color    = color.toSfColor ();
 
     texture->draw(line);
+    texture->display();
     window ->draw(*sprite);
 }
 
 void RenderTarget::drawRect(MPoint start, MPoint size, MColor color) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
-    sf::RectangleShape rect(start.toSfVector());
-    rect.setSize(size.toSfVector());
+    sf::RectangleShape rect(size.toSfVector());
+    rect.setPosition(start.toSfVector());
     rect.setFillColor(color.toSfColor());
 
     texture->draw(rect);
+    texture->display();
     window ->draw(*sprite);
 }
 
@@ -127,6 +162,19 @@ void RenderTarget::drawCircle(MPoint centre, double radius, MColor color) {
     circle.setFillColor   (color.toSfColor());
 
     texture->draw(circle);
+    texture->display();
+    window ->draw(*sprite);
+}
+
+void RenderTarget::drawSprite(MPoint start, MPoint size, MImage img) {
+    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+
+    sf::RectangleShape rect(size.toSfVector());
+    rect.setPosition(start.toSfVector());
+    rect.setTexture(img.getSfTexture());
+
+    texture->draw(rect);
+    texture->display();
     window ->draw(*sprite);
 }
 
@@ -139,6 +187,7 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
     
     sf::Text drawText = sf::Text(text, *drawFont, pt);
     texture->draw(drawText);
+    texture->display();
     window ->draw(*sprite);
 }
 
@@ -150,5 +199,6 @@ void RenderTarget::setPixel(MPoint pos, MColor color) {
     point[0].color    = color.toSfColor();
 
     texture->draw(point);
+    texture->display();
     window ->draw(*sprite);
 }

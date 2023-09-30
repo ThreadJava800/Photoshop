@@ -22,7 +22,6 @@ TextButton::TextButton(MPoint _position, MPoint _size, MColor _color, MFont _fon
     text  (_text)        {}
 
 TextButton::~TextButton() {
-    font = MFont();
     text = nullptr;
 }
 
@@ -32,4 +31,16 @@ void TextButton::render(RenderTarget* renderTarget) {
     // TODO move to const
     renderTarget->drawText(position, text, color, font, 10);
     renderTarget->drawRect(position, size, color);
+}
+
+ImageButton::ImageButton(MPoint _position, MPoint _size, MImage _img) :
+    Button(_position, _size, MColor(DEFAULT_COLOR)),
+    image (_img)   {}
+
+ImageButton::~ImageButton() { }
+
+void ImageButton::render(RenderTarget* renderTarget) {
+    ON_ERROR(!renderTarget, "Render target pointer was null!",);
+
+    renderTarget->drawSprite(position, size, image);
 }

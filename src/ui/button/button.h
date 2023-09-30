@@ -28,8 +28,15 @@ public:
     void render(RenderTarget* renderTarget) override;
 };
 
-// class ImageButton : public Button {
+class ImageButton : public Button {
+private:
+    MImage image = MImage();
 
-// };
+public:
+    explicit ImageButton(MPoint _position, MPoint _size, MImage _img);
+    ~ImageButton();
+
+    void render(RenderTarget* renderTarget) override;
+};
 
 #endif

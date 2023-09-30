@@ -6,11 +6,8 @@
 #include "../button/button.h"
 
 class Menu : public Widget {
-private:
-    List<Button*>* buttons = nullptr;
-
 public:
-    explicit Menu(MPoint _position, List<Button*>* _buttons);
+    explicit Menu(MPoint _position);
     ~Menu();
 
     void render(RenderTarget* renderTarget) override;

@@ -14,6 +14,9 @@ struct MPoint {
     ~MPoint();
 
     sf::Vector2f toSfVector();
+
+    friend void   operator+=(      MPoint& a, const MPoint& b);
+    friend MPoint operator+ (const MPoint& a, const MPoint& b);
 };
 
 struct MColor {
@@ -46,6 +49,21 @@ public:
     sf::Font* getSfFont();
 };
 
+struct MImage {
+private:
+    sf::Texture* img = nullptr;
+
+public:
+    const char* imgPath = nullptr;
+
+    explicit MImage();
+    explicit MImage(const char* _imgPath);
+
+    ~MImage();
+
+    sf::Texture* getSfTexture();
+};
+
 enum MKeyboard {
     ESCAPE = sf::Keyboard::Escape
 };
@@ -69,7 +87,7 @@ public:
     void drawLine  (MPoint start,  MPoint end,    MColor color);
     void drawRect  (MPoint start,  MPoint size,   MColor color);
     void drawCircle(MPoint centre, double radius, MColor color);
-    // void drawSprite(); 
+    void drawSprite(MPoint start,  MPoint size,   MImage img); 
     void drawText  (MPoint start,  const char* text, MColor color, MFont font, unsigned pt);
     void setPixel  (MPoint pos, MColor color);
 };
