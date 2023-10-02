@@ -15,3 +15,7 @@ void Menu::render(RenderTarget* renderTarget) {
         if (btn) btn->render(renderTarget);
     }
 }
+
+void Menu::registerObject(Widget* widget) {
+    subWindows->pushBack(widget);
+}

@@ -33,6 +33,18 @@ MPoint operator+ (const MPoint& a, const MPoint& b) {
     return res;
 }
 
+void operator*=(MPoint& a, const double b) {
+    a.x *= b;
+    a.y *= b;
+}
+
+MPoint operator*(const MPoint& a, const double b) {
+    MPoint res = a;
+    res *= b;
+
+    return res;
+}
+
 MColor::MColor() :
     r(0),
     g(0),
@@ -68,13 +80,12 @@ MFont::MFont() :
 
 MFont::MFont(const char* _fontFile) :
     fontFile(_fontFile) {
+        std::cout << "constructor\n";
         font = new sf::Font();
         font->loadFromFile(_fontFile);
     }
 
 MFont::~MFont() {
-    delete font;
-
     font     = nullptr;
     fontFile = nullptr;
 }
@@ -186,6 +197,9 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
     ON_ERROR(!drawFont, "Font ptr was null",)
     
     sf::Text drawText = sf::Text(text, *drawFont, pt);
+    drawText.setColor(color.toSfColor());
+    drawText.setPosition(start.toSfVector());
+
     texture->draw(drawText);
     texture->display();
     window ->draw(*sprite);

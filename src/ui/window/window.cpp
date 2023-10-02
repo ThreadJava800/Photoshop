@@ -3,30 +3,37 @@
 Window::Window(MPoint _position, MPoint _size) :
     Widget (_position),
     size   (_size),
-    actions(nullptr)    {}
+    actions(nullptr)    {
+        createTopPanel();
+    }
 
 Window::Window(MPoint _position, MPoint _size, Menu* _actions) :
     Widget (_position),
     size   (_size),
-    actions(_actions)   {}
+    actions(_actions)   {
+        createTopPanel();
+        subWindows->pushBack(actions);
+    }
 
 Window::~Window() {
     actions = nullptr;
 }
 
-void Window::drawTopPanel(RenderTarget* renderTarget) {
-    ON_ERROR(!renderTarget, "Render target pointer was null!",);
+void Window::createTopPanel() {
+    Rectangle*   topRect = new Rectangle(MPoint(0, 0), MPoint(size.x, TOP_PANE_SIZE), MColor(sf::Color(161, 200, 241)));
+    
+    ImageButton* close    = new ImageButton(MPoint(0, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), MImage(CLOSE_BTN));
+    ImageButton* minimize = new ImageButton(MPoint(size.x - 2 * TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), MImage(MINIMIZE_BTN));
+    ImageButton* restore  = new ImageButton(MPoint(size.x - TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), MImage(RESTORE_BTN));
 
-    renderTarget->drawRect(MPoint(0, 0), MPoint(size.x, CLOSE_BTN_SIZE), MColor(sf::Color(161, 200, 241)));
+    Menu* topPanel = new Menu(MPoint(0, 0));
 
-    static ImageButton close = ImageButton(MPoint(0, 0), MPoint(CLOSE_BTN_SIZE, CLOSE_BTN_SIZE), MImage(CLOSE_BTN));
-    close.render(renderTarget);
+    topPanel->registerObject(topRect);
+    topPanel->registerObject(close);
+    topPanel->registerObject(minimize);
+    topPanel->registerObject(restore);
 
-    static ImageButton minimize = ImageButton(MPoint(size.x - 2 * CLOSE_BTN_SIZE, 0), MPoint(CLOSE_BTN_SIZE, CLOSE_BTN_SIZE), MImage(MINIMIZE_BTN));
-    minimize.render(renderTarget);
-
-    static ImageButton restore  = ImageButton(MPoint(size.x - CLOSE_BTN_SIZE, 0), MPoint(CLOSE_BTN_SIZE, CLOSE_BTN_SIZE), MImage(RESTORE_BTN));
-    restore.render(renderTarget);
+    subWindows->pushBack(topPanel);
 }
 
 void Window::render(RenderTarget* renderTarget) {
@@ -34,6 +41,9 @@ void Window::render(RenderTarget* renderTarget) {
 
     renderTarget->drawRect(MPoint(0, 0), size, MColor(DEFAULT_BACK_COL));
 
-    if (actions) actions->render(renderTarget);
-    drawTopPanel(renderTarget);
+    size_t listSize = subWindows->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        Widget* widget = (*subWindows)[i];
+        if (widget) widget->render(renderTarget);
+    }
 }

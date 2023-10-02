@@ -17,6 +17,8 @@ struct MPoint {
 
     friend void   operator+=(      MPoint& a, const MPoint& b);
     friend MPoint operator+ (const MPoint& a, const MPoint& b);
+    friend void   operator*=(      MPoint& a, const double  b);
+    friend MPoint operator* (const MPoint& a, const double  b);
 };
 
 struct MColor {

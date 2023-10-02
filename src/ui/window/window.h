@@ -10,7 +10,7 @@ private:
     MPoint size     = MPoint();
     Menu*  actions  = nullptr;
     
-    void drawTopPanel(RenderTarget* renderTarget);
+    void createTopPanel();
     
 public:
     explicit Window(MPoint _position, MPoint _size);

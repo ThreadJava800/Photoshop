@@ -29,8 +29,8 @@ void TextButton::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
     // TODO move to const
-    renderTarget->drawText(position, text, color, font, 10);
     renderTarget->drawRect(position, size, color);
+    renderTarget->drawText(position, text, MColor(0, 0, 0, 255), font, 30);
 }
 
 ImageButton::ImageButton(MPoint _position, MPoint _size, MImage _img) :

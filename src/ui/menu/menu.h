@@ -3,6 +3,7 @@
 
 #include "../../includes.h"
 #include "../renderable.h"
+#include "../rectangle/rectangle.h"
 #include "../button/button.h"
 
 class Menu : public Widget {
@@ -11,6 +12,7 @@ public:
     ~Menu();
 
     void render(RenderTarget* renderTarget) override;
+    void registerObject(Widget* widget)     override;
 };
 
 #endif
