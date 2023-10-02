@@ -19,10 +19,12 @@ public:
     explicit Widget(MPoint _position, List<Widget*>* subWindows);
     ~Widget();
 
+    MPoint getPosition();
+
     virtual bool onKeyPressed (MKeyboard key) {return false;};
     virtual bool onKeyReleased(MKeyboard key) {return false;};
 
-    virtual bool onMousePressed (MPoint pos, MMouse btn) {return false;};
+    virtual bool onMousePressed (MPoint pos, MMouse btn);
     virtual bool onMouseReleased(MPoint pos, MMouse btn) {return false;};
     virtual bool onMouseMove    (MPoint pos, MMouse btn) {return false;};
 

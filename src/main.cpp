@@ -1,12 +1,16 @@
 #include "includes.h"
 #include "ui/window/window.h"
 
+void testFunc(void*) {
+    std::cout << "Clicked!\n";
+}
+
 Menu* createActionMenu() {
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
     MFont  font  = MFont (DEFAULT_FONT);
 
-    TextButton* fileBtn  = new TextButton(MPoint(0,                  TOP_PANE_SIZE), size, color, font, "File");
+    TextButton* fileBtn  = new TextButton(MPoint(0,                  TOP_PANE_SIZE), size, color, font, "File", testFunc);
     TextButton* editBtn  = new TextButton(MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, font, "Edit");
     TextButton* viewBtn  = new TextButton(MPoint(ACTION_BTN_LEN * 2, TOP_PANE_SIZE), size, color, font, "View");
     TextButton* imageBtn = new TextButton(MPoint(ACTION_BTN_LEN * 3, TOP_PANE_SIZE), size, color, font, "Image");
@@ -20,6 +24,10 @@ Menu* createActionMenu() {
     actionMenu->registerObject(colBtn);
 
     return actionMenu;
+}
+
+MPoint globalCoordsToWindow(MPoint global, MPoint start) {
+    return global - start;
 }
 
 void runMainCycle() {
@@ -45,10 +53,10 @@ void runMainCycle() {
                 if (event.key.code == sf::Keyboard::Escape)
                     window.close();
                 break;
-            // case sf::Event::MouseButtonPressed:
-            //     if (event.mouseButton.button == sf::Mouse::Left)
-            //         bossOfGym.registerClick();
-            //     break;
+            case sf::Event::MouseButtonPressed:
+                if (event.mouseButton.button == sf::Mouse::Left)
+                    mainWindow.onMousePressed(globalCoordsToWindow(MPoint(sf::Mouse::getPosition()), mainWindow.getPosition()), LEFT);
+                break;
             }
         }
 

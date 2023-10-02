@@ -14,3 +14,19 @@ Widget::~Widget() {
 
     subWindows = nullptr;
 }
+
+MPoint Widget::getPosition() {
+    return position;
+}
+
+bool Widget::onMousePressed(MPoint pos, MMouse btn) {
+    ON_ERROR(!subWindows, "List pointer was null!", false);
+
+    size_t listSize = subWindows->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        Widget* widget = (*subWindows)[i];
+        if (widget) widget->onMousePressed(pos, btn);
+    }
+
+    return true;
+}

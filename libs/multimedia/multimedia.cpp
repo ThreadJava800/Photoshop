@@ -12,6 +12,10 @@ MPoint::MPoint(sf::Vector2f _point)  :
     x(_point.x),
     y(_point.y)   {}
 
+MPoint::MPoint(sf::Vector2i _point) :
+    x(_point.x),
+    y(_point.y)   {}
+
 MPoint::~MPoint() {
     x = NAN;
     y = NAN;
@@ -29,6 +33,18 @@ void operator+=(MPoint& a, const MPoint& b) {
 MPoint operator+ (const MPoint& a, const MPoint& b) {
     MPoint res = a;
     res += b;
+
+    return res;
+}
+
+void operator-=(MPoint& a, const MPoint& b) {
+    a.x -= b.x;
+    a.y -= b.y;
+}
+
+MPoint operator-(const MPoint& a, const MPoint& b) {
+    MPoint res = a;
+    res -= b;
 
     return res;
 }

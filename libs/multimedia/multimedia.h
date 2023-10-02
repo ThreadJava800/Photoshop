@@ -10,6 +10,7 @@ struct MPoint {
     explicit MPoint();
     explicit MPoint(double _x, double _y);
     explicit MPoint(sf::Vector2f _point);
+    explicit MPoint(sf::Vector2i _point);
 
     ~MPoint();
 
@@ -17,6 +18,8 @@ struct MPoint {
 
     friend void   operator+=(      MPoint& a, const MPoint& b);
     friend MPoint operator+ (const MPoint& a, const MPoint& b);
+    friend void   operator-=(      MPoint& a, const MPoint& b);
+    friend MPoint operator- (const MPoint& a, const MPoint& b);
     friend void   operator*=(      MPoint& a, const double  b);
     friend MPoint operator* (const MPoint& a, const double  b);
 };
