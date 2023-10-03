@@ -45,8 +45,11 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(900, 900), MPoint(400, 400));
+    Window* subWin = new Window(position + MPoint(300, 300), MPoint(400, 400));
     subWindows->pushBack(subWin);
+
+    Window* subWin2 = new Window(position + MPoint(500, 500), MPoint(400, 400));
+    subWindows->pushBack(subWin2);
 }
 
 void Window::render(RenderTarget* renderTarget) {
@@ -62,15 +65,23 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    // visualise renderSets
-    List<RegionSet*>* res = getRegionSet(renderTarget);
-    listSize = res->getSize();
-    for (size_t i = 0; i < listSize; i++) {
-        (*res)[i]->visualize(renderTarget);
-        // std::cout << (*res)[i]->getSize() << '\n';
-        delete (*res)[i];
+    RegionSet* inters = intersect(renderTarget, MathRectangle(position + MPoint(300, 300),  MPoint(400, 400)), MathRectangle(position + MPoint(500, 500), MPoint(400, 400)));
+    if (inters) {
+        inters->visualize(renderTarget);
+        delete inters;
     }
-    delete res;
+    else std::cout << "No inter\n";
+
+    // visualise renderSets
+    //List<RegionSet*>* res = getRegionSet(renderTarget);
+    // listSize = res->getSize();
+    // for (size_t i = 0; i < listSize; i++) {
+    //     (*res)[i]->visualize(renderTarget);
+                
+
+    //     delete (*res)[i];
+    // }
+    // delete res;
 }
 
 List<RegionSet*>* Window::getRegionSet(RenderTarget* renderTarget) {

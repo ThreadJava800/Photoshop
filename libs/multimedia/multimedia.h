@@ -28,6 +28,14 @@ struct MPoint {
 struct MathRectangle {
     MPoint position = MPoint();
     MPoint size     = MPoint();
+
+    explicit MathRectangle(MPoint _pos, MPoint _size);
+    ~MathRectangle();
+
+    double top();
+    double l();
+    double r();
+    double down(); 
 };
 
 struct MColor {

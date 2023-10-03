@@ -21,10 +21,16 @@ public:
     ~RegionSet();
 
     size_t getSize();
+    List<MathRectangle>* getRectangles();
 
     void regionFromObject(RenderTarget* renderTarget, Widget* widget, MPoint size);
     void visualize       (RenderTarget* renderTarget);
 };
+
+void       makeRegions(List<MathRectangle>* set, MathRectangle global, MathRectangle start);
+RegionSet* intersect  (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
+RegionSet* merge      (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
+RegionSet* diff       (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
 
 class Widget : public Renderable {
 protected:
