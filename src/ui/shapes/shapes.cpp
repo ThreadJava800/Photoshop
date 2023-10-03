@@ -7,7 +7,6 @@ Rectangle::Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _
     outColor  (_outColor)    {}
 
 Rectangle::~Rectangle() {
-    subWindows = nullptr;
     position   = MPoint();
     size       = MPoint();
     fillColor  = MColor();

@@ -13,7 +13,6 @@ Widget::~Widget() {
     if (!subWindows) return;
 
     size_t listSize = subWindows->getSize();
-    std::cout << listSize << '\n';
     for (size_t i = 0; i < listSize; i++) {
         Widget* widget = (*subWindows)[i];
         if (widget) delete widget;
