@@ -3,7 +3,7 @@
 Menu::Menu(MPoint _position) :
     Widget (_position)  {}
 
-Menu::~Menu() { }
+Menu::~Menu() {}
 
 void Menu::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);

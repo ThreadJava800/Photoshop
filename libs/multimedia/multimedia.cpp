@@ -102,6 +102,8 @@ MFont::MFont(const char* _fontFile) :
     }
 
 MFont::~MFont() {
+    delete font;
+
     font     = nullptr;
     fontFile = nullptr;
 }
@@ -123,6 +125,8 @@ MImage::MImage(const char* _imgPath) :
     }
 
 MImage::~MImage() {
+    delete img;
+
     img     = nullptr;
     imgPath = nullptr;
 }
@@ -152,6 +156,9 @@ RenderTarget::~RenderTarget() {
 
     if (sprite) delete sprite;
     sprite = nullptr;
+
+    if (window) delete window;
+    window = nullptr;
 }
 
 void RenderTarget::drawLine(MPoint start, MPoint end, MColor color) {
@@ -169,12 +176,14 @@ void RenderTarget::drawLine(MPoint start, MPoint end, MColor color) {
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawRect(MPoint start, MPoint size, MColor color) {
+void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());
     rect.setPosition(start.toSfVector());
-    rect.setFillColor(color.toSfColor());
+    rect.setFillColor(fillColor.toSfColor());
+    rect.setOutlineColor(outColor.toSfColor());
+    rect.setOutlineThickness(OUTLINE_THICKNESS);
 
     texture->draw(rect);
     texture->display();
@@ -193,23 +202,23 @@ void RenderTarget::drawCircle(MPoint centre, double radius, MColor color) {
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawSprite(MPoint start, MPoint size, MImage img) {
+void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());
     rect.setPosition(start.toSfVector());
-    rect.setTexture(img.getSfTexture());
+    rect.setTexture((*img).getSfTexture());
 
     texture->draw(rect);
     texture->display();
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont font, unsigned pt) {
+void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont* font, unsigned pt) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
     ON_ERROR(!text,    "String was null!",);
 
-    sf::Font* drawFont = font.getSfFont();
+    sf::Font* drawFont = (*font).getSfFont();
     ON_ERROR(!drawFont, "Font ptr was null",)
     
     sf::Text drawText = sf::Text(text, *drawFont, pt);

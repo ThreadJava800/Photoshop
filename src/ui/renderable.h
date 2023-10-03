@@ -17,7 +17,7 @@ protected:
 public:
     explicit Widget(MPoint _position);
     explicit Widget(MPoint _position, List<Widget*>* subWindows);
-    ~Widget();
+    virtual ~Widget();
 
     MPoint getPosition();
 

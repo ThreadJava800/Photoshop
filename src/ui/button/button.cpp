@@ -15,7 +15,7 @@ Button::~Button() {
 void Button::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect(position, size, color);
+    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT));
 }
 
 bool Button::onMousePressed(MPoint pos, MMouse btn) {
@@ -32,12 +32,15 @@ bool Button::isInside(MPoint checkPoint) {
            checkPoint.y - position.y <= size.y;
 }
 
-TextButton::TextButton(MPoint _position, MPoint _size, MColor _color, MFont _font, const char* _text, ButtonFunc _func, void* _args) :
+TextButton::TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, ButtonFunc _func, void* _args) :
     Button(_position, _size, _color, _func, _args),
     font  (_font),
     text  (_text)        {}
 
 TextButton::~TextButton() {
+    delete font;
+
+    font = nullptr;
     text = nullptr;
 }
 
@@ -45,15 +48,19 @@ void TextButton::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
     // TODO move to const
-    renderTarget->drawRect(position, size, color);
-    renderTarget->drawText(position, text, MColor(0, 0, 0, 255), font, 30);
+    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT));
+    renderTarget->drawText(position, text, MColor(BLACK), font, 25);
 }
 
-ImageButton::ImageButton(MPoint _position, MPoint _size, MImage _img, ButtonFunc _func, void* _args) :
+ImageButton::ImageButton(MPoint _position, MPoint _size, MImage* _img, ButtonFunc _func, void* _args) :
     Button(_position, _size, MColor(DEFAULT_COLOR), _func, _args),
     image (_img)   {}
 
-ImageButton::~ImageButton() { }
+ImageButton::~ImageButton() { 
+    delete image;
+
+    image = nullptr;
+}
 
 void ImageButton::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);

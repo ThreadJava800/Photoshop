@@ -11,6 +11,7 @@ private:
     Menu*  actions  = nullptr;
     
     void createTopPanel();
+    void createTestWindow();
     
 public:
     explicit Window(MPoint _position, MPoint _size);

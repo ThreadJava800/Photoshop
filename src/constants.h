@@ -12,10 +12,14 @@ static const char*     MAIN_WINDOW_NAME   = "Photoshop";
 static const int       ACTION_BTN_LEN     = 80;
 static const int       ACTION_BTN_HEIGHT  = 30;
 
+static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 100;
 static const sf::Color DEFAULT_BACK_COL   = sf::Color::White;
 static const int       TOP_PANE_SIZE      = 30;
 static const sf::Color DEFAULT_COLOR      = sf::Color::Red;
+static const sf::Color BLACK              = sf::Color::Black;
+static const sf::Color GRAY               = sf::Color(128, 128, 128);
+static const sf::Color TRANSPARENT        = sf::Color::Transparent;
 
 #define ON_ERROR(expr, errStr, retVal) {                                                   \
     if (expr) {                                                                             \

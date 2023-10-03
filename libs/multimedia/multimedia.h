@@ -90,10 +90,10 @@ public:
     ~RenderTarget();
 
     void drawLine  (MPoint start,  MPoint end,    MColor color);
-    void drawRect  (MPoint start,  MPoint size,   MColor color);
+    void drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
     void drawCircle(MPoint centre, double radius, MColor color);
-    void drawSprite(MPoint start,  MPoint size,   MImage img); 
-    void drawText  (MPoint start,  const char* text, MColor color, MFont font, unsigned pt);
+    void drawSprite(MPoint start,  MPoint size,   MImage* img); 
+    void drawText  (MPoint start,  const char* text, MColor color, MFont* font, unsigned pt);
     void setPixel  (MPoint pos, MColor color);
 };
 

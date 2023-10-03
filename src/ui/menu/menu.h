@@ -3,7 +3,7 @@
 
 #include "../../includes.h"
 #include "../renderable.h"
-#include "../rectangle/rectangle.h"
+#include "../shapes/shapes.h"
 #include "../button/button.h"
 
 class Menu : public Widget {
