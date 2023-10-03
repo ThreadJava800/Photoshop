@@ -16,6 +16,10 @@ MPoint::MPoint(sf::Vector2i _point) :
     x(_point.x),
     y(_point.y)   {}
 
+MPoint::MPoint(sf::Vector2u _point) :
+    x(_point.x),
+    y(_point.y)   {}
+
 MPoint::~MPoint() {
     x = NAN;
     y = NAN;
@@ -96,13 +100,12 @@ MFont::MFont() :
 
 MFont::MFont(const char* _fontFile) :
     fontFile(_fontFile) {
-        std::cout << "constructor\n";
         font = new sf::Font();
         font->loadFromFile(_fontFile);
     }
 
 MFont::~MFont() {
-    delete font;
+    if (font) delete font;
 
     font     = nullptr;
     fontFile = nullptr;
@@ -125,7 +128,7 @@ MImage::MImage(const char* _imgPath) :
     }
 
 MImage::~MImage() {
-    delete img;
+    if (img) delete img;
 
     img     = nullptr;
     imgPath = nullptr;
@@ -159,6 +162,16 @@ RenderTarget::~RenderTarget() {
 
     if (window) delete window;
     window = nullptr;
+}
+
+MPoint RenderTarget::getStart() {
+    sf::Vector2f pos = sprite->getPosition();
+    return MPoint(pos);
+}
+
+MPoint RenderTarget::getSize () {
+    sf::Vector2u size = texture->getSize();
+    return MPoint(size);
 }
 
 void RenderTarget::drawLine(MPoint start, MPoint end, MColor color) {

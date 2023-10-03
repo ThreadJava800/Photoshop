@@ -20,6 +20,8 @@ static const sf::Color DEFAULT_COLOR      = sf::Color::Red;
 static const sf::Color BLACK              = sf::Color::Black;
 static const sf::Color GRAY               = sf::Color(128, 128, 128);
 static const sf::Color TRANSPARENT        = sf::Color::Transparent;
+static const sf::Color YELLOW             = sf::Color::Yellow;
+
 
 #define ON_ERROR(expr, errStr, retVal) {                                                   \
     if (expr) {                                                                             \

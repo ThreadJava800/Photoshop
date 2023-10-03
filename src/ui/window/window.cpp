@@ -45,7 +45,7 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(300, 300), MPoint(400, 400));
+    Window* subWin = new Window(position + MPoint(900, 900), MPoint(400, 400));
     subWindows->pushBack(subWin);
 }
 
@@ -57,6 +57,34 @@ void Window::render(RenderTarget* renderTarget) {
     size_t listSize = subWindows->getSize();
     for (size_t i = 0; i < listSize; i++) {
         Widget* widget = (*subWindows)[i];
-        if (widget) widget->render(renderTarget);
+        if (widget) {
+            widget->render(renderTarget);
+        }
     }
+
+    // visualise renderSets
+    List<RegionSet*>* res = getRegionSet(renderTarget);
+    listSize = res->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        (*res)[i]->visualize(renderTarget);
+        // std::cout << (*res)[i]->getSize() << '\n';
+        delete (*res)[i];
+    }
+    delete res;
+}
+
+List<RegionSet*>* Window::getRegionSet(RenderTarget* renderTarget) {
+    List<RegionSet*>* regionSets = new List<RegionSet*>();
+
+    RegionSet* regSet = new RegionSet(MColor(DEFAULT_COLOR));
+    regSet->regionFromObject(renderTarget, this, size);
+    regionSets->pushBack(regSet);
+
+    size_t listSize = subWindows->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        Widget* widget = (*subWindows)[i];
+        if (widget) regionSets->pushBack(widget->getRegionSet(renderTarget));
+    }
+
+    return regionSets;
 }

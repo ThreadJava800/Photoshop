@@ -18,7 +18,8 @@ public:
     explicit Window(MPoint _position, MPoint _size, Menu* _actions);
     ~Window();
 
-    void render(RenderTarget* renderTarget) override;
+    void              render      (RenderTarget* renderTarget) override;
+    List<RegionSet*>* getRegionSet(RenderTarget* renderTarget) override;
 };
 
 #endif

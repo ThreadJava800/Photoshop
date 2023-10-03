@@ -11,6 +11,7 @@ struct MPoint {
     explicit MPoint(double _x, double _y);
     explicit MPoint(sf::Vector2f _point);
     explicit MPoint(sf::Vector2i _point);
+    explicit MPoint(sf::Vector2u _point);
 
     ~MPoint();
 
@@ -22,6 +23,11 @@ struct MPoint {
     friend MPoint operator- (const MPoint& a, const MPoint& b);
     friend void   operator*=(      MPoint& a, const double  b);
     friend MPoint operator* (const MPoint& a, const double  b);
+};
+
+struct MathRectangle {
+    MPoint position = MPoint();
+    MPoint size     = MPoint();
 };
 
 struct MColor {
@@ -88,6 +94,9 @@ private:
 public:
     explicit RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window);
     ~RenderTarget();
+
+    MPoint getStart();
+    MPoint getSize ();
 
     void drawLine  (MPoint start,  MPoint end,    MColor color);
     void drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);

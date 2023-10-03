@@ -69,6 +69,19 @@ public:
         size++;
     }
 
+    void pushBack(List<T>* elem) {
+        ON_ERROR(!values, "List was null",);
+
+        if (!elem) return;
+
+        size_t elemSize = elem->getSize();
+        for (size_t i = 0; i < elemSize; i++) {
+            pushBack((*elem)[i]);
+        }
+
+        delete elem;
+    }
+
     void remove(size_t index) {
         ON_ERROR(!values, "List was null",);
 

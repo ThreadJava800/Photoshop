@@ -9,6 +9,23 @@ public:
     virtual void render(RenderTarget* renderTarget) = 0;
 };
 
+class Widget;
+
+class RegionSet {
+private:
+   MColor               rectColor  = MColor();
+   List<MathRectangle>* rectangles = nullptr;
+
+public:
+    explicit RegionSet(MColor _color = MColor(TRANSPARENT));
+    ~RegionSet();
+
+    size_t getSize();
+
+    void regionFromObject(RenderTarget* renderTarget, Widget* widget, MPoint size);
+    void visualize       (RenderTarget* renderTarget);
+};
+
 class Widget : public Renderable {
 protected:
     MPoint         position   = MPoint();
@@ -28,9 +45,8 @@ public:
     virtual bool onMouseReleased(MPoint pos, MMouse btn) {return false;};
     virtual bool onMouseMove    (MPoint pos, MMouse btn) {return false;};
 
-    virtual void registerObject(Widget* widget) {};
+    virtual void              registerObject(Widget* widget) {};
+    virtual List<RegionSet*>* getRegionSet  (RenderTarget* renderTarget) {return nullptr;};
 };
-
-
 
 #endif
