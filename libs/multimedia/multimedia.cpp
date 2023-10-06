@@ -176,6 +176,10 @@ RenderTarget::RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _wi
         sprite->setTexture(texture->getTexture());
     }
 
+sf::RenderTexture* RenderTarget::getRenderTexture() {
+    return texture;
+}
+
 RenderTarget::~RenderTarget() {
     window = nullptr;
 

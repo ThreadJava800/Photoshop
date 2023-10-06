@@ -62,6 +62,7 @@ void runMainCycle() {
             }
         }
 
+        renderTarget.getRenderTexture()->clear();
         window.clear();
         mainWindow.render(&renderTarget);
         window.display();

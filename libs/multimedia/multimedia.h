@@ -105,6 +105,7 @@ public:
 
     MPoint getStart();
     MPoint getSize ();
+    sf::RenderTexture* getRenderTexture();
 
     void drawLine  (MPoint start,  MPoint end,    MColor color);
     void drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
