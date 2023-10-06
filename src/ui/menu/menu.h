@@ -6,13 +6,28 @@
 #include "../shapes/shapes.h"
 #include "../button/button.h"
 
+class Window;
+typedef void (*OnMoveFunc)(Window* window, MPoint newPos, MPoint oldPos);
+
 class Menu : public Widget {
+private:
+    MPoint     size      = MPoint();
+    MPoint     prevPos   = MPoint();
+    bool       isClicked = false;
+    Window*    window    = nullptr;
+    OnMoveFunc onMove    = nullptr;
+
 public:
-    explicit Menu(MPoint _position);
+    explicit Menu(MPoint _position, MPoint _size, Window* _window = nullptr, OnMoveFunc _onMove = nullptr);
     ~Menu();
 
-    void render(RenderTarget* renderTarget) override;
-    void registerObject(Widget* widget)     override;
+    bool isInside(MPoint checkPoint);
+
+    void render(RenderTarget* renderTarget)      override;
+    void registerObject (Widget* widget)         override;
+    bool onMousePressed (MPoint pos, MMouse btn) override;
+    bool onMouseReleased(MPoint pos, MMouse btn) override;
+    bool onMouseMove    (MPoint pos, MMouse btn) override;
 };
 
 #endif

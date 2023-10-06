@@ -16,7 +16,7 @@ Menu* createActionMenu() {
     TextButton* imageBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Image");
     TextButton* colBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN * 4, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Color");
 
-    Menu* actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE));
+    Menu* actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(1920, 1080));
     actionMenu->registerObject(fileBtn);
     actionMenu->registerObject(editBtn);
     actionMenu->registerObject(viewBtn);
@@ -27,7 +27,7 @@ Menu* createActionMenu() {
 }
 
 void runMainCycle() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Photoshop");
+    sf::RenderWindow window(sf::VideoMode(), "Photoshop", sf::Style::Fullscreen);
     window.setPosition(sf::Vector2i(0, 0));
 
     Menu* actions = createActionMenu();
@@ -51,6 +51,13 @@ void runMainCycle() {
             case sf::Event::MouseButtonPressed:
                 if (event.mouseButton.button == sf::Mouse::Left)
                     mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
+                break;
+            case sf::Event::MouseButtonReleased:
+                if (event.mouseButton.button == sf::Mouse::Left)
+                    mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
+                break;
+            case sf::Event::MouseMoved:
+                mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
                 break;
             }
         }

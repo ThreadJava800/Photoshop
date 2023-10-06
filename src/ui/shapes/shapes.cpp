@@ -13,6 +13,10 @@ Rectangle::~Rectangle() {
     outColor   = MColor();
 }
 
+MPoint Rectangle::getSize() {
+    return size;
+}
+
 void Rectangle::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "RenderTarget was null!",);
 

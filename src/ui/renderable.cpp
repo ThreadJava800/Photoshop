@@ -38,6 +38,41 @@ bool Widget::onMousePressed(MPoint pos, MMouse btn) {
     return true;
 }
 
+bool Widget::onMouseReleased(MPoint pos, MMouse btn) {
+    ON_ERROR(!subWindows, "List pointer was null!", false);
+
+    size_t listSize = subWindows->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        Widget* widget = (*subWindows)[i];
+        if (widget) widget->onMouseReleased(pos, btn);
+    }
+
+    return true;
+}
+
+bool Widget::onMouseMove(MPoint pos, MMouse btn) {
+    ON_ERROR(!subWindows, "List pointer was null!", false);
+
+    size_t listSize = subWindows->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        Widget* widget = (*subWindows)[i];
+        if (widget) widget->onMouseMove(pos, btn);
+    }
+
+    return true;
+}
+
+void Widget::move(MPoint shift) {
+    ON_ERROR(!subWindows, "List pointer was null!",);
+
+    position += shift;
+    size_t listSize = subWindows->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        Widget* widget = (*subWindows)[i];
+        if (widget) widget->move(shift);
+    }
+}
+
 RegionSet::RegionSet() {
     rectangles = new List<MathRectangle>();
 }

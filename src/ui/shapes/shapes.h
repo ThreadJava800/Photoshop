@@ -9,10 +9,14 @@ private:
     MPoint size      = MPoint();
     MColor fillColor = MColor();
     MColor outColor  = MColor();
+
+
     
 public:
     explicit Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor);
     ~Rectangle();
+
+    MPoint getSize();
 
     void render(RenderTarget* renderTarget) override;
 };

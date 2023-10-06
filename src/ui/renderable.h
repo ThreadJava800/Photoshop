@@ -49,8 +49,10 @@ public:
     virtual bool onKeyReleased(MKeyboard key) {return false;};
 
     virtual bool onMousePressed (MPoint pos, MMouse btn);
-    virtual bool onMouseReleased(MPoint pos, MMouse btn) {return false;};
-    virtual bool onMouseMove    (MPoint pos, MMouse btn) {return false;};
+    virtual bool onMouseReleased(MPoint pos, MMouse btn);
+    virtual bool onMouseMove    (MPoint pos, MMouse btn);
+
+    virtual void move(MPoint shift);
 
     virtual void              registerObject(Widget* widget) {};
     virtual List<RegionSet*>* getRegionSet  (RenderTarget* renderTarget) {return nullptr;};

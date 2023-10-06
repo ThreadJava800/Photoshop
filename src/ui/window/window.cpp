@@ -32,7 +32,7 @@ void Window::createTopPanel() {
     ImageButton* minimize = new ImageButton(position + MPoint(size.x - 2 * TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), minimizeImg);
     ImageButton* restore  = new ImageButton(position + MPoint(size.x -     TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), restoreImg);
 
-    Menu* topPanel = new Menu(position);
+    Menu* topPanel = new Menu(position, topRect->getSize(), this, onMove);
 
     topPanel->registerObject(topRect);
     topPanel->registerObject(close);
@@ -65,12 +65,12 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    RegionSet* inters = diff(renderTarget, MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 0),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200), MPoint(400, 400)));
-    if (inters) {
-        inters->visualize(renderTarget);
-        delete inters;
-    }
-    else std::cout << "No inter\n";
+    // RegionSet* inters = diff(renderTarget, MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 0),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200), MPoint(400, 400)));
+    // if (inters) {
+    //     inters->visualize(renderTarget);
+    //     delete inters;
+    // }
+    // else std::cout << "No inter\n";
 
     // visualise renderSets
     //List<RegionSet*>* res = getRegionSet(renderTarget);
@@ -98,4 +98,10 @@ List<RegionSet*>* Window::getRegionSet(RenderTarget* renderTarget) {
     }
 
     return regionSets;
+}
+
+void onMove(Window* window, MPoint newPos, MPoint oldPos) {
+    ON_ERROR(!window, "Window pointer was null!",);
+
+    window->move(newPos - oldPos);
 }
