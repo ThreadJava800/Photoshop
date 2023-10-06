@@ -45,7 +45,7 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(300, 500), MPoint(400, 400));
+    Window* subWin = new Window(position + MPoint(400, 300), MPoint(400, 400));
     subWindows->pushBack(subWin);
 
     Window* subWin2 = new Window(position + MPoint(300, 500), MPoint(400, 400));
@@ -65,7 +65,7 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    RegionSet* inters = intersect(renderTarget, MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(300, 500),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(300, 500), MPoint(400, 400)));
+    RegionSet* inters = merge(renderTarget, MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 300),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(300, 500), MPoint(400, 400)));
     if (inters) {
         inters->visualize(renderTarget);
         delete inters;
@@ -87,7 +87,7 @@ void Window::render(RenderTarget* renderTarget) {
 List<RegionSet*>* Window::getRegionSet(RenderTarget* renderTarget) {
     List<RegionSet*>* regionSets = new List<RegionSet*>();
 
-    RegionSet* regSet = new RegionSet(MColor(DEFAULT_COLOR));
+    RegionSet* regSet = new RegionSet();
     regSet->regionFromObject(renderTarget, this, size);
     regionSets->pushBack(regSet);
 

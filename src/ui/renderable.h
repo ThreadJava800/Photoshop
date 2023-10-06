@@ -13,11 +13,10 @@ class Widget;
 
 class RegionSet {
 private:
-   MColor               rectColor  = MColor();
    List<MathRectangle>* rectangles = nullptr;
 
 public:
-    explicit RegionSet(MColor _color = MColor(TRANSPARENT));
+    explicit RegionSet();
     ~RegionSet();
 
     size_t getSize();
@@ -27,12 +26,12 @@ public:
     void visualize       (RenderTarget* renderTarget);
 };
 
-bool isIntersected(MathRectangle posOld, MathRectangle posNew);
-
-void       makeRegions(List<MathRectangle>* set, MathRectangle global, MathRectangle start);
-RegionSet* intersect  (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
-RegionSet* merge      (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
-RegionSet* diff       (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
+bool          isIntersected  (MathRectangle posOld, MathRectangle posNew);
+MathRectangle getIntersection(MathRectangle posOld, MathRectangle posNew);
+void          makeRegions    (List<MathRectangle>* set, MathRectangle global, MathRectangle start);
+RegionSet*    intersect      (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
+RegionSet*    merge          (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
+RegionSet*    diff           (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
 
 class Widget : public Renderable {
 protected:

@@ -27,7 +27,7 @@ Menu* createActionMenu() {
 }
 
 void runMainCycle() {
-    sf::RenderWindow window(sf::VideoMode(), "Photoshop", sf::Style::Fullscreen);
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Photoshop");
     window.setPosition(sf::Vector2i(0, 0));
 
     Menu* actions = createActionMenu();

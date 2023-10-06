@@ -22,6 +22,16 @@ static const sf::Color GRAY               = sf::Color(128, 128, 128);
 static const sf::Color TRANSPARENT        = sf::Color::Transparent;
 static const sf::Color YELLOW             = sf::Color::Yellow;
 
+static const int DEB_COLS_CNT = 7;
+static const sf::Color DEB_COLS[] = {
+    sf::Color::Red,
+    sf::Color::Yellow,
+    sf::Color::Green,
+    sf::Color::Blue,
+    sf::Color::Cyan,
+    sf::Color::Magenta,
+    sf::Color::White
+};
 
 #define ON_ERROR(expr, errStr, retVal) {                                                   \
     if (expr) {                                                                             \
