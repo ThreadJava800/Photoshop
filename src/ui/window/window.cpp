@@ -45,10 +45,10 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(400, 300), MPoint(400, 400));
+    Window* subWin = new Window(position + MPoint(400, 0), MPoint(400, 400));
     subWindows->pushBack(subWin);
 
-    Window* subWin2 = new Window(position + MPoint(300, 500), MPoint(400, 400));
+    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400));
     subWindows->pushBack(subWin2);
 }
 
@@ -65,7 +65,7 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    RegionSet* inters = merge(renderTarget, MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 300),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(300, 500), MPoint(400, 400)));
+    RegionSet* inters = diff(renderTarget, MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 0),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200), MPoint(400, 400)));
     if (inters) {
         inters->visualize(renderTarget);
         delete inters;

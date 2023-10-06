@@ -242,10 +242,81 @@ RegionSet* merge(RenderTarget* renderTarget, MathRectangle posOld, MathRectangle
     return regSet;
 }
 
+// posNew \ posOld
 RegionSet* diff(RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew) {
     ON_ERROR(!renderTarget, "Drawable area is null!", nullptr);
 
+    MPoint textStart     = renderTarget->getStart();
+    MPoint textSize      = renderTarget->getSize ();
+    MathRectangle global = MathRectangle(textStart, textSize);
+
+    if (!isIntersected(posOld, posNew)) {
+        RegionSet* firstRect = new RegionSet(); 
+        makeRegions(firstRect->getRectangles(), global, posNew);
+
+        return firstRect;
+    }
+
     RegionSet* regSet = new RegionSet();
+
+    MathRectangle inters = getIntersection(posOld, posNew);
+    if (inters.l() == posNew.l()) {
+        if (posNew.top() < inters.top()) {
+            MathRectangle upLeft 
+                = MathRectangle(MPoint(posNew.l(), posNew.top()), MPoint(inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, upLeft);
+
+            MathRectangle upRight
+                = MathRectangle(MPoint(posNew.l() + inters.size.x, posNew.top()), MPoint(posNew.size.x - inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, upRight);
+
+            MathRectangle down 
+                = MathRectangle(MPoint(inters.l() + inters.size.x, inters.size.y), MPoint(posNew.size.x - inters.size.x, inters.size.y));
+            makeRegions(regSet->getRectangles(), global, down);
+        } else {
+            MathRectangle up 
+                = MathRectangle(MPoint(posNew.l() + inters.size.x, posNew.top()), MPoint(posNew.size.x - inters.size.x, inters.size.y));
+            makeRegions(regSet->getRectangles(), global, up);
+
+            MathRectangle downLeft
+                = MathRectangle(MPoint(posNew.l(), posNew.top() + inters.size.y), MPoint(inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, downLeft);
+
+            MathRectangle downRight
+                = MathRectangle(MPoint(posNew.l() + inters.size.x, posNew.top() + inters.size.y), MPoint(posNew.size.x - inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, downRight);
+        }
+
+        return regSet;
+    }
+
+    if (inters.l() == posOld.l()) {
+        if (posNew.top() >= inters.top()) {
+            MathRectangle up 
+                = MathRectangle(MPoint(posNew.l(), posNew.top()), MPoint(posNew.size.x - inters.size.x, inters.size.y));
+            makeRegions(regSet->getRectangles(), global, up);
+
+            MathRectangle downLeft
+                = MathRectangle(MPoint(posNew.l(), posNew.top() + inters.size.y), MPoint(posNew.size.x - inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, downLeft);
+
+            MathRectangle right 
+                = MathRectangle(MPoint(inters.l(), posNew.top() + inters.size.y), MPoint(inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, right);
+        } else {
+            MathRectangle leftUp 
+                = MathRectangle(MPoint(posNew.l(), posNew.top()), MPoint(posNew.size.x - inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, leftUp);
+
+            MathRectangle down 
+                = MathRectangle(MPoint(posNew.l(), inters.top()), MPoint(posNew.size.x - inters.size.x, inters.size.y));
+            makeRegions(regSet->getRectangles(), global, down);
+
+            MathRectangle right 
+                = MathRectangle(MPoint(inters.l(), posNew.top()), MPoint(inters.size.x, posNew.size.y - inters.size.y));
+            makeRegions(regSet->getRectangles(), global, right);
+        }
+    }
 
     return regSet;
 }
