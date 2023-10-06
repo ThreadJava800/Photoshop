@@ -118,8 +118,24 @@ void makeRegions(List<MathRectangle>* set, MathRectangle global, MathRectangle s
     }
 }
 
+bool isIntersected(MathRectangle posOld, MathRectangle posNew) {
+    std::cout << posOld.l() << ' ' << posNew.l() << '\n'; 
+    std::cout << posOld.r() << ' ' << posNew.r() << '\n'; 
+    std::cout << posOld.top() << ' ' << posNew.top() << '\n'; 
+    std::cout << posOld.down() << ' ' << posNew.down() << '\n'; 
+
+    return posOld   .l() < posNew   .r() &&
+           posOld   .r() > posNew   .l() &&
+           posOld .top() < posNew.down() &&
+           posOld.down() > posNew .top();
+}
+
 RegionSet* intersect(RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew) {
     ON_ERROR(!renderTarget, "Drawable area is null!", nullptr);
+    if (!isIntersected(posOld, posNew)) {
+        std::cout << "Test2\n";
+        return nullptr;
+    }
 
     MPoint oldLD = MPoint(posOld.l(), posOld.down());
     MPoint oldRH = MPoint(posOld.r(), posOld. top());
@@ -147,8 +163,6 @@ RegionSet* intersect(RenderTarget* renderTarget, MathRectangle posOld, MathRecta
 
 RegionSet* merge(RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew) {
     RegionSet* regSet = new RegionSet();
-
-
 
     return regSet;
 }

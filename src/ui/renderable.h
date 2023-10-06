@@ -27,6 +27,8 @@ public:
     void visualize       (RenderTarget* renderTarget);
 };
 
+bool isIntersected(MathRectangle posOld, MathRectangle posNew);
+
 void       makeRegions(List<MathRectangle>* set, MathRectangle global, MathRectangle start);
 RegionSet* intersect  (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
 RegionSet* merge      (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
