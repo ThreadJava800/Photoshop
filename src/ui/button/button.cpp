@@ -19,8 +19,9 @@ void Button::render(RenderTarget* renderTarget) {
 }
 
 bool Button::onMousePressed(MPoint pos, MMouse btn) {
-    if (isInside(pos)) {
-        if (onClick) onClick(onClickArgs);
+    if (isInside(pos) && onClick) {
+        onClick(onClickArgs);
+        return true;
     }
     return false;
 }

@@ -15,8 +15,8 @@ Window::Window(MPoint _position, MPoint _size, Menu* _actions) :
     size   (_size),
     actions(_actions)   {
         createTopPanel();
-        if (!isCreated) createTestWindow();
         subWindows->pushBack(actions);
+        if (!isCreated) createTestWindow();
     }
 
 Window::~Window() {}
@@ -45,7 +45,7 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(400, 0), MPoint(400, 400));
+    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400));
     subWindows->pushBack(subWin);
 
     Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400));

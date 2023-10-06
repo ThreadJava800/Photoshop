@@ -33,7 +33,7 @@ void Menu::registerObject(Widget* widget) {
 }
 
 bool Menu::onMousePressed(MPoint pos, MMouse btn) {
-    if (isInside(pos) && btn == LEFT) {
+    if (isInside(pos) && btn == LEFT && !Widget::onMousePressed(pos, btn)) {
         isClicked = true;
         prevPos = pos;
     }
@@ -43,8 +43,7 @@ bool Menu::onMousePressed(MPoint pos, MMouse btn) {
 
 bool Menu::onMouseReleased(MPoint pos, MMouse btn) {
     isClicked = false;
-
-    return true;
+    return isInside(pos);
 }
 
 bool Menu::onMouseMove(MPoint pos, MMouse btn) {

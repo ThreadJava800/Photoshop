@@ -29,20 +29,25 @@ MPoint Widget::getPosition() {
 bool Widget::onMousePressed(MPoint pos, MMouse btn) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
-    size_t listSize = subWindows->getSize();
-    for (size_t i = 0; i < listSize; i++) {
+    bool wasClick = false;
+
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
-        if (widget) widget->onMousePressed(pos, btn);
+        if (widget) {
+            wasClick = widget->onMousePressed(pos, btn);
+            if (wasClick) return wasClick;
+        }
     }
 
-    return true;
+    return wasClick;
 }
 
 bool Widget::onMouseReleased(MPoint pos, MMouse btn) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
-    size_t listSize = subWindows->getSize();
-    for (size_t i = 0; i < listSize; i++) {
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
         if (widget) widget->onMouseReleased(pos, btn);
     }
@@ -53,8 +58,8 @@ bool Widget::onMouseReleased(MPoint pos, MMouse btn) {
 bool Widget::onMouseMove(MPoint pos, MMouse btn) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
-    size_t listSize = subWindows->getSize();
-    for (size_t i = 0; i < listSize; i++) {
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
         if (widget) widget->onMouseMove(pos, btn);
     }
@@ -69,7 +74,9 @@ void Widget::move(MPoint shift) {
     size_t listSize = subWindows->getSize();
     for (size_t i = 0; i < listSize; i++) {
         Widget* widget = (*subWindows)[i];
-        if (widget) widget->move(shift);
+        if (widget) {
+            widget->move(shift);
+        }
     }
 }
 
