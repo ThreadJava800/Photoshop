@@ -5,7 +5,7 @@ bool isCreated = false;
 Window::Window(MPoint _position, MPoint _size) :
     Widget (_position),
     size   (_size),
-    actions(nullptr)    {
+    actions(nullptr)   {
         createTopPanel();
         if (!isCreated) createTestWindow();
     }
@@ -13,7 +13,7 @@ Window::Window(MPoint _position, MPoint _size) :
 Window::Window(MPoint _position, MPoint _size, Menu* _actions) :
     Widget (_position),
     size   (_size),
-    actions(_actions)   {
+    actions(_actions)  {
         createTopPanel();
         subWindows->pushBack(actions);
         if (!isCreated) createTestWindow();
@@ -28,7 +28,7 @@ void Window::createTopPanel() {
     MImage* minimizeImg = new MImage(MINIMIZE_BTN);
     MImage* restoreImg  = new MImage(RESTORE_BTN);
 
-    ImageButton* close    = new ImageButton(position,                                         MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), closeImg);
+    ImageButton* close    = new ImageButton(position,                                         MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), closeImg, closeFunc, (void*)this);
     ImageButton* minimize = new ImageButton(position + MPoint(size.x - 2 * TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), minimizeImg);
     ImageButton* restore  = new ImageButton(position + MPoint(size.x -     TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), restoreImg);
 
@@ -57,7 +57,16 @@ void Window::render(RenderTarget* renderTarget) {
 
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY));
 
-    size_t listSize = subWindows->getSize();
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
+        Widget* widget = (*subWindows)[i];
+        if (widget && !widget->getExists()) {
+            delete widget;
+            subWindows->remove(i);
+            listSize--;
+        }
+    }
+
     for (size_t i = 0; i < listSize; i++) {
         Widget* widget = (*subWindows)[i];
         if (widget) {
@@ -94,7 +103,7 @@ List<RegionSet*>* Window::getRegionSet(RenderTarget* renderTarget) {
     size_t listSize = subWindows->getSize();
     for (size_t i = 0; i < listSize; i++) {
         Widget* widget = (*subWindows)[i];
-        if (widget) regionSets->pushBack(widget->getRegionSet(renderTarget));
+        if (widget && widget->getExists()) regionSets->pushBack(widget->getRegionSet(renderTarget));
     }
 
     return regionSets;
@@ -104,4 +113,10 @@ void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     window->move(newPos - oldPos);
+}
+
+void closeFunc(void* window) {
+    ON_ERROR(!window, "Window pointer was null!",);
+
+    ((Window*)window)->setExists(false);
 }

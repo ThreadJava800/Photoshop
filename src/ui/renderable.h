@@ -38,12 +38,16 @@ protected:
     MPoint         position   = MPoint();
     List<Widget*>* subWindows = nullptr;
 
+    bool   exists   = true;
+
 public:
     explicit Widget(MPoint _position);
     explicit Widget(MPoint _position, List<Widget*>* subWindows);
     virtual ~Widget();
 
     MPoint getPosition();
+    void   setExists  (bool val);
+    bool   getExists  ();
 
     virtual bool onKeyPressed (MKeyboard key) {return false;};
     virtual bool onKeyReleased(MKeyboard key) {return false;};

@@ -23,5 +23,6 @@ public:
 };
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos);
+void closeFunc(void* window);
 
 #endif
