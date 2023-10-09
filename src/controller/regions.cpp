@@ -118,6 +118,14 @@ RegionSet* diff(MathRectangle posOld, MathRectangle posNew) {
     return differenceSet;
 }
 
+bool operator==(const MathRectangle a, const MathRectangle b) {
+    return a.position == b.position && a.size == b.size;
+}
+
+bool operator!=(const MathRectangle a, const MathRectangle b) {
+    return !(a == b);
+}
+
 RegionSet::RegionSet() {
     rectangles = new List<MathRectangle>();
 }
@@ -140,6 +148,10 @@ List<MathRectangle>* RegionSet::getRectangles() {
     return rectangles;
 }
 
+MathRectangle& RegionSet::operator[](const size_t index) const {
+    return (*rectangles)[index];
+}
+
 void RegionSet::visualize(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Drawable area was null",);
     ON_ERROR(!rectangles, "List was null!",);
@@ -149,5 +161,29 @@ void RegionSet::visualize(RenderTarget* renderTarget) {
     for (size_t i = 0; i < listSize; i++) {
         MathRectangle rect = (*rectangles)[i];
         renderTarget->drawRect(rect.getPosition(), rect.getSize(), MColor(DEFAULT_COLOR), MColor(DEB_COLS[i % DEB_COLS_CNT]));
+    }
+}
+
+void operator-=(RegionSet a, const RegionSet b) {
+    ON_ERROR(!a.rectangles || !b.rectangles, "List ptr was null!",);
+
+    size_t aListSize = a.rectangles->getSize();
+    size_t bListSize = b.rectangles->getSize();
+    for (size_t i = 0; i < aListSize; i++) {
+        for (size_t j = 0; j < bListSize; j++) {
+            RegionSet* differenceSet = diff(a[i], b[i]);
+            ON_ERROR(!differenceSet, "RegionSet was nullptr!",);
+
+            size_t diffSetSize = differenceSet->getSize();
+
+            if ((*differenceSet)[0] != a[i]) {
+                a[i] = (*differenceSet)[diffSetSize - 1];
+
+                for (size_t k = 0; k < diffSetSize; k++) a.addRegion((*differenceSet)[k]);
+
+                i = -1; j = 0;
+                break;
+            }
+        }
     }
 }

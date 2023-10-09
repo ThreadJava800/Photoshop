@@ -28,6 +28,9 @@ public:
     friend MathRectangle getIntersection(MathRectangle posOld, MathRectangle posNew);
     friend RegionSet*    merge          (MathRectangle posOld, MathRectangle posNew);
     friend RegionSet*    diff           (MathRectangle posOld, MathRectangle posNew);
+
+    friend bool operator==(const MathRectangle a, const MathRectangle b);
+    friend bool operator!=(const MathRectangle a, const MathRectangle b);
 };
 
 class RegionSet {
@@ -40,9 +43,13 @@ public:
 
     void addRegion(MathRectangle region);
 
-    size_t getSize();
+    size_t               getSize      ();
     List<MathRectangle>* getRectangles();
-    void visualize       (RenderTarget* renderTarget);
+
+    MathRectangle& operator[](const size_t index) const;
+    void visualize(RenderTarget* renderTarget);
+
+    friend void operator-=(RegionSet a, const RegionSet b);
 };
 
 #endif

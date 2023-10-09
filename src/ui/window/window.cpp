@@ -50,6 +50,9 @@ void Window::createTestWindow() {
 
     Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400));
     subWindows->pushBack(subWin2);
+
+    Window* subWin3 = new Window(position + MPoint(200, 300), MPoint(400, 400));
+    subWindows->pushBack(subWin3);
 }
 
 void Window::render(RenderTarget* renderTarget) {
@@ -74,12 +77,12 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    RegionSet* inters = merge(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200), MPoint(400, 400)));
-    if (inters) {
-        inters->visualize(renderTarget);
-        delete inters;
-    }
-    else std::cout << "No inter\n";
+    // RegionSet* inters = diff(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100), MPoint(400, 400)));
+    // if (inters) {
+    //     inters->visualize(renderTarget);
+    //     delete inters;
+    // }
+    // else std::cout << "No inter\n";
 
     
 }

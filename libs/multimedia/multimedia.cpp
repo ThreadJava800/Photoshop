@@ -65,6 +65,10 @@ MPoint operator*(const MPoint& a, const double b) {
     return res;
 }
 
+bool operator==(const MPoint& a, const MPoint& b) {
+    return (a.x - b.x) < EPSILON && (a.y - b.y) < EPSILON;
+}
+
 MColor::MColor() :
     r(0),
     g(0),

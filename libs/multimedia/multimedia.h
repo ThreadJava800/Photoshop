@@ -3,6 +3,8 @@
 
 #include "../../src/includes.h"
 
+static const double EPSILON = 1e-9;
+
 struct MPoint {
     double x = 0;
     double y = 0;
@@ -23,6 +25,7 @@ struct MPoint {
     friend MPoint operator- (const MPoint& a, const MPoint& b);
     friend void   operator*=(      MPoint& a, const double  b);
     friend MPoint operator* (const MPoint& a, const double  b);
+    friend bool   operator==(const MPoint& a, const MPoint& b);
 };
 
 struct MColor {
