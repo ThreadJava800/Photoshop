@@ -3,35 +3,12 @@
 
 #include "../includes.h"
 #include "../../libs/multimedia/multimedia.h"
+#include "../controller/regions.h"
 
 class Renderable {
 public:
     virtual void render(RenderTarget* renderTarget) = 0;
 };
-
-class Widget;
-
-class RegionSet {
-private:
-   List<MathRectangle>* rectangles = nullptr;
-
-public:
-    explicit RegionSet();
-    ~RegionSet();
-
-    size_t getSize();
-    List<MathRectangle>* getRectangles();
-
-    void regionFromObject(RenderTarget* renderTarget, Widget* widget, MPoint size);
-    void visualize       (RenderTarget* renderTarget);
-};
-
-bool          isIntersected  (MathRectangle posOld, MathRectangle posNew);
-MathRectangle getIntersection(MathRectangle posOld, MathRectangle posNew);
-void          makeRegions    (List<MathRectangle>* set, MathRectangle global, MathRectangle start);
-RegionSet*    intersect      (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
-RegionSet*    merge          (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
-RegionSet*    diff           (RenderTarget* renderTarget, MathRectangle posOld, MathRectangle posNew);
 
 class Widget : public Renderable {
 protected:

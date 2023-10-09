@@ -25,19 +25,6 @@ struct MPoint {
     friend MPoint operator* (const MPoint& a, const double  b);
 };
 
-struct MathRectangle {
-    MPoint position = MPoint();
-    MPoint size     = MPoint();
-
-    explicit MathRectangle(MPoint _pos, MPoint _size);
-    ~MathRectangle();
-
-    double top();
-    double l();
-    double r();
-    double down(); 
-};
-
 struct MColor {
     unsigned char r = 0;
     unsigned char g = 0;

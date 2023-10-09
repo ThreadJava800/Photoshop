@@ -65,31 +65,6 @@ MPoint operator*(const MPoint& a, const double b) {
     return res;
 }
 
-MathRectangle::MathRectangle(MPoint _pos, MPoint _size) :
-    position(_pos),
-    size    (_size)     {}
-
-MathRectangle::~MathRectangle() {
-    position = MPoint();
-    size     = MPoint();
-}
-
-double MathRectangle::top() {
-    return position.y;
-}
-
-double MathRectangle::l() {
-    return position.x;
-}
-
-double MathRectangle::r() {
-    return position.x + size.x;
-}
-
-double MathRectangle::down() {
-    return position.y + size.y;
-}
-
 MColor::MColor() :
     r(0),
     g(0),
