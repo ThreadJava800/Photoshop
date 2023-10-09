@@ -74,39 +74,14 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    // RegionSet* inters = diff(renderTarget, MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 0),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200), MPoint(400, 400)));
-    // if (inters) {
-    //     inters->visualize(renderTarget);
-    //     delete inters;
-    // }
-    // else std::cout << "No inter\n";
-
-    // visualise renderSets
-    //List<RegionSet*>* res = getRegionSet(renderTarget);
-    // listSize = res->getSize();
-    // for (size_t i = 0; i < listSize; i++) {
-    //     (*res)[i]->visualize(renderTarget);
-                
-
-    //     delete (*res)[i];
-    // }
-    // delete res;
-}
-
-List<RegionSet*>* Window::getRegionSet(RenderTarget* renderTarget) {
-    List<RegionSet*>* regionSets = new List<RegionSet*>();
-
-    RegionSet* regSet = new RegionSet();
-    regSet->regionFromObject(renderTarget, this, size);
-    regionSets->pushBack(regSet);
-
-    size_t listSize = subWindows->getSize();
-    for (size_t i = 0; i < listSize; i++) {
-        Widget* widget = (*subWindows)[i];
-        if (widget && widget->getExists()) regionSets->pushBack(widget->getRegionSet(renderTarget));
+    RegionSet* inters = merge(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200), MPoint(400, 400)));
+    if (inters) {
+        inters->visualize(renderTarget);
+        delete inters;
     }
+    else std::cout << "No inter\n";
 
-    return regionSets;
+    
 }
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {

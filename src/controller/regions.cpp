@@ -108,7 +108,7 @@ RegionSet* diff(MathRectangle posOld, MathRectangle posNew) {
 
         // posNew is lower than posOld
         if (posOld.isYInside(posNew.top())) {
-            MPoint regPos  = MPoint(posOld.l(), posNew.top());
+            MPoint regPos  = MPoint(posOld.l(), posOld.top());
             MPoint regSize = MPoint(posOld.size.x, posNew.top() - posOld.top());
 
             differenceSet->addRegion(MathRectangle(regPos, regSize));

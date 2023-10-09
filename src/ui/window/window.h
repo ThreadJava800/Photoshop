@@ -19,7 +19,6 @@ public:
     ~Window();
 
     void              render      (RenderTarget* renderTarget) override;
-    List<RegionSet*>* getRegionSet(RenderTarget* renderTarget) override;
 };
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos);

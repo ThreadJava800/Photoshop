@@ -36,7 +36,6 @@ public:
     virtual void move(MPoint shift);
 
     virtual void              registerObject(Widget* widget) {};
-    virtual List<RegionSet*>* getRegionSet  (RenderTarget* renderTarget) {return nullptr;};
 };
 
 #endif
