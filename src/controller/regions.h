@@ -49,7 +49,7 @@ public:
     MathRectangle& operator[](const size_t index) const;
     void visualize(RenderTarget* renderTarget);
 
-    friend void operator-=(RegionSet a, const RegionSet b);
+    void subtract(const RegionSet* b);
 };
 
 #endif

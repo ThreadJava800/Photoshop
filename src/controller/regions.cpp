@@ -86,7 +86,9 @@ RegionSet* diff(MathRectangle posOld, MathRectangle posNew) {
             MPoint regSize = MPoint(posOld.r() - posNew.r(), 
                                     std::min(posOld.down(), posNew.down()) - std::max(posOld.top(), posNew.top()));
 
-            differenceSet->addRegion(MathRectangle(regPos, regSize));
+
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
         }
 
         // posNew is righter than posOld
@@ -95,7 +97,8 @@ RegionSet* diff(MathRectangle posOld, MathRectangle posNew) {
             MPoint regSize = MPoint(posNew.l() - posOld.l(), 
                                     std::min(posOld.down(), posNew.down()) - std::max(posOld.top(), posNew.top()));
 
-            differenceSet->addRegion(MathRectangle(regPos, regSize));
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
         }
 
         // posNew is upper than posOld
@@ -103,7 +106,8 @@ RegionSet* diff(MathRectangle posOld, MathRectangle posNew) {
             MPoint regPos  = MPoint(posOld.l(), posNew.down());
             MPoint regSize = MPoint(posOld.size.x, posOld.down() - posNew.down());
 
-            differenceSet->addRegion(MathRectangle(regPos, regSize));
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
         }
 
         // posNew is lower than posOld
@@ -111,7 +115,8 @@ RegionSet* diff(MathRectangle posOld, MathRectangle posNew) {
             MPoint regPos  = MPoint(posOld.l(), posOld.top());
             MPoint regSize = MPoint(posOld.size.x, posNew.top() - posOld.top());
 
-            differenceSet->addRegion(MathRectangle(regPos, regSize));
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
         }
     }
 
@@ -157,33 +162,39 @@ void RegionSet::visualize(RenderTarget* renderTarget) {
     ON_ERROR(!rectangles, "List was null!",);
 
     size_t listSize = rectangles->getSize();
-    // std::cout << listSize << '\n';
+
     for (size_t i = 0; i < listSize; i++) {
         MathRectangle rect = (*rectangles)[i];
         renderTarget->drawRect(rect.getPosition(), rect.getSize(), MColor(DEFAULT_COLOR), MColor(DEB_COLS[i % DEB_COLS_CNT]));
     }
 }
 
-void operator-=(RegionSet a, const RegionSet b) {
-    ON_ERROR(!a.rectangles || !b.rectangles, "List ptr was null!",);
+void RegionSet::subtract(const RegionSet* b) {
+    ON_ERROR(!rectangles || !b || !b->rectangles, "List ptr was null!",);
 
-    size_t aListSize = a.rectangles->getSize();
-    size_t bListSize = b.rectangles->getSize();
+    size_t aListSize = rectangles->getSize();
+    size_t bListSize = b->rectangles->getSize();
+
     for (size_t i = 0; i < aListSize; i++) {
         for (size_t j = 0; j < bListSize; j++) {
-            RegionSet* differenceSet = diff(a[i], b[i]);
+
+            RegionSet* differenceSet = diff((*rectangles)[i], (*b)[j]);
             ON_ERROR(!differenceSet, "RegionSet was nullptr!",);
 
             size_t diffSetSize = differenceSet->getSize();
 
-            if ((*differenceSet)[0] != a[i]) {
-                a[i] = (*differenceSet)[diffSetSize - 1];
+            if ((*differenceSet)[0] != (*rectangles)[i] && diffSetSize != 0) {
+                (*rectangles)[i] = (*differenceSet)[diffSetSize - 1];
 
-                for (size_t k = 0; k < diffSetSize; k++) a.addRegion((*differenceSet)[k]);
+                for (size_t k = 0; k < diffSetSize - 1; k++) addRegion((*differenceSet)[k]);
 
                 i = -1; j = 0;
+
+                delete differenceSet;
                 break;
             }
+
+            delete differenceSet;
         }
     }
 }
