@@ -35,7 +35,7 @@ public:
 
     virtual void move(MPoint shift);
 
-    virtual void              registerObject(Widget* widget) {};
+    virtual void registerObject(Widget* widget) {};
 };
 
 #endif

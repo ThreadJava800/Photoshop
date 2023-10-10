@@ -49,7 +49,7 @@ void runMainCycle() {
                     window.close();
                 break;
             case sf::Event::MouseButtonPressed:
-                if (event.mouseButton.button == sf::Mouse::Left)
+                if (event.mouseButton.button == sf::Mouse::Left) 
                     mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
                 break;
             case sf::Event::MouseButtonReleased:
