@@ -69,6 +69,44 @@ public:
         size++;
     }
 
+    void pushFront(T elem) {
+        ON_ERROR(!values, "List was null",);
+
+        if (capacity <= size) {
+            values = (T*) realloc(values, capacity * 2 * sizeof(T));
+            ON_ERROR(!values, "Unable to realloc mem",);
+
+            capacity = 2 * capacity;
+        }
+
+        for (long i = size - 1; i >= 0; i--) {
+            values[i + 1] = values[i];
+        }
+        values[0] = elem;
+        size++;
+    }
+
+    void swapWithEnd(T elem) {
+        ON_ERROR(!values, "List was null",);
+
+        long elemInd = -1;
+        T swapEl;
+        for (size_t i = 0; i < size; i++) {
+            if (values[i] == elem) {
+                elemInd = i;
+                swapEl = elem;
+                break;
+            }
+        }
+
+        if (elemInd == -1) return;
+
+        for (size_t i = elemInd; i < size - 1; i++) {
+            values[i] = values[i + 1];
+        }
+        values[size - 1] = swapEl;
+    }
+
     void pushBack(List<T>* elem) {
         ON_ERROR(!values, "List was null",);
 

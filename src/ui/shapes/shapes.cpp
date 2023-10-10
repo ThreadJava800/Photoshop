@@ -1,7 +1,7 @@
 #include "shapes.h"
 
-Rectangle::Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor) :
-    Widget    (_position),
+Rectangle::Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor, Widget* _parent) :
+    Widget    (_position, _parent),
     size      (_size),
     fillColor (_fillColor),
     outColor  (_outColor)    {}

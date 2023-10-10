@@ -14,13 +14,17 @@ private:
     void createTestWindow();
     
 public:
-    explicit Window(MPoint _position, MPoint _size);
-    explicit Window(MPoint _position, MPoint _size, Menu* _actions);
+    explicit Window(MPoint _position, MPoint _size, Widget* _parent);
+    explicit Window(MPoint _position, MPoint _size, Widget* _parent, Menu* _actions);
     ~Window();
 
-    void              render      (RenderTarget* renderTarget) override;
+    Widget* getParent();
+
+    void setActions(Menu* _actions);
+    void render(RenderTarget* renderTarget) override;
 };
 
+void prioritizeWindow(Window* window);
 void onMove(Window* window, MPoint newPos, MPoint oldPos);
 void closeFunc(void* window);
 

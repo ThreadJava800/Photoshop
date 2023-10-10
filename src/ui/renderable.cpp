@@ -1,13 +1,15 @@
 #include "renderable.h"
 
-Widget::Widget(MPoint _position) :
+Widget::Widget(MPoint _position, Widget* _parent) :
     position(_position),
+    parent  (_parent),
     exists  (true) {
         subWindows = new List<Widget*>();
     }
 
-Widget::Widget(MPoint _position, List<Widget*>* _subWindows) :
+Widget::Widget(MPoint _position, Widget* _parent, List<Widget*>* _subWindows) :
     position  (_position),
+    parent    (_parent),
     subWindows(_subWindows),
     exists    (true)  {}
 
@@ -26,6 +28,10 @@ Widget::~Widget() {
 
 MPoint Widget::getPosition() {
     return position;
+}
+
+List<Widget*>* Widget::getWindows() {
+    return subWindows;
 }
 
 void Widget::setExists(bool val) {

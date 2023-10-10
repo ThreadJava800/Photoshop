@@ -1,7 +1,7 @@
 #include "button.h"
 
-Button::Button(MPoint _position, MPoint _size, MColor _color, ButtonFunc _func, void* _args) :
-    Widget     (_position),
+Button::Button(MPoint _position, MPoint _size, MColor _color, Widget* _parent, ButtonFunc _func, void* _args) :
+    Widget     (_position, _parent),
     size       (_size),
     color      (_color),
     onClick    (_func),
@@ -33,8 +33,8 @@ bool Button::isInside(MPoint checkPoint) {
            checkPoint.y - position.y <= size.y;
 }
 
-TextButton::TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, ButtonFunc _func, void* _args) :
-    Button(_position, _size, _color, _func, _args),
+TextButton::TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, Widget* _parent, ButtonFunc _func, void* _args) :
+    Button(_position, _size, _color, _parent, _func, _args),
     font  (_font),
     text  (_text)        {}
 
@@ -53,8 +53,8 @@ void TextButton::render(RenderTarget* renderTarget) {
     renderTarget->drawText(position, text, MColor(BLACK), font, 25);
 }
 
-ImageButton::ImageButton(MPoint _position, MPoint _size, MImage* _img, ButtonFunc _func, void* _args) :
-    Button(_position, _size, MColor(DEFAULT_COLOR), _func, _args),
+ImageButton::ImageButton(MPoint _position, MPoint _size, MImage* _img, Widget* _parent, ButtonFunc _func, void* _args) :
+    Button(_position, _size, MColor(DEFAULT_COLOR), _parent, _func, _args),
     image (_img)   {}
 
 ImageButton::~ImageButton() { 

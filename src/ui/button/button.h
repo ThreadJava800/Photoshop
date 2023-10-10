@@ -17,7 +17,7 @@ protected:
     bool isInside(MPoint checkPoint);
 
 public:
-    explicit Button(MPoint _position, MPoint _size, MColor _color, ButtonFunc _func = nullptr, void* _args = nullptr);
+    explicit Button(MPoint _position, MPoint _size, MColor _color, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr);
     ~Button();
 
     void render(RenderTarget* renderTarget)     override;
@@ -30,7 +30,7 @@ private:
     const char* text = nullptr;
 
 public:
-    explicit TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, ButtonFunc _func = nullptr, void* _args = nullptr);
+    explicit TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr);
     ~TextButton();
 
     void render(RenderTarget* renderTarget) override;
@@ -41,7 +41,7 @@ private:
     MImage* image = nullptr;
 
 public:
-    explicit ImageButton(MPoint _position, MPoint _size, MImage* _img, ButtonFunc _func = nullptr, void* _args = nullptr);
+    explicit ImageButton(MPoint _position, MPoint _size, MImage* _img, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr);
     ~ImageButton();
 
     void render(RenderTarget* renderTarget) override;

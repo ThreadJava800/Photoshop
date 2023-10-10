@@ -8,6 +8,7 @@
 
 class Window;
 typedef void (*OnMoveFunc)(Window* window, MPoint newPos, MPoint oldPos);
+typedef void (*PriorFunc) (Window* window);
 
 class Menu : public Widget {
 private:
@@ -15,10 +16,12 @@ private:
     MPoint     prevPos   = MPoint();
     bool       isClicked = false;
     Window*    window    = nullptr;
+
     OnMoveFunc onMove    = nullptr;
+    PriorFunc  prior     = nullptr;
 
 public:
-    explicit Menu(MPoint _position, MPoint _size, Window* _window = nullptr, OnMoveFunc _onMove = nullptr);
+    explicit Menu(MPoint _position, MPoint _size, Widget* _parent, Window* _window = nullptr, OnMoveFunc _onMove = nullptr, PriorFunc _prFunc = nullptr);
     ~Menu();
 
     bool isInside(MPoint checkPoint);
