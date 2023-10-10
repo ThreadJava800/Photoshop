@@ -11,7 +11,6 @@ typedef void (*OnMoveFunc)(Window* window, MPoint newPos, MPoint oldPos);
 
 class Menu : public Widget {
 private:
-    MPoint     size      = MPoint();
     MPoint     prevPos   = MPoint();
     bool       isClicked = false;
     Window*    window    = nullptr;
@@ -23,11 +22,11 @@ public:
 
     bool isInside(MPoint checkPoint);
 
-    void render(RenderTarget* renderTarget)      override;
-    void registerObject (Widget* widget)         override;
-    bool onMousePressed (MPoint pos, MMouse btn) override;
-    bool onMouseReleased(MPoint pos, MMouse btn) override;
-    bool onMouseMove    (MPoint pos, MMouse btn) override;
+    void render(RenderTarget* renderTarget, RegionSet* regions) override;
+    void registerObject (Widget* widget)                        override;
+    bool onMousePressed (MPoint pos, MMouse btn)                override;
+    bool onMouseReleased(MPoint pos, MMouse btn)                override;
+    bool onMouseMove    (MPoint pos, MMouse btn)                override;
 };
 
 #endif

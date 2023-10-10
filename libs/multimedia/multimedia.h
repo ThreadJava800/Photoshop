@@ -2,8 +2,12 @@
 #define _SUPPORT_h_
 
 #include "../../src/includes.h"
+// #include "../../src/controller/regions.h"
 
 static const double EPSILON = 1e-9;
+
+class RegionSet;
+class MathRectangle;
 
 struct MPoint {
     double x = 0;
@@ -97,12 +101,63 @@ public:
     MPoint getSize ();
     sf::RenderTexture* getRenderTexture();
 
-    void drawLine  (MPoint start,  MPoint end,    MColor color);
-    void drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
-    void drawCircle(MPoint centre, double radius, MColor color);
-    void drawSprite(MPoint start,  MPoint size,   MImage* img); 
-    void drawText  (MPoint start,  const char* text, MColor color, MFont* font, unsigned pt);
-    void setPixel  (MPoint pos, MColor color);
+    void _drawLine (MPoint start,  MPoint end,    MColor color);
+    void drawLine  (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);
+    void _drawRect (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
+    void drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor, RegionSet* regions = nullptr);
+    void drawCircle(MPoint centre, double radius, MColor color, RegionSet* regions = nullptr);
+    void drawSprite(MPoint start,  MPoint size,   MImage* img, RegionSet* regions = nullptr); 
+    void drawText  (MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions = nullptr);
+    void setPixel  (MPoint pos, MColor color, RegionSet* regions = nullptr);
+};
+
+class MathRectangle {
+private:
+    MPoint position = MPoint();
+    MPoint size     = MPoint();
+
+public:
+    explicit MathRectangle(MPoint _pos, MPoint _size);
+    ~MathRectangle();
+
+    double top();
+    double l();
+    double r();
+    double down(); 
+
+    MPoint getPosition();
+    MPoint getSize    ();
+
+    bool isYInside(double yPoint);
+    bool isXInside(double xPoint);
+    bool isPointInside(MPoint point);
+
+    friend bool          isIntersected  (MathRectangle posOld, MathRectangle posNew);
+    friend MathRectangle getIntersection(MathRectangle posOld, MathRectangle posNew);
+    friend RegionSet*    merge          (MathRectangle posOld, MathRectangle posNew);
+    friend RegionSet*    diff           (MathRectangle posOld, MathRectangle posNew);
+
+    friend bool operator==(const MathRectangle a, const MathRectangle b);
+    friend bool operator!=(const MathRectangle a, const MathRectangle b);
+};
+
+class RegionSet {
+private:
+   List<MathRectangle>* rectangles = nullptr;
+
+public:
+    explicit RegionSet();
+    ~RegionSet();
+
+    void addRegion(MathRectangle region);
+
+    size_t               getSize      ();
+    List<MathRectangle>* getRectangles();
+
+    MathRectangle& operator[](const size_t index) const;
+    void visualize(RenderTarget* renderTarget);
+
+    void subtract(const RegionSet* b);
 };
 
 #endif

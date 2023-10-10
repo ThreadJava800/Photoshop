@@ -7,18 +7,21 @@
 
 class Window : public Widget {
 private:
-    MPoint size     = MPoint();
     Menu*  actions  = nullptr;
     
     void createTopPanel();
     void createTestWindow();
     
 public:
+    // temp fields
+    MColor col = MColor(DEFAULT_BACK_COL);
+    bool isVisible = true;
+
     explicit Window(MPoint _position, MPoint _size);
     explicit Window(MPoint _position, MPoint _size, Menu* _actions);
     ~Window();
 
-    void              render      (RenderTarget* renderTarget) override;
+    void render(RenderTarget* renderTarget, RegionSet* regions) override;
 };
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos);

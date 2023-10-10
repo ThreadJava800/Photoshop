@@ -1,16 +1,15 @@
 #include "menu.h"
 
 Menu::Menu(MPoint _position, MPoint _size, Window* _window, OnMoveFunc _onMove) :
-    Widget   (_position),
+    Widget   (_position, _size),
     isClicked(false),
-    size     (_size),
     window   (_window),
     onMove   (_onMove),
     prevPos  (MPoint())     {}
 
 Menu::~Menu() {}
 
-void Menu::render(RenderTarget* renderTarget) {
+void Menu::render(RenderTarget* renderTarget, RegionSet* regions) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
     ON_ERROR(!subWindows, "Buttons pointer was null!",);
 

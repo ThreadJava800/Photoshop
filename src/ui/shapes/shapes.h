@@ -6,11 +6,8 @@
 
 class Rectangle : public Widget {
 private:
-    MPoint size      = MPoint();
     MColor fillColor = MColor();
     MColor outColor  = MColor();
-
-
     
 public:
     explicit Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor);
@@ -18,7 +15,7 @@ public:
 
     MPoint getSize();
 
-    void render(RenderTarget* renderTarget) override;
+    void render(RenderTarget* renderTarget, RegionSet* regions) override;
 };
 
 #endif

@@ -1,8 +1,7 @@
 #include "button.h"
 
 Button::Button(MPoint _position, MPoint _size, MColor _color, ButtonFunc _func, void* _args) :
-    Widget     (_position),
-    size       (_size),
+    Widget     (_position, _size),
     color      (_color),
     onClick    (_func),
     onClickArgs(_args)       {}
@@ -12,10 +11,10 @@ Button::~Button() {
     color = MColor();
 }
 
-void Button::render(RenderTarget* renderTarget) {
+void Button::render(RenderTarget* renderTarget, RegionSet* regions) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT));
+    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT), regions);
 }
 
 bool Button::onMousePressed(MPoint pos, MMouse btn) {
@@ -45,12 +44,12 @@ TextButton::~TextButton() {
     text = nullptr;
 }
 
-void TextButton::render(RenderTarget* renderTarget) {
+void TextButton::render(RenderTarget* renderTarget, RegionSet* regions) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
     // TODO move to const
-    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT));
-    renderTarget->drawText(position, text, MColor(BLACK), font, 25);
+    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT), regions);
+    renderTarget->drawText(position, text, MColor(BLACK), font, 25, regions);
 }
 
 ImageButton::ImageButton(MPoint _position, MPoint _size, MImage* _img, ButtonFunc _func, void* _args) :
@@ -63,8 +62,8 @@ ImageButton::~ImageButton() {
     image = nullptr;
 }
 
-void ImageButton::render(RenderTarget* renderTarget) {
+void ImageButton::render(RenderTarget* renderTarget, RegionSet* regions) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawSprite(position, size, image);
+    renderTarget->drawSprite(position, size, image, regions);
 }
