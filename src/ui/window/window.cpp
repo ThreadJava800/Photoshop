@@ -107,7 +107,7 @@ void prioritizeWindow(Window* window) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     Widget* parent = window->getParent();
-    parent->getWindows()->swapWithEnd(window);
+    if (parent && parent->getWindows()) parent->getWindows()->swapWithEnd(window);
 }
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {

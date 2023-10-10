@@ -94,7 +94,7 @@ public:
         for (size_t i = 0; i < size; i++) {
             if (values[i] == elem) {
                 elemInd = i;
-                swapEl = elem;
+                swapEl  = elem;
                 break;
             }
         }
