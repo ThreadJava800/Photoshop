@@ -6,7 +6,6 @@
 
 class Rectangle : public Widget {
 private:
-    MPoint size      = MPoint();
     MColor fillColor = MColor();
     MColor outColor  = MColor();
 

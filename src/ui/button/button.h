@@ -8,7 +8,6 @@ typedef void (*ButtonFunc)(void*);
 
 class Button : public Widget {
 protected:
-    MPoint size  = MPoint();
     MColor color = MColor();
 
     void*      onClickArgs = nullptr;

@@ -3,19 +3,17 @@
 bool isCreated = false;
 
 Window::Window(MPoint _position, MPoint _size, Widget* _parent) :
-    Widget (_position, _parent),
-    size   (_size),
+    Widget (_position, _size, _parent),
     actions(nullptr)   {
         createTopPanel();
         if (!isCreated) createTestWindow();
     }
 
 Window::Window(MPoint _position, MPoint _size, Widget* _parent, Menu* _actions) :
-    Widget (_position, _parent),
-    size   (_size),
+    Widget (_position, _size, _parent),
     actions(_actions)  {
         createTopPanel();
-        subWindows->pushBack(actions);
+        registerObject(actions);
         if (!isCreated) createTestWindow();
     }
 
@@ -42,31 +40,33 @@ void Window::createTopPanel() {
     topPanel->registerObject(minimize);
     topPanel->registerObject(restore);
 
-    subWindows->pushBack(topPanel);
+    registerObject(topPanel);
+    // subWindows->pushBack(topPanel);
 }
 
 void Window::createTestWindow() {
     isCreated = true;
 
     Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), this);
-    subWindows->pushBack(subWin);
+    registerObject(subWin);
 
     Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), this);
-    subWindows->pushBack(subWin2);
+    registerObject(subWin2);
 
     Window* subWin3 = new Window(position + MPoint(300, 300), MPoint(400, 400), this);
-    subWindows->pushBack(subWin3);
+    registerObject(subWin3);
 }
 
 void Window::setActions(Menu* _actions) {
     actions = _actions;
-    subWindows->pushFront(actions);
+    registerObject(actions);
 }
 
 void Window::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY));
+    // if (vis) {
+    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY), regSet);
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
@@ -84,24 +84,27 @@ void Window::render(RenderTarget* renderTarget) {
             widget->render(renderTarget);
         }
     }
+}
+    // }
+
+    // regSet->visualize(renderTarget);
 
     // RegionSet* inters1 = diff(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100), MPoint(400, 400)));
     // RegionSet* inters2 = diff(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(300, 300),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100), MPoint(400, 400)));    
+    // if (parent) {
 
-    // inters1->subtract(inters2);
+    // RegionSet* thisReg = regSet;
+    // RegionSet* parrReg = parent->getRegSet();
 
-    // if (inters1) {
-    //     inters1->visualize(renderTarget);
-    //     delete inters1;
+    // parrReg->subtract(thisReg);
+
+    // if (parrReg) {
+    //     parrReg->visualize(renderTarget);
+    //     // delete parrReg;
     // }
     // else std::cout << "No inter\n";
-
-    // if (inters2) {
-    //     inters2->visualize(renderTarget);
-    //     delete inters2;
     // }
-    // else std::cout << "No inter\n";
-}
+
 
 void prioritizeWindow(Window* window) {
     ON_ERROR(!window, "Window pointer was null!",);

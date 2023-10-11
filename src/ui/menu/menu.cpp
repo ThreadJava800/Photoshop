@@ -1,9 +1,8 @@
 #include "menu.h"
 
 Menu::Menu(MPoint _position, MPoint _size, Widget* _parent, Window* _window, OnMoveFunc _onMove, PriorFunc _priorFun) :
-    Widget   (_position, _parent),
+    Widget   (_position, _size, _parent),
     isClicked(false),
-    size     (_size),
     window   (_window),
     onMove   (_onMove),
     prior    (_priorFun),
@@ -27,10 +26,6 @@ bool Menu::isInside(MPoint checkPoint) {
            checkPoint.x - position.x <= size.x &&
            checkPoint.y - position.y >= 0      &&
            checkPoint.y - position.y <= size.y;
-}
-
-void Menu::registerObject(Widget* widget) {
-    subWindows->pushBack(widget);
 }
 
 bool Menu::onMousePressed(MPoint pos, MMouse btn) {

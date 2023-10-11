@@ -10,7 +10,7 @@ Menu* createActionMenu(Window* _winPtr) {
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
-    Menu* actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(1920, 1080), _winPtr);
+    Menu* actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(5 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
 
     TextButton* fileBtn  = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "File", actionMenu, testFunc);
     TextButton* editBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Edit", actionMenu);
@@ -34,6 +34,8 @@ void runMainCycle() {
     Window mainWindow = Window(              MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), nullptr);
     Menu* actions = createActionMenu(&mainWindow);
     mainWindow.setActions(actions);
+
+    mainWindow.vis = false;
 
     RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), &window);
 

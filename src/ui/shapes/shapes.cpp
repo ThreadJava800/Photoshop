@@ -1,8 +1,7 @@
 #include "shapes.h"
 
 Rectangle::Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor, Widget* _parent) :
-    Widget    (_position, _parent),
-    size      (_size),
+    Widget    (_position, _size, _parent),
     fillColor (_fillColor),
     outColor  (_outColor)    {}
 
@@ -20,5 +19,5 @@ MPoint Rectangle::getSize() {
 void Rectangle::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "RenderTarget was null!",);
 
-    renderTarget->drawRect(position, size, fillColor, outColor);
+    renderTarget->drawRect(position, size, fillColor, outColor, regSet);
 }

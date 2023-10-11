@@ -3,7 +3,6 @@
 
 #include "../includes.h"
 #include "../../libs/multimedia/multimedia.h"
-#include "../controller/regions.h"
 
 class Renderable {
 public:
@@ -13,20 +12,26 @@ public:
 class Widget : public Renderable {
 protected:
     MPoint         position   = MPoint();
+    MPoint         size       = MPoint();
     List<Widget*>* subWindows = nullptr;
+
+    RegionSet* regSet = nullptr;
 
     Widget* parent = nullptr;
     bool    exists = true;
 
+    void createEmptyRegionSet();
+
 public:
-    explicit Widget(MPoint _position, Widget* _parent);
-    explicit Widget(MPoint _position, Widget* _parent, List<Widget*>* subWindows);
+    explicit Widget(MPoint _position, MPoint _size, Widget* _parent);
+    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* subWindows);
     virtual ~Widget();
 
     MPoint         getPosition();
     List<Widget*>* getWindows ();
     void           setExists  (bool val);
     bool           getExists  ();
+    RegionSet*     getRegSet  ();
 
     virtual bool onKeyPressed (MKeyboard key) {return false;};
     virtual bool onKeyReleased(MKeyboard key) {return false;};
@@ -37,7 +42,9 @@ public:
 
     virtual void move(MPoint shift);
 
-    virtual void registerObject(Widget* widget) {};
+    virtual void registerObject(Widget* widget);
+    
+    void updateRegions(RegionSet* subSet);
 };
 
 #endif

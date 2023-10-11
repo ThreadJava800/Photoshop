@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.s": "nasm",
+        "new": "cpp",
+        "iostream": "cpp"
+    }
+}

@@ -7,13 +7,14 @@
 
 class Window : public Widget {
 private:
-    MPoint size     = MPoint();
     Menu*  actions  = nullptr;
     
     void createTopPanel();
     void createTestWindow();
     
 public:
+    bool vis = true;
+
     explicit Window(MPoint _position, MPoint _size, Widget* _parent);
     explicit Window(MPoint _position, MPoint _size, Widget* _parent, Menu* _actions);
     ~Window();

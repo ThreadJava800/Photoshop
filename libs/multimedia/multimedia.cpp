@@ -182,7 +182,7 @@ MPoint RenderTarget::getSize () {
     return MPoint(size);
 }
 
-void RenderTarget::drawLine(MPoint start, MPoint end, MColor color) {
+void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::VertexArray line(sf::LinesStrip, 2);
@@ -197,7 +197,22 @@ void RenderTarget::drawLine(MPoint start, MPoint end, MColor color) {
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor) {
+void RenderTarget::drawLine(MPoint start, MPoint end, MColor color, RegionSet* regions) {
+    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+
+    // TODO
+    // if (regions) {
+    //     size_t regCnt = regions->getSize();
+
+    //     for (size_t i = 0; i < regCnt; i++) {
+
+    //     }
+    // } else {
+    //     _drawLine(start, end, color);
+    // }
+}
+
+void RenderTarget::_drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());
@@ -211,7 +226,28 @@ void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor 
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawCircle(MPoint centre, double radius, MColor color) {
+void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor, RegionSet* regions) {
+    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+
+    if (regions) {
+        MathRectangle thisRect = MathRectangle(start, size);
+        size_t regCnt = regions->getSize();
+
+        for (size_t i = 0; i < regCnt; i++) {
+            MathRectangle drawZone = (*regions)[i];
+
+            if (isIntersected(drawZone, thisRect)) {
+                MathRectangle toDraw = getIntersection(drawZone, thisRect);
+                _drawRect(toDraw.getPosition(), toDraw.getSize(), fillColor, outColor);
+            }
+        }
+
+    } else {
+        _drawRect(start, size, fillColor, outColor);
+    }
+}
+
+void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, RegionSet* regions) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::CircleShape circle(radius);
@@ -223,7 +259,7 @@ void RenderTarget::drawCircle(MPoint centre, double radius, MColor color) {
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img) {
+void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet* regions) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());
@@ -235,7 +271,7 @@ void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img) {
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont* font, unsigned pt) {
+void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
     ON_ERROR(!text,    "String was null!",);
 
@@ -251,8 +287,16 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
     window ->draw(*sprite);
 }
 
-void RenderTarget::setPixel(MPoint pos, MColor color) {
+void RenderTarget::setPixel(MPoint pos, MColor color, RegionSet* regions) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+
+    if (regions) {
+        size_t regCnt = regions->getSize();
+
+        for (size_t i = 0; i < regCnt; i++) {
+            if (!((*regions)[i].isPointInside(pos))) return;
+        }
+    }
 
     sf::VertexArray point(sf::Points, 1);
     point[0].position = pos.toSfVector();
@@ -261,4 +305,210 @@ void RenderTarget::setPixel(MPoint pos, MColor color) {
     texture->draw(point);
     texture->display();
     window ->draw(*sprite);
+}
+
+MathRectangle::MathRectangle(MPoint _pos, MPoint _size) :
+    position(_pos),
+    size    (_size)     {}
+
+MathRectangle::~MathRectangle() {
+    position = MPoint();
+    size     = MPoint();
+}
+
+double MathRectangle::top() {
+    return position.y;
+}
+
+double MathRectangle::l() {
+    return position.x;
+}
+
+double MathRectangle::r() {
+    return position.x + size.x;
+}
+
+double MathRectangle::down() {
+    return position.y + size.y;
+}
+
+MPoint MathRectangle::getPosition() {
+    return position;
+}
+
+MPoint MathRectangle::getSize() {
+    return size;
+}
+
+bool MathRectangle::isYInside(double yPoint) {
+    return top() <= yPoint && yPoint <= down();
+}
+
+bool MathRectangle::isXInside(double xPoint) {
+    return l() <= xPoint && xPoint <= r();
+}
+
+bool MathRectangle::isPointInside(MPoint point) {
+    return isYInside(point.y) && isXInside(point.x);
+}
+
+bool isIntersected(MathRectangle posOld, MathRectangle posNew) {
+    return posOld   .l() < posNew   .r() &&
+           posOld   .r() > posNew   .l() &&
+           posOld .top() < posNew.down() &&
+           posOld.down() > posNew .top();
+}
+
+MathRectangle getIntersection(MathRectangle posOld, MathRectangle posNew) {
+    if (!isIntersected(posOld, posNew)) {
+        return MathRectangle(MPoint(), MPoint());
+    }
+
+    MPoint oldLD = MPoint(posOld.l(), posOld.down());
+    MPoint oldRH = MPoint(posOld.r(), posOld. top());
+    MPoint newLD = MPoint(posNew.l(), posNew.down());
+    MPoint newRH = MPoint(posNew.r(), posNew. top());
+
+    MPoint resLD = MPoint(std::max(oldLD.x, newLD.x), std::min(oldLD.y, newLD.y));
+    MPoint resRH = MPoint(std::min(oldRH.x, newRH.x), std::max(oldRH.y, newRH.y));
+    MPoint resLT = MPoint(resLD.x, resRH.y);
+    MPoint resRD = MPoint(resRH.x, resLD.y);
+
+    if (resLD.x > resRH.x || resRH.y > resLD.y) return MathRectangle(MPoint(), MPoint());
+
+    // std::cout << resLT.x << ' ' << resLT.y << '\n';
+
+    return MathRectangle(resLT, resRD - resLT);
+}
+
+RegionSet* merge(MathRectangle posOld, MathRectangle posNew) {
+    RegionSet* differenceSet = diff(posOld, posNew);
+    differenceSet->addRegion(posNew);
+    return differenceSet;
+}
+
+RegionSet* diff(MathRectangle posOld, MathRectangle posNew) {
+    RegionSet* differenceSet = new RegionSet();
+    
+    if (isIntersected(posOld, posNew)) {
+
+        // posNew is lefter than posOld
+        if (posOld.isXInside(posNew.r())) {
+            MPoint regPos  = MPoint(posNew.r(), std::max(posOld.top(), posNew.top()));
+            MPoint regSize = MPoint(posOld.r() - posNew.r(), 
+                                    std::min(posOld.down(), posNew.down()) - std::max(posOld.top(), posNew.top()));
+
+
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
+        }
+
+        // posNew is righter than posOld
+        if (posOld.isXInside(posNew.l())) {
+            MPoint regPos  = MPoint(posOld.l(), std::max(posOld.top(), posNew.top()));
+            MPoint regSize = MPoint(posNew.l() - posOld.l(), 
+                                    std::min(posOld.down(), posNew.down()) - std::max(posOld.top(), posNew.top()));
+
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
+        }
+
+        // posNew is upper than posOld
+        if (posOld.isYInside(posNew.down())) {
+            MPoint regPos  = MPoint(posOld.l(), posNew.down());
+            MPoint regSize = MPoint(posOld.size.x, posOld.down() - posNew.down());
+
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
+        }
+
+        // posNew is lower than posOld
+        if (posOld.isYInside(posNew.top())) {
+            MPoint regPos  = MPoint(posOld.l(), posOld.top());
+            MPoint regSize = MPoint(posOld.size.x, posNew.top() - posOld.top());
+
+            if (regSize.x != 0 && regSize.y != 0)
+                differenceSet->addRegion(MathRectangle(regPos, regSize));
+        }
+    } else {
+        differenceSet->addRegion(posOld);
+    }
+
+    return differenceSet;
+}
+
+bool operator==(const MathRectangle a, const MathRectangle b) {
+    return a.position == b.position && a.size == b.size;
+}
+
+bool operator!=(const MathRectangle a, const MathRectangle b) {
+    return !(a == b);
+}
+
+RegionSet::RegionSet() {
+    rectangles = new List<MathRectangle>();
+}
+
+RegionSet::~RegionSet() {
+    delete rectangles;
+
+    rectangles = nullptr;
+}
+
+size_t RegionSet::getSize() {
+    return rectangles->getSize();
+}
+
+void RegionSet::addRegion(MathRectangle region) {
+    rectangles->pushBack(region);
+}
+
+List<MathRectangle>* RegionSet::getRectangles() {
+    return rectangles;
+}
+
+MathRectangle& RegionSet::operator[](const size_t index) const {
+    return (*rectangles)[index];
+}
+
+void RegionSet::visualize(RenderTarget* renderTarget) {
+    ON_ERROR(!renderTarget, "Drawable area was null",);
+    ON_ERROR(!rectangles, "List was null!",);
+
+    size_t listSize = rectangles->getSize();
+
+    for (size_t i = 0; i < listSize; i++) {
+        MathRectangle rect = (*rectangles)[i];
+        renderTarget->drawRect(rect.getPosition(), rect.getSize(), MColor(DEFAULT_COLOR), MColor(DEB_COLS[i % DEB_COLS_CNT]));
+    }
+}
+
+void RegionSet::subtract(const RegionSet* b) {
+    if(!rectangles || !b || !b->rectangles) return;
+
+    size_t aListSize = rectangles->getSize();
+    size_t bListSize = b->rectangles->getSize();
+
+    for (size_t i = 0; i < aListSize; i++) {
+        for (size_t j = 0; j < bListSize; j++) {
+
+            RegionSet* differenceSet = diff((*rectangles)[i], (*b)[j]);
+            ON_ERROR(!differenceSet, "RegionSet was nullptr!",);
+
+            size_t diffSetSize = differenceSet->getSize();
+
+            if ((*differenceSet)[0] != (*rectangles)[i] && diffSetSize != 0) {
+                (*rectangles)[i] = (*differenceSet)[diffSetSize - 1];
+
+                for (size_t k = 0; k < diffSetSize - 1; k++) addRegion((*differenceSet)[k]);
+
+                i = -1; j = 0;
+
+                delete differenceSet;
+                break;
+            }
+
+            delete differenceSet;
+        }
+    }
 }

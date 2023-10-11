@@ -1,17 +1,27 @@
 #include "renderable.h"
 
-Widget::Widget(MPoint _position, Widget* _parent) :
+Widget::Widget(MPoint _position, MPoint _size, Widget* _parent) :
     position(_position),
+    size    (_size),
     parent  (_parent),
     exists  (true) {
         subWindows = new List<Widget*>();
+        createEmptyRegionSet();
     }
 
-Widget::Widget(MPoint _position, Widget* _parent, List<Widget*>* _subWindows) :
+Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _subWindows) :
     position  (_position),
+    size      (_size),
     parent    (_parent),
     subWindows(_subWindows),
-    exists    (true)  {}
+    exists    (true)  {
+        createEmptyRegionSet();
+    }
+
+void Widget::createEmptyRegionSet() {
+    regSet = new RegionSet();
+    regSet->addRegion(MathRectangle(position, size));
+}
 
 Widget::~Widget() {
     if (!subWindows) return;
@@ -24,6 +34,9 @@ Widget::~Widget() {
 
     delete subWindows;
     subWindows = nullptr;
+
+    delete regSet;
+    regSet = nullptr;
 }
 
 MPoint Widget::getPosition() {
@@ -40,6 +53,10 @@ void Widget::setExists(bool val) {
 
 bool Widget::getExists() {
     return exists;
+}
+
+RegionSet* Widget::getRegSet() {
+    return regSet;
 }
 
 bool Widget::onMousePressed(MPoint pos, MMouse btn) {
@@ -98,4 +115,18 @@ void Widget::move(MPoint shift) {
             widget->move(shift);
         }
     }
+}
+
+void Widget::registerObject(Widget* widget) {
+    ON_ERROR(!widget, "Widget ptr was null!",)
+
+    RegionSet* curRegSet = new RegionSet();
+    curRegSet->addRegion(MathRectangle(widget->position, widget->size));
+    subWindows->pushBack(widget);
+    updateRegions(curRegSet);
+    delete curRegSet;
+}
+
+void Widget::updateRegions(RegionSet* subSet) {
+    regSet->subtract(subSet);
 }
