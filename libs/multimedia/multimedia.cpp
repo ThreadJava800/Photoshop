@@ -131,6 +131,9 @@ MImage::MImage(const char* _imgPath) :
         ON_ERROR(!img->loadFromFile(_imgPath), "No such file!",);
     }
 
+// MImage::MImage(sf::Texture* _imgPath) :
+//     img(_imgPath)   {}
+
 MImage::~MImage() {
     if (img) delete img;
 
@@ -157,6 +160,10 @@ RenderTarget::RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _wi
 
 sf::RenderTexture* RenderTarget::getRenderTexture() {
     return texture;
+}
+
+sf::RenderWindow* RenderTarget::getRenderWindow() {
+    return window;
 }
 
 RenderTarget::~RenderTarget() {
@@ -486,29 +493,23 @@ void RegionSet::visualize(RenderTarget* renderTarget) {
 void RegionSet::subtract(const RegionSet* b) {
     if(!rectangles || !b || !b->rectangles) return;
 
+    List<MathRectangle>* newSet = new List<MathRectangle>();
+
     size_t aListSize = rectangles->getSize();
     size_t bListSize = b->rectangles->getSize();
 
     for (size_t i = 0; i < aListSize; i++) {
         for (size_t j = 0; j < bListSize; j++) {
+            RegionSet* diffSet = diff((*rectangles)[i], (*b)[j]);
 
-            RegionSet* differenceSet = diff((*rectangles)[i], (*b)[j]);
-            ON_ERROR(!differenceSet, "RegionSet was nullptr!",);
-
-            size_t diffSetSize = differenceSet->getSize();
-
-            if ((*differenceSet)[0] != (*rectangles)[i] && diffSetSize != 0) {
-                (*rectangles)[i] = (*differenceSet)[diffSetSize - 1];
-
-                for (size_t k = 0; k < diffSetSize - 1; k++) addRegion((*differenceSet)[k]);
-
-                i = -1; j = 0;
-
-                delete differenceSet;
-                break;
+            for (size_t k = 0; k < diffSet->getSize(); k++) {
+                newSet->pushBack((*diffSet)[k]);
             }
 
-            delete differenceSet;
+            delete diffSet;
         }
     }
+
+    delete rectangles;
+    rectangles = newSet;
 }

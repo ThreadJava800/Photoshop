@@ -30,14 +30,13 @@ Menu* createActionMenu(Window* _winPtr) {
 void runMainCycle() {
     sf::RenderWindow window(sf::VideoMode(), "Photoshop", sf::Style::Fullscreen);
     window.setPosition(sf::Vector2i(0, 0));
+    RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), &window);
 
-    Window mainWindow = Window(              MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), nullptr);
+    Window mainWindow = Window(              MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &renderTarget, nullptr);
     Menu* actions = createActionMenu(&mainWindow);
     mainWindow.setActions(actions);
 
-    mainWindow.vis = false;
-
-    RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), &window);
+    // mainWindow.vis = false;
 
     while (window.isOpen())
     {

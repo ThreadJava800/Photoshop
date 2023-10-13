@@ -1,26 +1,36 @@
 #include "window.h"
 
 bool isCreated = false;
+// ToolManager* man = new ToolManager();
 
-Window::Window(MPoint _position, MPoint _size, Widget* _parent) :
+Window::Window(MPoint _position, MPoint _size, RenderTarget *_tempTarget, Widget* _parent) :
     Widget (_position, _size, _parent),
+    tempTarget(_tempTarget),
     actions(nullptr)   {
         createTopPanel();
         if (!isCreated) createTestWindow();
+        // createCanvas  ();
     }
 
-Window::Window(MPoint _position, MPoint _size, Widget* _parent, Menu* _actions) :
+Window::Window(MPoint _position, MPoint _size, RenderTarget *_tempTarget, Widget* _parent, Menu* _actions) :
     Widget (_position, _size, _parent),
+    tempTarget(_tempTarget),
     actions(_actions)  {
         createTopPanel();
         registerObject(actions);
         if (!isCreated) createTestWindow();
+        // createCanvas  ();
     }
 
 Window::~Window() {}
 
 Widget* Window::getParent() {
     return parent;
+}
+
+void Window::createCanvas() {
+    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), nullptr, tempTarget);
+    registerObject(canvas);
 }
 
 void Window::createTopPanel() {
@@ -41,19 +51,22 @@ void Window::createTopPanel() {
     topPanel->registerObject(restore);
 
     registerObject(topPanel);
-    // subWindows->pushBack(topPanel);
 }
 
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), this);
+    // Brush* br = new Brush();
+    // man->setTool(br);
+    // man->setColor(MColor(sf::Color::Red));
+
+    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), tempTarget, this);
     registerObject(subWin);
 
-    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), this);
+    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), tempTarget, this);
     registerObject(subWin2);
 
-    Window* subWin3 = new Window(position + MPoint(300, 300), MPoint(400, 400), this);
+    Window* subWin3 = new Window(position + MPoint(300, 300), MPoint(400, 400), tempTarget, this);
     registerObject(subWin3);
 }
 
@@ -84,10 +97,10 @@ void Window::render(RenderTarget* renderTarget) {
             widget->render(renderTarget);
         }
     }
+
+    regSet->visualize(renderTarget);
 }
     // }
-
-    // regSet->visualize(renderTarget);
 
     // RegionSet* inters1 = diff(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100), MPoint(400, 400)));
     // RegionSet* inters2 = diff(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(300, 300),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100), MPoint(400, 400)));    

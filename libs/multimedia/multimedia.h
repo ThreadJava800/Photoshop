@@ -71,6 +71,7 @@ public:
 
     explicit MImage();
     explicit MImage(const char* _imgPath);
+    // explicit MImage(sf::Texture* _imgPath);
 
     ~MImage();
 
@@ -100,6 +101,7 @@ public:
     MPoint getStart();
     MPoint getSize ();
     sf::RenderTexture* getRenderTexture();
+    sf::RenderWindow * getRenderWindow ();
 
     void _drawLine (MPoint start,  MPoint end,    MColor color);
     void drawLine  (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);

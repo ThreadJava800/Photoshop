@@ -121,9 +121,20 @@ void Widget::registerObject(Widget* widget) {
     ON_ERROR(!widget, "Widget ptr was null!",)
 
     RegionSet* curRegSet = new RegionSet();
-    curRegSet->addRegion(MathRectangle(widget->position, widget->size));
-    subWindows->pushBack(widget);
+    curRegSet->addRegion(MathRectangle(widget->position, widget->size));    
     updateRegions(curRegSet);
+
+    if (widget->parent) {
+        List<Widget*>* subWin = widget->parent->getWindows();
+        size_t listSize       = subWin->getSize();
+
+        for (size_t i = 0; i < listSize; i++) {
+            (*subWin)[i]->updateRegions(curRegSet);
+        }
+    }
+
+    subWindows->pushBack(widget);
+
     delete curRegSet;
 }
 
