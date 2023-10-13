@@ -55,6 +55,12 @@ public:
         return size;
     }
 
+    void clear() {
+        size = 0;
+        values = (T*) realloc(values, sizeof(T));
+        ON_ERROR(!values, "Unable to realloc mem",);
+    }
+
     void pushBack(T elem) {
         ON_ERROR(!values, "List was null",);
 

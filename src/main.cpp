@@ -62,6 +62,11 @@ void runMainCycle() {
                 mainWindow.render(&renderTarget);
                 if (event.mouseButton.button == sf::Mouse::Left) 
                     mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
+
+                mainWindow.clearRegionSets ();
+                mainWindow.fillRegionSets  ();
+                // updateRegions   (&mainWindow, mainWindow.getRegSet());
+
                 mainWindow.render(&renderTarget);
                 window.display();
                 break;
@@ -71,6 +76,11 @@ void runMainCycle() {
                 window.clear();
                 if (event.mouseButton.button == sf::Mouse::Left)
                     mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
+
+                mainWindow.clearRegionSets ();
+                mainWindow.fillRegionSets  ();
+                // updateRegions   (&mainWindow, mainWindow.getRegSet());
+
                 mainWindow.render(&renderTarget);
                 window.display();
                 break;
@@ -79,6 +89,11 @@ void runMainCycle() {
                 renderTarget.getRenderTexture()->clear();
                 window.clear();
                 mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
+
+                mainWindow.clearRegionSets ();
+                mainWindow.fillRegionSets  ();
+                // updateRegions(&mainWindow, mainWindow.getRegSet());
+
                 mainWindow.render(&renderTarget);
                 window.display();
                 break;

@@ -78,7 +78,6 @@ void Window::setActions(Menu* _actions) {
 void Window::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    // if (vis) {
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY), regSet);
 
     long listSize = long(subWindows->getSize());
@@ -100,24 +99,6 @@ void Window::render(RenderTarget* renderTarget) {
 
     regSet->visualize(renderTarget);
 }
-    // }
-
-    // RegionSet* inters1 = diff(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(600, 200),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100), MPoint(400, 400)));
-    // RegionSet* inters2 = diff(MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(300, 300),  MPoint(400, 400)), MathRectangle(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT) + MPoint(400, 100), MPoint(400, 400)));    
-    // if (parent) {
-
-    // RegionSet* thisReg = regSet;
-    // RegionSet* parrReg = parent->getRegSet();
-
-    // parrReg->subtract(thisReg);
-
-    // if (parrReg) {
-    //     parrReg->visualize(renderTarget);
-    //     // delete parrReg;
-    // }
-    // else std::cout << "No inter\n";
-    // }
-
 
 void prioritizeWindow(Window* window) {
     ON_ERROR(!window, "Window pointer was null!",);

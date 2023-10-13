@@ -131,6 +131,16 @@ void Widget::registerObject(Widget* widget) {
     delete curRegSet;
 }
 
+void Widget::clearRegionSets() {
+    size_t listSize = subWindows->getSize();
+
+    regSet->getRectangles()->clear();
+
+    for (size_t i = 0; i < listSize; i++) {
+        (*subWindows)[i]->clearRegionSets();
+    }
+}
+
 void updateRegions(Widget* checkWidget, RegionSet* subSet) {
     if (checkWidget) {
         List<Widget*>* subWin = checkWidget->getWindows();
@@ -140,5 +150,22 @@ void updateRegions(Widget* checkWidget, RegionSet* subSet) {
             (*subWin)[i]->getRegSet()->subtract(subSet);
             updateRegions((*subWin)[i], subSet);
         }
+    }
+}
+
+void Widget::fillRegionSets() {
+    MathRectangle thisRect = MathRectangle(position, size);
+    regSet->addRegion(thisRect);
+
+    size_t childCnt = subWindows->getSize();
+    for (size_t i = 0; i < childCnt; i++) {
+        Widget* cur = (*subWindows)[i];
+        MathRectangle curRect = MathRectangle(cur->position, cur->size);
+
+        RegionSet curSet = RegionSet();
+        curSet.addRegion(curRect);
+
+        regSet->subtract(&curSet);
+        cur->fillRegionSets();
     }
 }

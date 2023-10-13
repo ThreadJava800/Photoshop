@@ -43,6 +43,8 @@ public:
     virtual void move(MPoint shift);
 
     virtual void registerObject(Widget* widget);
+    void clearRegionSets ();
+    void fillRegionSets  ();
 };
 
 void updateRegions(Widget* checkWidget, RegionSet* subSet);
