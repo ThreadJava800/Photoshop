@@ -122,22 +122,23 @@ void Widget::registerObject(Widget* widget) {
 
     RegionSet* curRegSet = new RegionSet();
     curRegSet->addRegion(MathRectangle(widget->position, widget->size));    
-    updateRegions(curRegSet);
+    regSet->subtract(curRegSet);
 
-    if (widget->parent) {
-        List<Widget*>* subWin = widget->parent->getWindows();
-        size_t listSize       = subWin->getSize();
-
-        for (size_t i = 0; i < listSize; i++) {
-            (*subWin)[i]->updateRegions(curRegSet);
-        }
-    }
+    updateRegions(widget->parent, curRegSet);
 
     subWindows->pushBack(widget);
 
     delete curRegSet;
 }
 
-void Widget::updateRegions(RegionSet* subSet) {
-    regSet->subtract(subSet);
+void updateRegions(Widget* checkWidget, RegionSet* subSet) {
+    if (checkWidget) {
+        List<Widget*>* subWin = checkWidget->getWindows();
+        size_t listSize       = subWin->getSize();
+
+        for (size_t i = 0; i < listSize; i++) {
+            (*subWin)[i]->getRegSet()->subtract(subSet);
+            updateRegions((*subWin)[i], subSet);
+        }
+    }
 }

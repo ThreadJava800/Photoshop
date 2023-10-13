@@ -2,7 +2,6 @@
 #define _SUPPORT_h_
 
 #include "../../src/includes.h"
-// #include "../../src/controller/regions.h"
 
 static const double EPSILON = 1e-9;
 
@@ -71,7 +70,7 @@ public:
 
     explicit MImage();
     explicit MImage(const char* _imgPath);
-    // explicit MImage(sf::Texture* _imgPath);
+    explicit MImage(sf::Texture* _imgText);
 
     ~MImage();
 
@@ -103,14 +102,17 @@ public:
     sf::RenderTexture* getRenderTexture();
     sf::RenderWindow * getRenderWindow ();
 
-    void _drawLine (MPoint start,  MPoint end,    MColor color);
-    void drawLine  (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);
-    void _drawRect (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
-    void drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor, RegionSet* regions = nullptr);
-    void drawCircle(MPoint centre, double radius, MColor color, RegionSet* regions = nullptr);
-    void drawSprite(MPoint start,  MPoint size,   MImage* img, RegionSet* regions = nullptr); 
-    void drawText  (MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions = nullptr);
-    void setPixel  (MPoint pos, MColor color, RegionSet* regions = nullptr);
+    void _drawLine  (MPoint start,  MPoint end,    MColor color);
+    void drawLine   (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);
+    void _drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
+    void drawRect   (MPoint start,  MPoint size,   MColor fillColor, MColor outColor, RegionSet* regions = nullptr);
+    void _drawCircle(MPoint centre, double radius, MColor color);
+    void drawCircle (MPoint centre, double radius, MColor color, RegionSet* regions = nullptr);
+    void _drawSprite(MPoint start,  MPoint size,   MImage* img); 
+    void drawSprite (MPoint start,  MPoint size,   MImage* img, RegionSet* regions = nullptr); 
+    void _drawText  (MPoint start,  MPoint size,   MImage* img); 
+    void drawText   (MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions = nullptr);
+    void setPixel   (MPoint pos, MColor color, RegionSet* regions = nullptr);
 };
 
 class MathRectangle {

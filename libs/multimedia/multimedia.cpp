@@ -131,8 +131,8 @@ MImage::MImage(const char* _imgPath) :
         ON_ERROR(!img->loadFromFile(_imgPath), "No such file!",);
     }
 
-// MImage::MImage(sf::Texture* _imgPath) :
-//     img(_imgPath)   {}
+MImage::MImage(sf::Texture* _imgText) :
+    img(_imgText)   {}
 
 MImage::~MImage() {
     if (img) delete img;
@@ -254,7 +254,7 @@ void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor 
     }
 }
 
-void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, RegionSet* regions) {
+void RenderTarget::_drawCircle(MPoint centre, double radius, MColor color) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::CircleShape circle(radius);
@@ -266,7 +266,17 @@ void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, Region
     window ->draw(*sprite);
 }
 
-void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet* regions) {
+void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, RegionSet* regions) {
+    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+
+    if (regions) {
+        
+    } else {
+        _drawCircle(centre, radius, color);
+    }
+}
+
+void RenderTarget::_drawSprite(MPoint start,  MPoint size,   MImage* img) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());
@@ -276,6 +286,39 @@ void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet*
     texture->draw(rect);
     texture->display();
     window ->draw(*sprite);
+}
+
+void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet* regions) {
+    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+
+    if (!regions) {
+        _drawSprite(start, size, img);
+        return;
+    }
+
+    List<MathRectangle>* rects = regions->getRectangles();
+    ON_ERROR(!rects, "List was nullptr!",);
+
+    MathRectangle spriteRect = MathRectangle(start, size);
+
+    size_t rectSize = rects->getSize();
+    for (size_t i = 0; i < rectSize; i++) {
+        MathRectangle regRect = (*rects)[i];
+        if (isIntersected(regRect, spriteRect)) {
+            MathRectangle intersect = getIntersection(regRect, spriteRect);
+
+            if (img->getSfTexture()) {
+                sf::Sprite drawSprite;
+                drawSprite.setPosition   (start.toSfVector());
+                drawSprite.setTexture    (*img->getSfTexture());
+                drawSprite.setTextureRect(sf::IntRect(intersect.getPosition().x, intersect.getPosition().y, intersect.getSize().x, intersect.getSize().y));
+
+                sf::Texture* drawTexture = new sf::Texture(*drawSprite.getTexture());
+                MImage drawImg = MImage(drawTexture);
+                _drawSprite(MPoint(intersect.getPosition().x, intersect.getPosition().y), MPoint(intersect.getSize().x, intersect.getSize().y), &drawImg);
+            }
+        }
+    }
 }
 
 void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions) {
@@ -382,8 +425,6 @@ MathRectangle getIntersection(MathRectangle posOld, MathRectangle posNew) {
     MPoint resRD = MPoint(resRH.x, resLD.y);
 
     if (resLD.x > resRH.x || resRH.y > resLD.y) return MathRectangle(MPoint(), MPoint());
-
-    // std::cout << resLT.x << ' ' << resLT.y << '\n';
 
     return MathRectangle(resLT, resRD - resLT);
 }

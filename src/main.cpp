@@ -38,6 +38,10 @@ void runMainCycle() {
 
     // mainWindow.vis = false;
 
+    window.clear();
+    mainWindow.render(&renderTarget);
+    window.display();
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -52,24 +56,35 @@ void runMainCycle() {
                 if (event.key.code == sf::Keyboard::Escape)
                     window.close();
                 break;
-            case sf::Event::MouseButtonPressed:
+            case sf::Event::MouseButtonPressed: {
+                renderTarget.getRenderTexture()->clear();
+                window.clear();
+                mainWindow.render(&renderTarget);
                 if (event.mouseButton.button == sf::Mouse::Left) 
                     mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
-                break;
-            case sf::Event::MouseButtonReleased:
-                if (event.mouseButton.button == sf::Mouse::Left)
-                    mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
-                break;
-            case sf::Event::MouseMoved:
-                mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
+                mainWindow.render(&renderTarget);
+                window.display();
                 break;
             }
+            case sf::Event::MouseButtonReleased: {
+                renderTarget.getRenderTexture()->clear();
+                window.clear();
+                if (event.mouseButton.button == sf::Mouse::Left)
+                    mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
+                mainWindow.render(&renderTarget);
+                window.display();
+                break;
+            }
+            case sf::Event::MouseMoved: {
+                renderTarget.getRenderTexture()->clear();
+                window.clear();
+                mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
+                mainWindow.render(&renderTarget);
+                window.display();
+                break;
+            }
+            }
         }
-
-        renderTarget.getRenderTexture()->clear();
-        window.clear();
-        mainWindow.render(&renderTarget);
-        window.display();
     }
 }
 

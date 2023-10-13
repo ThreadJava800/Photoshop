@@ -66,7 +66,7 @@ void Window::createTestWindow() {
     Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), tempTarget, this);
     registerObject(subWin2);
 
-    Window* subWin3 = new Window(position + MPoint(300, 300), MPoint(400, 400), tempTarget, this);
+    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(400, 400), tempTarget, this);
     registerObject(subWin3);
 }
 
