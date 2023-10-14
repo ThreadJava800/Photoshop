@@ -59,6 +59,14 @@ RegionSet* Widget::getRegSet() {
     return regSet;
 }
 
+Widget* Widget::getParent  () {
+    return parent;
+}
+
+void Widget::setParent(Widget* _parent) {
+    parent = _parent;
+}
+
 bool Widget::onMousePressed(MPoint pos, MMouse btn) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
@@ -106,8 +114,16 @@ bool Widget::onMouseMove(MPoint pos, MMouse btn) {
 void Widget::move(MPoint shift) {
     ON_ERROR(!subWindows, "List pointer was null!",);
 
-    position += shift;
+    if (regSet) {
+        size_t regionCnt = regSet->getSize();
+        for (size_t i = regionCnt; i < regionCnt; i++) {
+            MathRectangle moved = MathRectangle((*regSet)[i].getPosition() + shift, (*regSet)[i].getSize());
+            (*regSet)[i] = moved;
+        }
+    }
+
     size_t listSize = subWindows->getSize();
+    position += shift;
     for (size_t i = 0; i < listSize; i++) {
         Widget* widget = (*subWindows)[i];
 
@@ -120,15 +136,10 @@ void Widget::move(MPoint shift) {
 void Widget::registerObject(Widget* widget) {
     ON_ERROR(!widget, "Widget ptr was null!",)
 
-    RegionSet* curRegSet = new RegionSet();
-    curRegSet->addRegion(MathRectangle(widget->position, widget->size));    
-    regSet->subtract(curRegSet);
-
-    updateRegions(widget->parent, curRegSet);
-
+    widget->setParent(this);
     subWindows->pushBack(widget);
 
-    delete curRegSet;
+    fillRegionSets();  
 }
 
 void Widget::clearRegionSets() {
@@ -154,10 +165,51 @@ void updateRegions(Widget* checkWidget, RegionSet* subSet) {
 }
 
 void Widget::fillRegionSets() {
+    int cnt = 0;
+    Widget* test = this;
+    while (test->parent != 0) test = test->parent;
+
+    test->fillRegionSetsRoot();
+}
+
+void Widget::fillRegionSetsRoot() {
+    if (!regSet || !regSet->getRectangles()) return;
+
+    regSet->getRectangles()->clear();
+
     MathRectangle thisRect = MathRectangle(position, size);
     regSet->addRegion(thisRect);
 
+    if (parent) {
+        regSet = regSet->cross(parent->regSet);
+
+        List<Widget*>* parentWins = parent->subWindows;
+        size_t         parentCCnt = parentWins->getSize();
+        size_t         valInd     = 0;
+        for (size_t i = 0; i < parentCCnt; i++) {
+            if (this == (*parentWins)[i]) {
+                valInd = i + 1;
+                break;
+            }
+        }
+
+        for (size_t i = valInd; i < parentCCnt; i++) {
+            Widget* cur = (*parentWins)[i];
+            MathRectangle curRect = MathRectangle(cur->position, cur->size);
+
+            RegionSet curSet = RegionSet();
+            curSet.addRegion(curRect);
+
+            regSet->subtract(&curSet);
+        }
+    }
+
     size_t childCnt = subWindows->getSize();
+
+    for (size_t i = 0; i < childCnt; i++) {
+        (*subWindows)[i]->fillRegionSetsRoot();
+    }
+
     for (size_t i = 0; i < childCnt; i++) {
         Widget* cur = (*subWindows)[i];
         MathRectangle curRect = MathRectangle(cur->position, cur->size);
@@ -166,6 +218,6 @@ void Widget::fillRegionSets() {
         curSet.addRegion(curRect);
 
         regSet->subtract(&curSet);
-        cur->fillRegionSets();
     }
+    std::cout << "Test\n";
 }

@@ -32,11 +32,12 @@ void runMainCycle() {
     window.setPosition(sf::Vector2i(0, 0));
     RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), &window);
 
-    Window mainWindow = Window(              MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &renderTarget, nullptr);
-    Menu* actions = createActionMenu(&mainWindow);
-    mainWindow.setActions(actions);
+    Brush defaultTool = Brush();
+    ToolManager manager = ToolManager(&defaultTool, MColor(sf::Color::Red));
 
-    // mainWindow.vis = false;
+    Window mainWindow = Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, nullptr);
+    // Menu* actions = createActionMenu(&mainWindow);
+    // mainWindow.setActions(actions);
 
     window.clear();
     mainWindow.render(&renderTarget);
@@ -63,12 +64,9 @@ void runMainCycle() {
                 if (event.mouseButton.button == sf::Mouse::Left) 
                     mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
 
-                mainWindow.clearRegionSets ();
-                mainWindow.fillRegionSets  ();
-                // updateRegions   (&mainWindow, mainWindow.getRegSet());
-
                 mainWindow.render(&renderTarget);
                 window.display();
+
                 break;
             }
             case sf::Event::MouseButtonReleased: {
@@ -77,12 +75,9 @@ void runMainCycle() {
                 if (event.mouseButton.button == sf::Mouse::Left)
                     mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
 
-                mainWindow.clearRegionSets ();
-                mainWindow.fillRegionSets  ();
-                // updateRegions   (&mainWindow, mainWindow.getRegSet());
-
                 mainWindow.render(&renderTarget);
                 window.display();
+
                 break;
             }
             case sf::Event::MouseMoved: {
@@ -90,12 +85,9 @@ void runMainCycle() {
                 window.clear();
                 mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 
-                mainWindow.clearRegionSets ();
-                mainWindow.fillRegionSets  ();
-                // updateRegions(&mainWindow, mainWindow.getRegSet());
-
                 mainWindow.render(&renderTarget);
                 window.display();
+
                 break;
             }
             }

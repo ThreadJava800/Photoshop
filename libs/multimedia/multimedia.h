@@ -94,6 +94,7 @@ private:
     sf::RenderWindow*  window   = nullptr;
 
 public:
+    explicit RenderTarget(MPoint _position, MPoint _size);
     explicit RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window);
     ~RenderTarget();
 
@@ -162,6 +163,8 @@ public:
     void visualize(RenderTarget* renderTarget);
 
     void subtract(const RegionSet* b);
+    void merge   (const RegionSet* b);
+    RegionSet* cross   (const RegionSet* b);
 };
 
 #endif

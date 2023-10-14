@@ -32,6 +32,9 @@ public:
     void           setExists  (bool val);
     bool           getExists  ();
     RegionSet*     getRegSet  ();
+    Widget   *     getParent  ();
+
+    void setParent(Widget* _parent);
 
     virtual bool onKeyPressed (MKeyboard key) {return false;};
     virtual bool onKeyReleased(MKeyboard key) {return false;};
@@ -43,8 +46,10 @@ public:
     virtual void move(MPoint shift);
 
     virtual void registerObject(Widget* widget);
-    void clearRegionSets ();
-    void fillRegionSets  ();
+
+    void clearRegionSets   ();
+    void fillRegionSets    ();
+    void fillRegionSetsRoot();
 };
 
 void updateRegions(Widget* checkWidget, RegionSet* subSet);

@@ -1,35 +1,28 @@
 #include "window.h"
 
 bool isCreated = false;
-// ToolManager* man = new ToolManager();
 
-Window::Window(MPoint _position, MPoint _size, RenderTarget *_tempTarget, Widget* _parent) :
-    Widget (_position, _size, _parent),
-    tempTarget(_tempTarget),
-    actions(nullptr)   {
+Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent) :
+    Widget    (_position, _size, _parent),
+    manager   (_manager),
+    actions   (nullptr)   {
         createTopPanel();
         if (!isCreated) createTestWindow();
-        // createCanvas  ();
     }
 
-Window::Window(MPoint _position, MPoint _size, RenderTarget *_tempTarget, Widget* _parent, Menu* _actions) :
-    Widget (_position, _size, _parent),
-    tempTarget(_tempTarget),
-    actions(_actions)  {
+Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions) :
+    Widget    (_position, _size, _parent),
+    manager   (_manager),
+    actions   (_actions)  {
         createTopPanel();
         registerObject(actions);
         if (!isCreated) createTestWindow();
-        // createCanvas  ();
     }
 
 Window::~Window() {}
 
-Widget* Window::getParent() {
-    return parent;
-}
-
 void Window::createCanvas() {
-    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), nullptr, tempTarget);
+    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), manager);
     registerObject(canvas);
 }
 
@@ -56,17 +49,16 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    // Brush* br = new Brush();
-    // man->setTool(br);
-    // man->setColor(MColor(sf::Color::Red));
-
-    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), tempTarget, this);
+    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), manager, this);
+    // subWin->createCanvas();
     registerObject(subWin);
 
-    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), tempTarget, this);
+    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), manager, this);
+    // subWin2->createCanvas();
     registerObject(subWin2);
 
-    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(400, 400), tempTarget, this);
+    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(400, 400), manager, this);
+    // subWin3->createCanvas();
     registerObject(subWin3);
 }
 
@@ -84,9 +76,13 @@ void Window::render(RenderTarget* renderTarget) {
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
         if (widget && !widget->getExists()) {
+            Widget* delParent = widget->getParent();
+
             delete widget;
             subWindows->remove(i);
             listSize--;
+
+            // fillRegionSets();
         }
     }
 
@@ -111,6 +107,8 @@ void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     window->move(newPos - oldPos);
+
+    if (window->getParent()) window->getParent()->fillRegionSets();
 }
 
 void closeFunc(void* window) {

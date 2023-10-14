@@ -13,9 +13,9 @@ public:
     explicit Tool();
     explicit Tool(MPoint _start, MPoint _end);
 
-    virtual void paintOnPressed (RenderTarget *perm, RenderTarget *tmp, MColor color, MPoint cur, MMouse btn) = 0;
-    virtual void paintOnMove    (RenderTarget *perm, RenderTarget *tmp, MColor color, MPoint cur)             = 0;
-    virtual void paintOnReleased(RenderTarget *perm, RenderTarget *tmp, MColor color, MPoint cur, MMouse btn) = 0;
+    virtual void paintOnPressed (RenderTarget *perm, MColor color, MPoint cur, MMouse btn) = 0;
+    virtual void paintOnMove    (RenderTarget *perm, MColor color, MPoint cur)             = 0;
+    virtual void paintOnReleased(RenderTarget *perm, MColor color, MPoint cur, MMouse btn) = 0;
 };
 
 class Brush : public Tool {
@@ -23,9 +23,9 @@ public:
     explicit Brush();
     explicit Brush(MPoint _start, MPoint _end);
 
-    void paintOnPressed (RenderTarget *perm, RenderTarget *tmp, MColor color, MPoint cur, MMouse btn) override;
-    void paintOnMove    (RenderTarget *perm, RenderTarget *tmp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *tmp, MColor color, MPoint cur, MMouse btn) override;
+    void paintOnPressed (RenderTarget *perm, MColor color, MPoint cur, MMouse btn) override;
+    void paintOnMove    (RenderTarget *perm, MColor color, MPoint cur)             override;
+    void paintOnReleased(RenderTarget *perm, MColor color, MPoint cur, MMouse btn) override;
 };
 
 class ToolManager {
@@ -40,9 +40,9 @@ public:
     void setTool (Tool* _tool);
     void setColor(MColor _color);
 
-    void paintOnPressed (RenderTarget *perm, RenderTarget *tmp, MPoint cur, MMouse btn);
-    void paintOnMove    (RenderTarget *perm, RenderTarget *tmp, MPoint cur);
-    void paintOnReleased(RenderTarget *perm, RenderTarget *tmp, MPoint cur, MMouse btn);
+    void paintOnPressed (RenderTarget *perm, MPoint cur, MMouse btn);
+    void paintOnMove    (RenderTarget *perm, MPoint cur);
+    void paintOnReleased(RenderTarget *perm, MPoint cur, MMouse btn);
 };
 
 class Canvas : public Widget {

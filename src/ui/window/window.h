@@ -8,7 +8,8 @@
 
 class Window : public Widget {
 private:
-    Menu*  actions  = nullptr;
+    Menu*        actions = nullptr;
+    ToolManager* manager = nullptr; 
     
     void createCanvas    ();
     void createTopPanel  ();
@@ -16,13 +17,10 @@ private:
     
 public:
     bool vis = true;
-    RenderTarget *tempTarget = nullptr;
 
-    explicit Window(MPoint _position, MPoint _size, RenderTarget *_tempTarget, Widget* _parent);
-    explicit Window(MPoint _position, MPoint _size, RenderTarget *_tempTarget, Widget* _parent, Menu* _actions);
+    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent);
+    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions);
     ~Window();
-
-    Widget* getParent();
 
     void setActions(Menu* _actions);
     void render(RenderTarget* renderTarget) override;

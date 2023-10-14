@@ -145,6 +145,15 @@ sf::Texture* MImage::getSfTexture() {
     return img;
 }
 
+RenderTarget::RenderTarget(MPoint _position, MPoint _size) :
+    position(_position),
+    window  (nullptr),
+    sprite  (nullptr)    {
+        texture = new sf::RenderTexture();
+        ON_ERROR(!texture, "Cannot allocate memory!",);
+        texture->create(_size.x, _size.y);
+    }
+
 RenderTarget::RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window) :
     position(_position),
     window  (_window)    {
@@ -553,4 +562,37 @@ void RegionSet::subtract(const RegionSet* b) {
 
     delete rectangles;
     rectangles = newSet;
+}
+
+void RegionSet::merge(const RegionSet* b) {
+    if(!rectangles || !b || !b->rectangles) return;
+
+    // std::cout << getSize() << '\n';
+
+    // subtract(b);
+    // subtract(this);
+    size_t listSize = b->rectangles->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        // std::cerr << rectangles->getSize() << '\n';
+        addRegion((*b)[i]);
+    }
+
+    // std::cout << getSize() << '\n';
+}
+
+RegionSet* RegionSet::cross(const RegionSet* b) {
+    RegionSet* newSet = new RegionSet();
+
+    size_t listSize = getSize();
+    size_t bListSize = b->rectangles->getSize();
+    for (size_t i = 0; i < listSize; i++) {
+        for (size_t j = 0; j < bListSize; j++) {
+            MathRectangle in = getIntersection((*rectangles)[i], (*b->rectangles)[j]);
+            RegionSet* test =  new RegionSet();
+            test->addRegion(in);
+            newSet->merge(test);
+        }
+    }
+
+    return newSet;
 }
