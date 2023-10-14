@@ -160,7 +160,7 @@ public:
     List<MathRectangle>* getRectangles();
 
     MathRectangle& operator[](const size_t index) const;
-    void visualize(RenderTarget* renderTarget);
+    void visualize(RenderTarget* renderTarget, MColor debCol);
 
     void subtract(const RegionSet* b);
     void merge   (const RegionSet* b);

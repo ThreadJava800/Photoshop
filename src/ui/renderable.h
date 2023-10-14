@@ -23,6 +23,8 @@ protected:
     void createEmptyRegionSet();
 
 public:
+    MColor debColor;
+
     explicit Widget(MPoint _position, MPoint _size, Widget* _parent);
     explicit Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* subWindows);
     virtual ~Widget();

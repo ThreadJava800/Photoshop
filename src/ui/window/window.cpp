@@ -57,7 +57,7 @@ void Window::createTestWindow() {
     // subWin2->createCanvas();
     registerObject(subWin2);
 
-    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(400, 400), manager, this);
+    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, this);
     // subWin3->createCanvas();
     registerObject(subWin3);
 }
@@ -93,7 +93,7 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    regSet->visualize(renderTarget);
+    regSet->visualize(renderTarget, debColor);
 }
 
 void prioritizeWindow(Window* window) {

@@ -300,34 +300,36 @@ void RenderTarget::_drawSprite(MPoint start,  MPoint size,   MImage* img) {
 void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet* regions) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
-    if (!regions) {
+    // if (!regions) {
         _drawSprite(start, size, img);
         return;
-    }
+    // }
 
     List<MathRectangle>* rects = regions->getRectangles();
     ON_ERROR(!rects, "List was nullptr!",);
 
-    MathRectangle spriteRect = MathRectangle(start, size);
+    sf::RenderTexture tmp;
+    tmp.create(texture->getSize().x, texture->getSize().y);
+    tmp.clear(sf::Color::Transparent);
+
+    sf::Sprite toCrop(*img->getSfTexture());
+    toCrop.setPosition(position.x, position.y);
+
+    tmp.draw(toCrop);
+    tmp.display();
 
     size_t rectSize = rects->getSize();
     for (size_t i = 0; i < rectSize; i++) {
-        MathRectangle regRect = (*rects)[i];
-        if (isIntersected(regRect, spriteRect)) {
-            MathRectangle intersect = getIntersection(regRect, spriteRect);
+        if (img->getSfTexture()) {
+            sf::Sprite drawSprite(tmp.getTexture(), sf::IntRect((*rects)[i].getPosition().x, (*rects)[i].getPosition().x, (*rects)[i].getSize().x, (*rects)[i].getSize().y));
+            drawSprite.setPosition((*rects)[i].getPosition().toSfVector());
 
-            if (img->getSfTexture()) {
-                sf::Sprite drawSprite;
-                drawSprite.setPosition   (start.toSfVector());
-                drawSprite.setTexture    (*img->getSfTexture());
-                drawSprite.setTextureRect(sf::IntRect(intersect.getPosition().x, intersect.getPosition().y, intersect.getSize().x, intersect.getSize().y));
-
-                sf::Texture* drawTexture = new sf::Texture(*drawSprite.getTexture());
-                MImage drawImg = MImage(drawTexture);
-                _drawSprite(MPoint(intersect.getPosition().x, intersect.getPosition().y), MPoint(intersect.getSize().x, intersect.getSize().y), &drawImg);
-            }
+            texture->draw(drawSprite);
         }
     }
+
+    texture->display();
+    window ->draw(*sprite);
 }
 
 void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions) {
@@ -528,7 +530,7 @@ MathRectangle& RegionSet::operator[](const size_t index) const {
     return (*rectangles)[index];
 }
 
-void RegionSet::visualize(RenderTarget* renderTarget) {
+void RegionSet::visualize(RenderTarget* renderTarget, MColor debCol) {
     ON_ERROR(!renderTarget, "Drawable area was null",);
     ON_ERROR(!rectangles, "List was null!",);
 
@@ -536,7 +538,9 @@ void RegionSet::visualize(RenderTarget* renderTarget) {
 
     for (size_t i = 0; i < listSize; i++) {
         MathRectangle rect = (*rectangles)[i];
-        renderTarget->drawRect(rect.getPosition(), rect.getSize(), MColor(DEFAULT_COLOR), MColor(DEB_COLS[i % DEB_COLS_CNT]));
+
+        debCol.a = 255 / 2;
+        renderTarget->drawRect(rect.getPosition(), rect.getSize(), debCol, debCol);
     }
 }
 

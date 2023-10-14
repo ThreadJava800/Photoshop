@@ -5,6 +5,7 @@ Widget::Widget(MPoint _position, MPoint _size, Widget* _parent) :
     size    (_size),
     parent  (_parent),
     exists  (true) {
+        debColor = MColor(DEB_COLS[rand() % DEB_COLS_CNT]);
         subWindows = new List<Widget*>();
         createEmptyRegionSet();
     }
@@ -15,6 +16,7 @@ Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _
     parent    (_parent),
     subWindows(_subWindows),
     exists    (true)  {
+        debColor = MColor(DEB_COLS[rand() % DEB_COLS_CNT]);
         createEmptyRegionSet();
     }
 
