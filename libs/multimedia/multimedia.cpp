@@ -264,7 +264,7 @@ void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor 
 }
 
 void RenderTarget::_drawCircle(MPoint centre, double radius, MColor color) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     sf::CircleShape circle(radius);
     circle.setPosition    (centre.toSfVector() - sf::Vector2f(radius, radius));
@@ -272,11 +272,11 @@ void RenderTarget::_drawCircle(MPoint centre, double radius, MColor color) {
 
     texture->draw(circle);
     texture->display();
-    window ->draw(*sprite);
+    if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, RegionSet* regions) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     if (regions) {
         
@@ -286,7 +286,7 @@ void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, Region
 }
 
 void RenderTarget::_drawSprite(MPoint start,  MPoint size,   MImage* img) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());
     rect.setPosition(start.toSfVector());
@@ -294,11 +294,11 @@ void RenderTarget::_drawSprite(MPoint start,  MPoint size,   MImage* img) {
 
     texture->draw(rect);
     texture->display();
-    window ->draw(*sprite);
+    if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet* regions) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     // if (!regions) {
         _drawSprite(start, size, img);

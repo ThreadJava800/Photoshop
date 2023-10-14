@@ -50,15 +50,15 @@ void Window::createTestWindow() {
     isCreated = true;
 
     Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), manager, this);
-    // subWin->createCanvas();
+    subWin->createCanvas();
     registerObject(subWin);
 
     Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), manager, this);
-    // subWin2->createCanvas();
+    subWin2->createCanvas();
     registerObject(subWin2);
 
     Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, this);
-    // subWin3->createCanvas();
+    subWin3->createCanvas();
     registerObject(subWin3);
 }
 

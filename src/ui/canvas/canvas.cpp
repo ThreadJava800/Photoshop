@@ -19,7 +19,7 @@ void Brush::paintOnPressed(RenderTarget *perm, MColor color, MPoint cur, MMouse 
 }
 
 void Brush::paintOnMove(RenderTarget *perm, MColor color, MPoint cur) {
-
+    perm->drawCircle(cur, 20, color);
 }
 
 void Brush::paintOnReleased(RenderTarget *perm, MColor color, MPoint cur, MMouse btn) {
@@ -67,35 +67,50 @@ Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, RenderTarg
     rendTarget(_rendTarget),
     manager   (_manager)     {}
 
+Canvas::~Canvas() {
+    delete rendTarget;
+}
+
 bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    manager->paintOnPressed(rendTarget, pos, btn);
+    MathRectangle canvRect = MathRectangle(position, size);
+    if (canvRect.isPointInside(pos)) {
+        manager->paintOnPressed(rendTarget, pos - this->position, btn);
+        drawing = true;
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 bool Canvas::onMouseReleased(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    manager->paintOnReleased(rendTarget, pos, btn);
+    manager->paintOnReleased(rendTarget, pos - this->position, btn);
+    drawing = false;
 
-    return true;
+    return false;
 }
 
 bool Canvas::onMouseMove(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    manager->paintOnMove(rendTarget, pos);
+    if (drawing) {
+        manager->paintOnMove(rendTarget, pos - this->position);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 void Canvas::render(RenderTarget* renderTarget) {
-    // renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(DEFAULT_BACK_COL), regSet);
+    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY), regSet);
 
-    // sf::Texture tmp = rendTarget->getRenderTexture()->getTexture();
-    // MImage* ttt = new MImage(&tmp);
-    // renderTarget->drawSprite(position, size, ttt, regSet);
-    // delete ttt;
+    sf::Texture* tmp =  new sf::Texture();
+    *tmp = rendTarget->getRenderTexture()->getTexture();
+
+    MImage* textureWrapper = new MImage(tmp);
+    renderTarget->drawSprite(position, size, textureWrapper, regSet);
+    delete textureWrapper;
 }

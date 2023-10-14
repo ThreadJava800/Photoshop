@@ -55,6 +55,8 @@ public:
     explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager);
     explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, RenderTarget *_rendTarget);
 
+    ~Canvas();
+
     bool onMousePressed (MPoint pos, MMouse btn) override;
     bool onMouseReleased(MPoint pos, MMouse btn) override;
     bool onMouseMove    (MPoint pos, MMouse btn) override;
