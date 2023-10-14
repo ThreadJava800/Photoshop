@@ -163,8 +163,8 @@ public:
     MathRectangle& operator[](const size_t index) const;
     void visualize(RenderTarget* renderTarget, MColor debCol);
 
-    void subtract(const RegionSet* b);
-    void merge   (const RegionSet* b);
+    void       subtract(const RegionSet* b);
+    void       merge   (const RegionSet* b);
     RegionSet* cross   (const RegionSet* b);
 };
 

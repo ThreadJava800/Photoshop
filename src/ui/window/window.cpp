@@ -55,6 +55,7 @@ void Window::createTestWindow() {
 
     Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), manager, this);
     subWin2->createCanvas();
+    subWin2->vis = false;
     registerObject(subWin2);
 
     Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, this);
@@ -86,6 +87,7 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
+    if (vis) {
     for (size_t i = 0; i < listSize; i++) {
         Widget* widget = (*subWindows)[i];
         if (widget) {
@@ -94,6 +96,7 @@ void Window::render(RenderTarget* renderTarget) {
     }
 
     Widget::render(renderTarget);
+    }
 }
 
 void prioritizeWindow(Window* window) {

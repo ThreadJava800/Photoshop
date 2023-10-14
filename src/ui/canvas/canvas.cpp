@@ -106,7 +106,7 @@ bool Canvas::onMouseMove(MPoint pos, MMouse btn) {
 
 void Canvas::render(RenderTarget* renderTarget) {
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
-    renderTarget->drawFrame(position, size, MColor(GRAY));
+    renderTarget->drawFrame(position, size, MColor(BLACK));
 
     sf::Texture* tmp =  new sf::Texture();
     *tmp = rendTarget->getRenderTexture()->getTexture();
