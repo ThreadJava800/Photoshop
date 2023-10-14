@@ -52,6 +52,4 @@ public:
     void fillRegionSetsRoot();
 };
 
-void updateRegions(Widget* checkWidget, RegionSet* subSet);
-
 #endif

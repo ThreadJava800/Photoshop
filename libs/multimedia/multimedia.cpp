@@ -567,17 +567,10 @@ void RegionSet::subtract(const RegionSet* b) {
 void RegionSet::merge(const RegionSet* b) {
     if(!rectangles || !b || !b->rectangles) return;
 
-    // std::cout << getSize() << '\n';
-
-    // subtract(b);
-    // subtract(this);
     size_t listSize = b->rectangles->getSize();
     for (size_t i = 0; i < listSize; i++) {
-        // std::cerr << rectangles->getSize() << '\n';
         addRegion((*b)[i]);
     }
-
-    // std::cout << getSize() << '\n';
 }
 
 RegionSet* RegionSet::cross(const RegionSet* b) {
@@ -587,12 +580,14 @@ RegionSet* RegionSet::cross(const RegionSet* b) {
     size_t bListSize = b->rectangles->getSize();
     for (size_t i = 0; i < listSize; i++) {
         for (size_t j = 0; j < bListSize; j++) {
-            MathRectangle in = getIntersection((*rectangles)[i], (*b->rectangles)[j]);
-            RegionSet* test =  new RegionSet();
-            test->addRegion(in);
-            newSet->merge(test);
+            MathRectangle inters = getIntersection((*rectangles)[i], (*b->rectangles)[j]);
+
+            RegionSet tmp = RegionSet();
+            tmp.addRegion(inters);
+
+            newSet->merge(&tmp);
         }
     }
-
+    
     return newSet;
 }

@@ -82,7 +82,7 @@ void Window::render(RenderTarget* renderTarget) {
             subWindows->remove(i);
             listSize--;
 
-            // fillRegionSets();
+            fillRegionSets();
         }
     }
 
@@ -107,7 +107,6 @@ void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     window->move(newPos - oldPos);
-
     if (window->getParent()) window->getParent()->fillRegionSets();
 }
 

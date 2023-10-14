@@ -152,18 +152,6 @@ void Widget::clearRegionSets() {
     }
 }
 
-void updateRegions(Widget* checkWidget, RegionSet* subSet) {
-    if (checkWidget) {
-        List<Widget*>* subWin = checkWidget->getWindows();
-        size_t listSize       = subWin->getSize();
-
-        for (size_t i = 0; i < listSize; i++) {
-            (*subWin)[i]->getRegSet()->subtract(subSet);
-            updateRegions((*subWin)[i], subSet);
-        }
-    }
-}
-
 void Widget::fillRegionSets() {
     int cnt = 0;
     Widget* test = this;
@@ -181,7 +169,9 @@ void Widget::fillRegionSetsRoot() {
     regSet->addRegion(thisRect);
 
     if (parent) {
+        RegionSet* oldRegSet = regSet;
         regSet = regSet->cross(parent->regSet);
+        delete oldRegSet;
 
         List<Widget*>* parentWins = parent->subWindows;
         size_t         parentCCnt = parentWins->getSize();
@@ -219,5 +209,4 @@ void Widget::fillRegionSetsRoot() {
 
         regSet->subtract(&curSet);
     }
-    std::cout << "Test\n";
 }

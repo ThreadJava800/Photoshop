@@ -36,8 +36,8 @@ void runMainCycle() {
     ToolManager manager = ToolManager(&defaultTool, MColor(sf::Color::Red));
 
     Window mainWindow = Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, nullptr);
-    // Menu* actions = createActionMenu(&mainWindow);
-    // mainWindow.setActions(actions);
+    Menu* actions = createActionMenu(&mainWindow);
+    mainWindow.setActions(actions);
 
     window.clear();
     mainWindow.render(&renderTarget);
