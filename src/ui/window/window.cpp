@@ -93,7 +93,7 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    // regSet->visualize(renderTarget, debColor);
+    Widget::render(renderTarget);
 }
 
 void prioritizeWindow(Window* window) {

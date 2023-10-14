@@ -19,6 +19,8 @@ void Menu::render(RenderTarget* renderTarget) {
         Widget* btn = (*subWindows)[i];
         if (btn) btn->render(renderTarget);
     }
+
+    Widget::render(renderTarget);
 }
 
 bool Menu::isInside(MPoint checkPoint) {

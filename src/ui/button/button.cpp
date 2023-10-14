@@ -50,6 +50,8 @@ void TextButton::render(RenderTarget* renderTarget) {
     // TODO move to const
     renderTarget->drawRect(position, size, color, MColor(TRANSPARENT), regSet);
     renderTarget->drawText(position, text, MColor(BLACK), font, 25, regSet);
+
+    Widget::render(renderTarget);
 }
 
 ImageButton::ImageButton(MPoint _position, MPoint _size, MImage* _img, Widget* _parent, ButtonFunc _func, void* _args) :
@@ -66,4 +68,6 @@ void ImageButton::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
     renderTarget->drawSprite(position, size, image, regSet);
+
+    Widget::render(renderTarget);
 }

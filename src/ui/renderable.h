@@ -49,6 +49,8 @@ public:
 
     virtual void registerObject(Widget* widget);
 
+    void render(RenderTarget* renderTarget) override;
+
     void clearRegionSets   ();
     void fillRegionSets    ();
     void fillRegionSetsRoot();

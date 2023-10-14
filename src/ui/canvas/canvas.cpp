@@ -114,4 +114,6 @@ void Canvas::render(RenderTarget* renderTarget) {
     MImage* textureWrapper = new MImage(tmp);
     renderTarget->drawSprite(position, size, textureWrapper, regSet);
     delete textureWrapper;
+
+    Widget::render(renderTarget);
 }

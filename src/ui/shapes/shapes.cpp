@@ -20,4 +20,5 @@ void Rectangle::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "RenderTarget was null!",);
 
     renderTarget->drawRect(position, size, fillColor, outColor, regSet);
+    Widget::render(renderTarget);
 }

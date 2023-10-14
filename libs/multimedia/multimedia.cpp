@@ -217,15 +217,15 @@ void RenderTarget::drawLine(MPoint start, MPoint end, MColor color, RegionSet* r
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
     // TODO
-    // if (regions) {
-    //     size_t regCnt = regions->getSize();
+    if (regions) {
+        size_t regCnt = regions->getSize();
 
-    //     for (size_t i = 0; i < regCnt; i++) {
+        for (size_t i = 0; i < regCnt; i++) {
 
-    //     }
-    // } else {
-    //     _drawLine(start, end, color);
-    // }
+        }
+    } else {
+        _drawLine(start, end, color);
+    }
 }
 
 void RenderTarget::_drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor) {
@@ -547,7 +547,7 @@ void RegionSet::visualize(RenderTarget* renderTarget, MColor debCol) {
         MathRectangle rect = (*rectangles)[i];
 
         debCol.a = 255 / 2;
-        renderTarget->drawRect(rect.getPosition(), rect.getSize(), debCol, debCol);
+        renderTarget->drawRect(rect.getPosition(), rect.getSize(), debCol, MColor(BLACK));
     }
 }
 

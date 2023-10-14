@@ -144,6 +144,10 @@ void Widget::registerObject(Widget* widget) {
     fillRegionSets();  
 }
 
+void Widget::render(RenderTarget* renderTarget) {
+    regSet->visualize(renderTarget, debColor);
+}
+
 void Widget::clearRegionSets() {
     size_t listSize = subWindows->getSize();
 
