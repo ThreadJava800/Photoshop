@@ -113,6 +113,7 @@ public:
     void drawSprite (MPoint start,  MPoint size,   MImage* img, RegionSet* regions = nullptr); 
     void _drawText  (MPoint start,  MPoint size,   MImage* img); 
     void drawText   (MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions = nullptr);
+    void drawFrame  (MPoint start,  MPoint size,   MColor outColor, RegionSet* regions = nullptr);
     void setPixel   (MPoint pos, MColor color, RegionSet* regions = nullptr);
 };
 

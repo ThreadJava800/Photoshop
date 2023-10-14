@@ -70,7 +70,7 @@ void Window::setActions(Menu* _actions) {
 void Window::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY), regSet);
+    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
@@ -93,7 +93,7 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    regSet->visualize(renderTarget, debColor);
+    // regSet->visualize(renderTarget, debColor);
 }
 
 void prioritizeWindow(Window* window) {

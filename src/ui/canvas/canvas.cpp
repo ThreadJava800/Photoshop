@@ -15,11 +15,11 @@ Brush::Brush(MPoint _start, MPoint _end) :
     Tool(_start, _end)  {}
 
 void Brush::paintOnPressed(RenderTarget *perm, MColor color, MPoint cur, MMouse btn) {
-    perm->drawCircle(cur, 20, color);
+    perm->drawCircle(cur, LINE_DIAM, color);
 }
 
 void Brush::paintOnMove(RenderTarget *perm, MColor color, MPoint cur) {
-    perm->drawCircle(cur, 20, color);
+    perm->drawCircle(cur, LINE_DIAM, color);
 }
 
 void Brush::paintOnReleased(RenderTarget *perm, MColor color, MPoint cur, MMouse btn) {
@@ -105,7 +105,8 @@ bool Canvas::onMouseMove(MPoint pos, MMouse btn) {
 }
 
 void Canvas::render(RenderTarget* renderTarget) {
-    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY), regSet);
+    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
+    renderTarget->drawFrame(position, size, MColor(GRAY));
 
     sf::Texture* tmp =  new sf::Texture();
     *tmp = rendTarget->getRenderTexture()->getTexture();

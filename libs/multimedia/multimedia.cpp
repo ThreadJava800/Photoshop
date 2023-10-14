@@ -199,7 +199,7 @@ MPoint RenderTarget::getSize () {
 }
 
 void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     sf::VertexArray line(sf::LinesStrip, 2);
     line[0].position = start.toSfVector();
@@ -210,7 +210,7 @@ void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
 
     texture->draw(line);
     texture->display();
-    window ->draw(*sprite);
+    if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawLine(MPoint start, MPoint end, MColor color, RegionSet* regions) {
@@ -346,6 +346,13 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
     texture->draw(drawText);
     texture->display();
     window ->draw(*sprite);
+}
+
+void RenderTarget::drawFrame(MPoint start,  MPoint size,   MColor outColor, RegionSet* regions) {
+    _drawLine(start,        MPoint(start.x, start.y + size.y), outColor);
+    _drawLine(start,        MPoint(start.x + size.x, start.y), outColor);
+    _drawLine(start + size, MPoint(start.x + size.x, start.y), outColor);
+    _drawLine(start + size, MPoint(start.x, start.y + size.y), outColor);
 }
 
 void RenderTarget::setPixel(MPoint pos, MColor color, RegionSet* regions) {
