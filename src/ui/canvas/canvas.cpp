@@ -149,6 +149,26 @@ void EllipseTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor
     drawEllipse(rectStart, cur, color, perm);
 }
 
+LineTool::LineTool() :
+    StraightTool()              {}
+
+LineTool::LineTool(MPoint _start, MPoint _end) :
+    StraightTool(_start, _end)  {}
+
+void LineTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+
+    temp->clear();
+    temp->drawLine(rectStart, cur, color);
+}
+
+void LineTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+
+    temp->clear();
+    perm->drawLine(rectStart, cur, color);
+}
+
 ToolManager::ToolManager() :
     current(nullptr),
     color  (MColor())   {}

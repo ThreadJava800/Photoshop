@@ -77,7 +77,8 @@ public:
     void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
-class LineTool : StraightTool {
+class LineTool : public StraightTool {
+public:
     explicit LineTool();
     explicit LineTool(MPoint _start, MPoint _end);
 

@@ -235,7 +235,7 @@ void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
 }
 
 void RenderTarget::drawLine(MPoint start, MPoint end, MColor color, RegionSet* regions) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     if (regions) {
         size_t regCnt = regions->getSize();
