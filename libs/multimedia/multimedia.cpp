@@ -216,12 +216,16 @@ void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
 void RenderTarget::drawLine(MPoint start, MPoint end, MColor color, RegionSet* regions) {
     ON_ERROR(!texture || !sprite, "Drawable area was null!",);
 
-    // TODO
     if (regions) {
         size_t regCnt = regions->getSize();
 
         for (size_t i = 0; i < regCnt; i++) {
+            MathRectangle drawZone = (*regions)[i];
 
+            MPoint resStart, resEnd;
+            if (intersectLineRectangle(start, end, drawZone, resStart, resEnd)) {
+                _drawLine(resStart, resEnd, color);
+            }
         }
     } else {
         _drawLine(start, end, color);
@@ -349,10 +353,10 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
 }
 
 void RenderTarget::drawFrame(MPoint start,  MPoint size,   MColor outColor, RegionSet* regions) {
-    _drawLine(start,        MPoint(start.x, start.y + size.y), outColor);
-    _drawLine(start,        MPoint(start.x + size.x, start.y), outColor);
-    _drawLine(start + size, MPoint(start.x + size.x, start.y), outColor);
-    _drawLine(start + size, MPoint(start.x, start.y + size.y), outColor);
+    drawLine(start,        MPoint(start.x, start.y + size.y), outColor, regions);
+    drawLine(start,        MPoint(start.x + size.x, start.y), outColor, regions);
+    drawLine(MPoint(start.x + size.x, start.y), MPoint(start.x + size.x, start.y + size.y), outColor, regions);
+    drawLine(MPoint(start.x, start.y + size.y), MPoint(start.x + size.x, start.y + size.y), outColor, regions);
 }
 
 void RenderTarget::setPixel(MPoint pos, MColor color, RegionSet* regions) {
@@ -418,6 +422,110 @@ bool MathRectangle::isXInside(double xPoint) {
 
 bool MathRectangle::isPointInside(MPoint point) {
     return isYInside(point.y) && isXInside(point.x);
+}
+
+INTERSECTION_TYPE getIntersLineLine(MPoint lineStart1, MPoint lineEnd1, MPoint lineStart2, MPoint lineEnd2, MPoint &intersPoint) {
+    // build 1 segment a1x + b1y = c1
+    double a1 = lineEnd1.y        - lineStart1.y;
+    double b1 = lineStart1.x      - lineEnd1.x;
+    double c1 = lineStart1.x * a1 + lineStart1.y * b1;
+
+    // build 2 segment a2x + b2y = c2
+    double a2 = lineEnd2.y        - lineStart2.y;
+    double b2 = lineStart2.x      - lineEnd2.x;
+    double c2 = lineStart2.x * a2 + lineStart2.y * b2;
+
+    // x = (c1*b2 - c2*b1) / (a1*b2 - a2*b1)
+    // y = (a1*c2 - a2*c1) / (a1*b2 - a2*b1)
+    double delta = a1 * b2 - a2 * b1;
+
+    // parallel
+    if (fabs(delta) < EPSILON) {
+        if (lineStart1.x == lineStart2.x && lineStart1.y == lineStart2.y &&
+            lineEnd1  .x == lineEnd2  .x && lineEnd1  .y == lineEnd2  .y)
+            return SAME;
+
+        return NONE;
+    }
+
+    double x = (c1 * b2 - c2 * b1) / delta;
+    double y = (c2 * a1 - c1 * a2) / delta;
+
+    intersPoint = MPoint(x, y);
+
+    // figure out that point is inside segment
+    if ((std::min(lineStart1.x, lineEnd1.x) <= x && x <= std::max(lineStart1.x, lineEnd1.x) &&
+         std::min(lineStart1.y, lineEnd1.y) <= y && y <= std::max(lineStart1.y, lineEnd1.y)) &&
+       ( std::min(lineStart2.x, lineEnd2.x) <= x && x <= std::max(lineStart2.x, lineEnd2.x)  &&
+         std::min(lineStart2.y, lineEnd2.y) <= y && y <= std::max(lineStart2.y, lineEnd2.y)))
+        return POINT;
+
+    return NONE;
+}
+
+bool intersectLineRectangle(MPoint &lineStart, MPoint &lineEnd, MathRectangle rect, MPoint &resStart, MPoint &resEnd) {
+    MPoint intersPoints[2];
+    int pointCnt = 0;
+
+    MPoint testStart = MPoint(rect.l(), rect.top()), testEnd = MPoint(rect.r(), rect.top());
+    INTERSECTION_TYPE intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
+    std::cout << intersRes << '\n';
+    if (intersRes == SAME) {
+        resStart = testStart; resEnd = testEnd;
+        return true;
+    }
+    else if (intersRes == POINT) {
+        std::cout << resStart.x << ' ' << resStart.y << ' ' << resEnd.x << ' ' << resEnd.y << '\n';
+        pointCnt++;
+    }
+
+    testStart = MPoint(rect.l(), rect.down()), testEnd = MPoint(rect.r(), rect.down());
+    intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
+    std::cout << intersRes << '\n';
+    if (intersRes == SAME) {
+        resStart = testStart; resEnd = testEnd;
+        return true;
+    }
+    else if (intersRes == POINT) {
+        pointCnt++;
+        if (pointCnt == 2) {
+            resStart = intersPoints[0], resEnd = intersPoints[1];
+            std::cout << resStart.x << ' ' << resStart.y << ' ' << resEnd.x << ' ' << resEnd.y << '\n';
+            return true;
+        }
+    }
+
+    testStart = MPoint(rect.l(), rect.top()), testEnd = MPoint(rect.l(), rect.down());
+    intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
+    std::cout << intersRes << '\n';
+    if (intersRes == SAME) {
+        resStart = testStart; resEnd = testEnd;
+        return true;
+    }
+    else if (intersRes == POINT) {
+        pointCnt++;
+        if (pointCnt == 2) {
+            resStart = intersPoints[0], resEnd = intersPoints[1];
+            return true;
+        }
+    }
+
+    testStart = MPoint(rect.r(), rect.top()), testEnd = MPoint(rect.r(), rect.down());
+    intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
+    std::cout << intersRes << '\n';
+    if (intersRes == SAME) {
+        resStart = testStart; resEnd = testEnd;
+        return true;
+    }
+    else if (intersRes == POINT) {
+        pointCnt++;
+        if (pointCnt == 2) {
+            resStart = intersPoints[0], resEnd = intersPoints[1];
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool isIntersected(MathRectangle posOld, MathRectangle posNew) {

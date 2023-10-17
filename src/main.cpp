@@ -59,7 +59,7 @@ void runMainCycle() {
                 break;
             case sf::Event::MouseButtonPressed: {
                 renderTarget.getRenderTexture()->clear();
-                window.clear();
+                // window.clear();
                 mainWindow.render(&renderTarget);
                 if (event.mouseButton.button == sf::Mouse::Left) 
                     mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
@@ -71,7 +71,7 @@ void runMainCycle() {
             }
             case sf::Event::MouseButtonReleased: {
                 renderTarget.getRenderTexture()->clear();
-                window.clear();
+                // window.clear();
                 if (event.mouseButton.button == sf::Mouse::Left)
                     mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
 
@@ -82,7 +82,7 @@ void runMainCycle() {
             }
             case sf::Event::MouseMoved: {
                 renderTarget.getRenderTexture()->clear();
-                window.clear();
+                // window.clear();
                 mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 
                 mainWindow.render(&renderTarget);

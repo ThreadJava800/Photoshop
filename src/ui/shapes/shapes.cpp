@@ -19,6 +19,6 @@ MPoint Rectangle::getSize() {
 void Rectangle::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "RenderTarget was null!",);
 
-    renderTarget->drawRect(position, size, fillColor, outColor, regSet);
+    renderTarget->drawRect(position, size, fillColor, MColor(sf::Color(TRANSPARENT)), regSet);
     Widget::render(renderTarget);
 }

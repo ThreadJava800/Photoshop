@@ -145,7 +145,7 @@ void Widget::registerObject(Widget* widget) {
 }
 
 void Widget::render(RenderTarget* renderTarget) {
-    regSet->visualize(renderTarget, debColor);
+    // regSet->visualize(renderTarget, debColor);
 }
 
 void Widget::clearRegionSets() {
@@ -206,6 +206,7 @@ void Widget::fillRegionSetsRoot() {
         (*subWindows)[i]->fillRegionSetsRoot();
     }
 
+    // minus children
     for (size_t i = 0; i < childCnt; i++) {
         Widget* cur = (*subWindows)[i];
         MathRectangle curRect = MathRectangle(cur->position, cur->size);

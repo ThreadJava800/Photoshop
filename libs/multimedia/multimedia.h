@@ -117,6 +117,12 @@ public:
     void setPixel   (MPoint pos, MColor color, RegionSet* regions = nullptr);
 };
 
+enum INTERSECTION_TYPE {
+    NONE,
+    POINT,
+    SAME
+};
+
 class MathRectangle {
 private:
     MPoint position = MPoint();
@@ -137,6 +143,10 @@ public:
     bool isYInside(double yPoint);
     bool isXInside(double xPoint);
     bool isPointInside(MPoint point);
+
+    friend INTERSECTION_TYPE getIntersLineLine(MPoint lineStart1, MPoint lineEnd1, MPoint lineStart2, MPoint lineEnd2, MPoint &intersPoint);
+
+    friend bool intersectLineRectangle(MPoint &lineStart, MPoint &lineEnd, MathRectangle rect, MPoint &resStart, MPoint &resEnd);
 
     friend bool          isIntersected  (MathRectangle posOld, MathRectangle posNew);
     friend MathRectangle getIntersection(MathRectangle posOld, MathRectangle posNew);
