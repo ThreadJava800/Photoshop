@@ -169,6 +169,57 @@ void LineTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor co
     perm->drawLine(rectStart, cur, color);
 }
 
+CurveTool::CurveTool() :
+    StraightTool() {
+        points = new List<MPoint>();
+    }
+
+CurveTool::CurveTool(MPoint _start, MPoint _end) :
+    StraightTool(_start, _end) {
+        points = new List<MPoint>();
+    }
+
+CurveTool::~CurveTool() {
+    delete points;
+}
+
+void CurveTool::drawCurve(MColor color, RenderTarget *drawTarget) {
+    ON_ERROR(!drawTarget || !points, "Drawable area was null!",);
+
+    size_t listSize = points->getSize();
+
+    if (listSize == 1) {
+        drawTarget->setPixel((*points)[0], color);
+        return;
+    }
+
+    for (size_t i = 1; i < listSize; i++) {
+        drawTarget->drawLine((*points)[i - 1], (*points)[i], color);
+    }
+}
+
+void CurveTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp || !points, "Drawable area was null!",);
+
+    if (btn == LEFT) {
+        points->pushBack(cur);
+
+        temp->clear();
+        drawCurve(color, temp);
+    }
+
+    if (btn == RIGHT) {
+        temp->clear();
+        drawCurve(color, perm);
+
+        points->clear();
+    }
+}
+
+void CurveTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {}
+
+void CurveTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {}
+
 ToolManager::ToolManager() :
     current(nullptr),
     color  (MColor())   {}

@@ -386,7 +386,7 @@ void RenderTarget::drawFrame(MPoint start,  MPoint size,   MColor outColor, Regi
 }
 
 void RenderTarget::setPixel(MPoint pos, MColor color, RegionSet* regions) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     if (regions) {
         size_t regCnt = regions->getSize();
@@ -402,7 +402,7 @@ void RenderTarget::setPixel(MPoint pos, MColor color, RegionSet* regions) {
 
     texture->draw(point);
     texture->display();
-    window ->draw(*sprite);
+    if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawEllipse(MPoint pos, double scaleX, double scaleY, double maxRad, MColor color) {

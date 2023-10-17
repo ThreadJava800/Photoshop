@@ -86,6 +86,23 @@ public:
     void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
+class CurveTool : public StraightTool {
+private:
+    List<MPoint> *points = nullptr;
+
+    void drawCurve(MColor color, RenderTarget *drawTarget);
+
+public:
+    explicit CurveTool();
+    explicit CurveTool(MPoint _start, MPoint _end);
+
+    ~CurveTool();
+
+    void paintOnPressed (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+};
+
 class ToolManager {
 private:
     Tool*  current = nullptr;
