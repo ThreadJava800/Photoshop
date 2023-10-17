@@ -14,15 +14,19 @@ Brush::Brush() :
 Brush::Brush(MPoint _start, MPoint _end) :
     Tool(_start, _end)  {}
 
-void Brush::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+bool Brush::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
     perm->drawCircle(cur, LINE_DIAM, color);
+    return true;
 }
 
-void Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+bool Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
     perm->drawCircle(cur, LINE_DIAM, color);
+    return true;
 }
 
-void Brush::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {}
+bool Brush::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) { return false; }
+
+bool Brush::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) { return false; }
 
 StraightTool::StraightTool() :
     Tool(),
@@ -32,19 +36,30 @@ StraightTool::StraightTool(MPoint _start, MPoint _end) :
     Tool(_start, _end),
     rectStart(MPoint()) {}
 
-void StraightTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+bool StraightTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
 
-    if (btn == LEFT) rectStart = cur;
+    if (btn == LEFT) {
+        rectStart = cur;
+        return true;
+    }
+
+    return false;
 }
 
-void StraightTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+bool StraightTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
+    return true;
 }
 
-void StraightTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+bool StraightTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
+    return false;
 }
+
+bool StraightTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) { return false; }
 
 CircleTool::CircleTool() :
     StraightTool()    {}
@@ -64,15 +79,15 @@ void CircleTool::drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *d
     drawTarget->drawCircle(circleLU, radius, color);
 }
 
-void CircleTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+bool CircleTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
 
     temp->clear();
     drawCircle(rectStart, cur, color, temp);
 }
 
-void CircleTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+bool CircleTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
 
     temp->clear();
     drawCircle(rectStart, cur, color, perm);
@@ -96,18 +111,22 @@ void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, RenderTarget *d
     drawTarget->drawRect(rectLU, size, MColor(TRANSPARENT), color);
 }
 
-void SquareTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+bool SquareTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
 
     temp->clear();
     drawSquare(rectStart, cur, color, temp);
+
+    return true;
 }
 
-void SquareTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+bool SquareTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
 
     temp->clear();
     drawSquare(rectStart, cur, color, perm);
+
+    return false;
 }
 
 EllipseTool::EllipseTool() :
@@ -135,18 +154,22 @@ void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, RenderTarget 
     drawTarget->drawEllipse(circleLU, scaleX, scaleY, std::max(height, length), color);
 }
 
-void EllipseTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+bool EllipseTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
 
     temp->clear();
     drawEllipse(rectStart, cur, color, temp);
+
+    return true;
 }
 
-void EllipseTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+bool EllipseTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
 
     temp->clear();
     drawEllipse(rectStart, cur, color, perm);
+
+    return false;
 }
 
 LineTool::LineTool() :
@@ -155,18 +178,22 @@ LineTool::LineTool() :
 LineTool::LineTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
-void LineTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+bool LineTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
 
     temp->clear();
     temp->drawLine(rectStart, cur, color);
+
+    return true;
 }
 
-void LineTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+bool LineTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
 
     temp->clear();
     perm->drawLine(rectStart, cur, color);
+
+    return false;
 }
 
 CurveTool::CurveTool() :
@@ -198,14 +225,16 @@ void CurveTool::drawCurve(MColor color, RenderTarget *drawTarget) {
     }
 }
 
-void CurveTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp || !points, "Drawable area was null!",);
+bool CurveTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp || !points, "Drawable area was null!", false);
 
     if (btn == LEFT) {
         points->pushBack(cur);
 
         temp->clear();
         drawCurve(color, temp);
+
+        return true;
     }
 
     if (btn == RIGHT) {
@@ -214,11 +243,21 @@ void CurveTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor co
 
         points->clear();
     }
+
+    return false;
 }
 
-void CurveTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {}
+bool CurveTool::paintOnReleased (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    return true;
+}
 
-void CurveTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {}
+bool CurveTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
+    ON_ERROR(!points, "Drawable area was null!", false);
+
+    points->clear();
+
+    return false;
+}
 
 ToolManager::ToolManager() :
     current(nullptr),
@@ -236,16 +275,20 @@ void ToolManager::setColor(MColor _color) {
     color = _color;
 }
 
-void ToolManager::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
-    current->paintOnPressed(perm, temp, color, cur, btn);
+bool ToolManager::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
+    return current->paintOnPressed(perm, temp, color, cur, btn);
 }
 
-void ToolManager::paintOnMove(RenderTarget *perm, RenderTarget *temp, MPoint cur) {
-    current->paintOnMove(perm, temp, color, cur);
+bool ToolManager::paintOnMove(RenderTarget *perm, RenderTarget *temp, MPoint cur) {
+    return current->paintOnMove(perm, temp, color, cur);
 }
 
-void ToolManager::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
-    current->paintOnReleased(perm, temp, color, cur, btn);
+bool ToolManager::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
+    return current->paintOnReleased(perm, temp, color, cur, btn);
+}
+
+bool ToolManager::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
+    return current->paintOnDeactivate(perm, temp);
 }
 
 Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager) :
@@ -272,10 +315,9 @@ bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
 
     MathRectangle canvRect = MathRectangle(position, size);
     if (canvRect.isPointInside(pos)) {
-        manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, btn);
-        drawing = true;
-
-        return true;
+        drawing = manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, btn);
+    
+        return drawing;
     }
 
     return false;
@@ -284,19 +326,25 @@ bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
 bool Canvas::onMouseReleased(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    if (drawing) manager->paintOnReleased(rendTarget, tempTarget, pos - this->position, btn);
-    drawing = false;
+    if (drawing) drawing = manager->paintOnReleased(rendTarget, tempTarget, pos - this->position, btn);
 
-    return true;
+    return drawing;
 }
 
 bool Canvas::onMouseMove(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
+    MathRectangle canvRect = MathRectangle(position, size);
+    if (!canvRect.isPointInside(pos) && drawing) {
+        drawing = manager->paintOnDeactivate(rendTarget, tempTarget);
+    
+        return drawing;
+    }
+
     if (!drawing) return false;
 
-    manager->paintOnMove(rendTarget, tempTarget, pos - this->position);
-    return true;
+    drawing = manager->paintOnMove(rendTarget, tempTarget, pos - this->position);
+    return drawing;
 }
 
 void Canvas::drawTexture(RenderTarget* toDraw, RenderTarget* drawOn) {

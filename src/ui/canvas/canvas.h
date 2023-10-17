@@ -13,9 +13,10 @@ public:
     explicit Tool();
     explicit Tool(MPoint _start, MPoint _end);
 
-    virtual void paintOnPressed (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
-    virtual void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             = 0;
-    virtual void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
+    virtual bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
+    virtual bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             = 0;
+    virtual bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
+    virtual bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       = 0;
 };
 
 class Brush : public Tool {
@@ -23,9 +24,10 @@ public:
     explicit Brush();
     explicit Brush(MPoint _start, MPoint _end);
 
-    void paintOnPressed (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       override;
 };
 
 class StraightTool : public Tool {
@@ -36,9 +38,10 @@ public:
     explicit StraightTool();
     explicit StraightTool(MPoint _start, MPoint _end);
 
-    void paintOnPressed (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       override;
 };
 
 class CircleTool : public StraightTool {
@@ -49,8 +52,8 @@ public:
     explicit CircleTool();
     explicit CircleTool(MPoint _start, MPoint _end);
 
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
 class EllipseTool : public StraightTool {
@@ -61,8 +64,8 @@ public:
     explicit EllipseTool();
     explicit EllipseTool(MPoint _start, MPoint _end);
 
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
 class SquareTool : public StraightTool {
@@ -73,8 +76,8 @@ public:
     explicit SquareTool();
     explicit SquareTool(MPoint _start, MPoint _end);
 
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
 class LineTool : public StraightTool {
@@ -82,8 +85,8 @@ public:
     explicit LineTool();
     explicit LineTool(MPoint _start, MPoint _end);
 
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
 class CurveTool : public StraightTool {
@@ -98,9 +101,9 @@ public:
 
     ~CurveTool();
 
-    void paintOnPressed (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       override;
 };
 
 class ToolManager {
@@ -115,9 +118,10 @@ public:
     void setTool (Tool* _tool);
     void setColor(MColor _color);
 
-    void paintOnPressed (RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn);
-    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MPoint cur);
-    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn);
+    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn);
+    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MPoint cur);
+    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn);
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp);
 };
 
 class Canvas : public Widget {
