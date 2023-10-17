@@ -32,7 +32,7 @@ void runMainCycle() {
     window.setPosition(sf::Vector2i(0, 0));
     RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), &window);
 
-    CircleTool defaultTool = CircleTool();
+    EllipseTool defaultTool = EllipseTool();
     ToolManager manager = ToolManager(&defaultTool, MColor(sf::Color::Red));
 
     Window mainWindow = Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, nullptr);
@@ -58,7 +58,7 @@ void runMainCycle() {
                     window.close();
                 break;
             case sf::Event::MouseButtonPressed: {
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
                 // window.clear();
                 mainWindow.render(&renderTarget);
                 if (event.mouseButton.button == sf::Mouse::Left) 
@@ -70,7 +70,7 @@ void runMainCycle() {
                 break;
             }
             case sf::Event::MouseButtonReleased: {
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
                 // window.clear();
                 if (event.mouseButton.button == sf::Mouse::Left)
                     mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
@@ -81,7 +81,7 @@ void runMainCycle() {
                 break;
             }
             case sf::Event::MouseMoved: {
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
                 // window.clear();
                 mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 

@@ -32,8 +32,6 @@ class StraightTool : public Tool {
 protected:
     MPoint rectStart = MPoint();
 
-    void drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);
-
 public:
     explicit StraightTool();
     explicit StraightTool(MPoint _start, MPoint _end);
@@ -44,32 +42,47 @@ public:
 };
 
 class CircleTool : public StraightTool {
+private:
+    void drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);
+
 public:
     explicit CircleTool();
     explicit CircleTool(MPoint _start, MPoint _end);
 
-    void paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) override;
+    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
-class EllipseTool : StraightTool {
+class EllipseTool : public StraightTool {
+private:
+    void drawEllipse(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);
+
+public:
     explicit EllipseTool();
     explicit EllipseTool(MPoint _start, MPoint _end);
 
-    void paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) override;
+    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
-class SquareTool : StraightTool {
+class SquareTool : public StraightTool {
+private:
+    void drawSquare(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);
+
+public:
     explicit SquareTool();
     explicit SquareTool(MPoint _start, MPoint _end);
 
-    void paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) override;
+    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
 class LineTool : StraightTool {
     explicit LineTool();
     explicit LineTool(MPoint _start, MPoint _end);
 
-    void paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) override;
+    void paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    void paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
 };
 
 class ToolManager {

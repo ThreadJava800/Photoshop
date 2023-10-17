@@ -254,7 +254,7 @@ void RenderTarget::drawLine(MPoint start, MPoint end, MColor color, RegionSet* r
 }
 
 void RenderTarget::_drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());
     rect.setPosition(start.toSfVector());
@@ -264,11 +264,11 @@ void RenderTarget::_drawRect(MPoint start, MPoint size, MColor fillColor, MColor
 
     texture->draw(rect);
     texture->display();
-    window ->draw(*sprite);
+    if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor, RegionSet* regions) {
-    ON_ERROR(!texture || !sprite, "Drawable area was null!",);
+    ON_ERROR(!texture, "Drawable area was null!",);
 
     if (regions) {
         MathRectangle thisRect = MathRectangle(start, size);
@@ -288,11 +288,11 @@ void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor 
     }
 }
 
-void RenderTarget::_drawCircle(MPoint centre, double radius, MColor color) {
+void RenderTarget::_drawCircle(MPoint lu, double radius, MColor color) {
     ON_ERROR(!texture, "Drawable area was null!",);
 
     sf::CircleShape circle    (radius);
-    circle.setPosition        (centre.toSfVector() - sf::Vector2f(radius, radius));
+    circle.setPosition        (lu.toSfVector());
     circle.setFillColor       (sf::Color::Transparent);
     circle.setOutlineThickness(LINE_DIAM);
     circle.setOutlineColor    (color.toSfColor());
@@ -302,13 +302,13 @@ void RenderTarget::_drawCircle(MPoint centre, double radius, MColor color) {
     if (sprite) window ->draw(*sprite);
 }
 
-void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, RegionSet* regions) {
+void RenderTarget::drawCircle(MPoint lu, double radius, MColor color, RegionSet* regions) {
     ON_ERROR(!texture, "Drawable area was null!",);
 
     if (regions) {
         
     } else {
-        _drawCircle(centre, radius, color);
+        _drawCircle(lu, radius, color);
     }
 }
 
@@ -403,6 +403,22 @@ void RenderTarget::setPixel(MPoint pos, MColor color, RegionSet* regions) {
     texture->draw(point);
     texture->display();
     window ->draw(*sprite);
+}
+
+void RenderTarget::drawEllipse(MPoint pos, double scaleX, double scaleY, double maxRad, MColor color) {
+    ON_ERROR(!texture, "Drawable area was null!",);
+
+    sf::CircleShape ellipse    (maxRad);
+    ellipse.setPosition        (pos.toSfVector());
+    ellipse.setFillColor       (sf::Color::Transparent);
+    ellipse.setOutlineThickness(LINE_DIAM);
+    ellipse.setOutlineColor    (color.toSfColor());
+
+    ellipse.setScale(scaleX, scaleY);
+
+    texture->draw(ellipse);
+    texture->display();
+    if (sprite) window ->draw(*sprite);
 }
 
 MathRectangle::MathRectangle(MPoint _pos, MPoint _size) :

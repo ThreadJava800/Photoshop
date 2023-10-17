@@ -32,17 +32,6 @@ StraightTool::StraightTool(MPoint _start, MPoint _end) :
     Tool(_start, _end),
     rectStart(MPoint()) {}
 
-void StraightTool::drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
-    ON_ERROR(!drawTarget, "Drawable area was null!",);
-
-    MPoint circleLu = MPoint(std::min(lu.x, cur.x), std::min(lu.y, cur.y));
-
-    double radius   = (cur - lu).getLen() / 2;
-    MPoint centre   = MPoint(circleLu.x + radius, circleLu.y + radius);
-
-    drawTarget->drawCircle(centre, radius, color);
-}
-
 void StraightTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
     ON_ERROR(!perm || !temp, "RenderTarget was null!",);
 
@@ -55,9 +44,6 @@ void StraightTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor co
 
 void StraightTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
     ON_ERROR(!perm || !temp, "RenderTarget was null!",);
-
-    temp->clear();
-    drawCircle(rectStart, cur, color, perm);
 }
 
 CircleTool::CircleTool() :
@@ -66,11 +52,101 @@ CircleTool::CircleTool() :
 CircleTool::CircleTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
+void CircleTool::drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
+    ON_ERROR(!drawTarget, "Drawable area was null!",);
+
+    double radius   = std::max(fabs(cur.x - lu.x) / 2, fabs(cur.y - lu.y) / 2);
+
+    double xMin     = std::min(cur.x, lu.x);
+    double yMin     = std::min(cur.y, lu.y);
+    MPoint circleLU = MPoint(xMin, yMin);
+
+    drawTarget->drawCircle(circleLU, radius, color);
+}
+
 void CircleTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
     ON_ERROR(!perm || !temp, "RenderTarget was null!",);
 
     temp->clear();
     drawCircle(rectStart, cur, color, temp);
+}
+
+void CircleTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+
+    temp->clear();
+    drawCircle(rectStart, cur, color, perm);
+}
+
+SquareTool::SquareTool() :
+    StraightTool()             {}
+
+SquareTool::SquareTool(MPoint _start, MPoint _end) :
+    StraightTool(_start, _end) {}
+
+void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
+    ON_ERROR(!drawTarget, "Drawable area was null!",);
+
+    MPoint size = MPoint(fabs(cur.x - lu.x), fabs(cur.y - lu.y));
+
+    double xMin   = std::min(cur.x, lu.x);
+    double yMin   = std::min(cur.y, lu.y);
+    MPoint rectLU = MPoint(xMin, yMin);
+
+    drawTarget->drawRect(rectLU, size, MColor(TRANSPARENT), color);
+}
+
+void SquareTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+
+    temp->clear();
+    drawSquare(rectStart, cur, color, temp);
+}
+
+void SquareTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+
+    temp->clear();
+    drawSquare(rectStart, cur, color, perm);
+}
+
+EllipseTool::EllipseTool() :
+    StraightTool()              {}
+
+EllipseTool::EllipseTool(MPoint _start, MPoint _end) :
+    StraightTool(_start, _end)  {}
+
+void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
+    ON_ERROR(!drawTarget, "Drawable area was null!",);
+
+    double xMin     = std::min(cur.x, lu.x);
+    double yMin     = std::min(cur.y, lu.y);
+    MPoint circleLU = MPoint(xMin, yMin);
+
+    double height = fabs(cur.y - lu.y) / 2;
+    double length = fabs(cur.x - lu.x) / 2;
+
+    if (height < EPSILON || length < EPSILON) return;
+
+    double scaleX = 1, scaleY = 1;
+    if (length < height) scaleX = length / height;
+    else                 scaleY = height / length;
+
+    drawTarget->drawEllipse(circleLU, scaleX, scaleY, std::max(height, length), color);
+}
+
+void EllipseTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+
+    temp->clear();
+    drawEllipse(rectStart, cur, color, temp);
+}
+
+void EllipseTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "Drawable area was null!",);
+
+    temp->clear();
+    drawEllipse(rectStart, cur, color, perm);
 }
 
 ToolManager::ToolManager() :
