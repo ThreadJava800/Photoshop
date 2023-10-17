@@ -24,7 +24,7 @@ bool Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MP
     return true;
 }
 
-bool Brush::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) { return false; }
+bool Brush::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { return false; }
 
 bool Brush::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) { return false; }
 
@@ -59,7 +59,7 @@ bool StraightTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColo
     return false;
 }
 
-bool StraightTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) { return false; }
+bool StraightTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { return false; }
 
 CircleTool::CircleTool() :
     StraightTool()    {}
@@ -251,9 +251,11 @@ bool CurveTool::paintOnReleased (RenderTarget *perm, RenderTarget *temp, MColor 
     return true;
 }
 
-bool CurveTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
+bool CurveTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) {
     ON_ERROR(!points, "Drawable area was null!", false);
 
+    temp->clear();
+    drawCurve(color, perm);
     points->clear();
 
     return false;
@@ -288,7 +290,7 @@ bool ToolManager::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MPoint
 }
 
 bool ToolManager::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
-    return current->paintOnDeactivate(perm, temp);
+    return current->paintOnDeactivate(perm, temp, color);
 }
 
 Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager) :

@@ -16,7 +16,7 @@ public:
     virtual bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
     virtual bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             = 0;
     virtual bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
-    virtual bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       = 0;
+    virtual bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       = 0;
 };
 
 class Brush : public Tool {
@@ -27,7 +27,7 @@ public:
     bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
     bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
     bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       override;
 };
 
 class StraightTool : public Tool {
@@ -41,7 +41,7 @@ public:
     bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
     bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
     bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       override;
 };
 
 class CircleTool : public StraightTool {
@@ -103,7 +103,7 @@ public:
 
     bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
     bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp)                                       override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       override;
 };
 
 class ToolManager {
