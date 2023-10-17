@@ -22,7 +22,8 @@ struct MPoint {
 
     sf::Vector2f toSfVector();
 
-    bool isNan();
+    bool   isNan();
+    double getLen();
 
     friend void   operator+=(      MPoint& a, const MPoint& b);
     friend MPoint operator+ (const MPoint& a, const MPoint& b);
@@ -100,10 +101,14 @@ public:
     explicit RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window);
     ~RenderTarget();
 
-    MPoint getStart();
-    MPoint getSize ();
+    MPoint getPosition();
+    MPoint getStart   ();
+    MPoint getSize    ();
     sf::RenderTexture* getRenderTexture();
     sf::RenderWindow * getRenderWindow ();
+
+    void    clear(MColor col = MColor(TRANSPARENT));
+    MImage* getImage();
 
     void _drawLine  (MPoint start,  MPoint end,    MColor color);
     void drawLine   (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);

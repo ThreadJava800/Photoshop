@@ -33,6 +33,10 @@ bool MPoint::isNan() {
     return std::isnan(x) || std::isnan(y);
 }
 
+double MPoint::getLen() {
+    return sqrt(x * x + y * y);
+}
+
 void operator+=(MPoint& a, const MPoint& b) {
     a.x += b.x;
     a.y += b.y;
@@ -192,6 +196,10 @@ RenderTarget::~RenderTarget() {
     window = nullptr;
 }
 
+MPoint RenderTarget::getPosition() {
+    return position;
+}
+
 MPoint RenderTarget::getStart() {
     sf::Vector2f pos = sprite->getPosition();
     return MPoint(pos);
@@ -200,6 +208,15 @@ MPoint RenderTarget::getStart() {
 MPoint RenderTarget::getSize () {
     sf::Vector2u size = texture->getSize();
     return MPoint(size);
+}
+
+void RenderTarget::clear(MColor col) {
+    if (texture) texture->clear(col.toSfColor());
+}
+
+MImage* RenderTarget::getImage() {
+    sf::Texture *imgTexture = new sf::Texture(texture->getTexture());
+    return new MImage(imgTexture);
 }
 
 void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
@@ -274,9 +291,11 @@ void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor 
 void RenderTarget::_drawCircle(MPoint centre, double radius, MColor color) {
     ON_ERROR(!texture, "Drawable area was null!",);
 
-    sf::CircleShape circle(radius);
-    circle.setPosition    (centre.toSfVector() - sf::Vector2f(radius, radius));
-    circle.setFillColor   (color.toSfColor());
+    sf::CircleShape circle    (radius);
+    circle.setPosition        (centre.toSfVector() - sf::Vector2f(radius, radius));
+    circle.setFillColor       (sf::Color::Transparent);
+    circle.setOutlineThickness(LINE_DIAM);
+    circle.setOutlineColor    (color.toSfColor());
 
     texture->draw(circle);
     texture->display();
@@ -293,7 +312,7 @@ void RenderTarget::drawCircle(MPoint centre, double radius, MColor color, Region
     }
 }
 
-void RenderTarget::_drawSprite(MPoint start,  MPoint size,   MImage* img) {
+void RenderTarget::_drawSprite(MPoint start,  MPoint size,  MImage* img) {
     ON_ERROR(!texture, "Drawable area was null!",);
 
     sf::RectangleShape rect(size.toSfVector());

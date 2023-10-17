@@ -14,16 +14,63 @@ Brush::Brush() :
 Brush::Brush(MPoint _start, MPoint _end) :
     Tool(_start, _end)  {}
 
-void Brush::paintOnPressed(RenderTarget *perm, MColor color, MPoint cur, MMouse btn) {
+void Brush::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
     perm->drawCircle(cur, LINE_DIAM, color);
 }
 
-void Brush::paintOnMove(RenderTarget *perm, MColor color, MPoint cur) {
+void Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
     perm->drawCircle(cur, LINE_DIAM, color);
 }
 
-void Brush::paintOnReleased(RenderTarget *perm, MColor color, MPoint cur, MMouse btn) {
+void Brush::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {}
 
+StraightTool::StraightTool() :
+    Tool(),
+    rectStart(MPoint()) {}
+
+StraightTool::StraightTool(MPoint _start, MPoint _end) :
+    Tool(_start, _end),
+    rectStart(MPoint()) {}
+
+void StraightTool::drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
+    ON_ERROR(!drawTarget, "Drawable area was null!",);
+
+    MPoint circleLu = MPoint(std::min(lu.x, cur.x), std::min(lu.y, cur.y));
+
+    double radius   = (cur - lu).getLen() / 2;
+    MPoint centre   = MPoint(circleLu.x + radius, circleLu.y + radius);
+
+    drawTarget->drawCircle(centre, radius, color);
+}
+
+void StraightTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+
+    if (btn == LEFT) rectStart = cur;
+}
+
+void StraightTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+}
+
+void StraightTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+
+    temp->clear();
+    drawCircle(rectStart, cur, color, perm);
+}
+
+CircleTool::CircleTool() :
+    StraightTool()    {}
+
+CircleTool::CircleTool(MPoint _start, MPoint _end) :
+    StraightTool(_start, _end)  {}
+
+void CircleTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!",);
+
+    temp->clear();
+    drawCircle(rectStart, cur, color, temp);
 }
 
 ToolManager::ToolManager() :
@@ -42,33 +89,35 @@ void ToolManager::setColor(MColor _color) {
     color = _color;
 }
 
-void ToolManager::paintOnPressed(RenderTarget *perm, MPoint cur, MMouse btn) {
-    current->paintOnPressed(perm, color, cur, btn);
+void ToolManager::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
+    current->paintOnPressed(perm, temp, color, cur, btn);
 }
 
-void ToolManager::paintOnMove(RenderTarget *perm, MPoint cur) {
-    current->paintOnMove(perm, color, cur);
+void ToolManager::paintOnMove(RenderTarget *perm, RenderTarget *temp, MPoint cur) {
+    current->paintOnMove(perm, temp, color, cur);
 }
 
-void ToolManager::paintOnReleased(RenderTarget *perm, MPoint cur, MMouse btn) {
-    current->paintOnReleased(perm, color, cur, btn);
+void ToolManager::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
+    current->paintOnReleased(perm, temp, color, cur, btn);
 }
 
 Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager) :
     Widget (_position, _size, nullptr),
-    drawing(false),
-    manager(_manager)     {
-        rendTarget = new RenderTarget(_position, _size);
+    manager(_manager)  {
+        rendTarget = new RenderTarget(_position, _size);        
+        tempTarget = new RenderTarget(_position, _size);
     }
 
 Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, RenderTarget *_rendTarget) :
     Widget    (_position, _size, nullptr),
-    drawing   (false),
     rendTarget(_rendTarget),
-    manager   (_manager)     {}
+    manager   (_manager)     {
+        tempTarget = new RenderTarget(_position, _size);
+    }
 
 Canvas::~Canvas() {
     delete rendTarget;
+    delete tempTarget;
 }
 
 bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
@@ -76,8 +125,9 @@ bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
 
     MathRectangle canvRect = MathRectangle(position, size);
     if (canvRect.isPointInside(pos)) {
-        manager->paintOnPressed(rendTarget, pos - this->position, btn);
+        manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, btn);
         drawing = true;
+
         return true;
     }
 
@@ -87,33 +137,38 @@ bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
 bool Canvas::onMouseReleased(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    manager->paintOnReleased(rendTarget, pos - this->position, btn);
+    if (drawing) manager->paintOnReleased(rendTarget, tempTarget, pos - this->position, btn);
     drawing = false;
 
-    return false;
+    return true;
 }
 
 bool Canvas::onMouseMove(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    if (drawing) {
-        manager->paintOnMove(rendTarget, pos - this->position);
-        return true;
-    }
+    if (!drawing) return false;
 
-    return false;
+    manager->paintOnMove(rendTarget, tempTarget, pos - this->position);
+    return true;
+}
+
+void Canvas::drawTexture(RenderTarget* toDraw, RenderTarget* drawOn) {
+    ON_ERROR(!toDraw || !drawOn, "Render target was null!",);
+
+    MImage *tmp = toDraw->getImage();
+
+    drawOn->drawSprite(position, size, tmp, regSet);
+    delete tmp;
 }
 
 void Canvas::render(RenderTarget* renderTarget) {
+    ON_ERROR(!renderTarget, "Render target was null!",);
+
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
     renderTarget->drawFrame(position, size, MColor(sf::Color::Red), regSet);
 
-    sf::Texture* tmp =  new sf::Texture();
-    *tmp = rendTarget->getRenderTexture()->getTexture();
-
-    MImage* textureWrapper = new MImage(tmp);
-    renderTarget->drawSprite(position, size, textureWrapper, regSet);
-    delete textureWrapper;
+    drawTexture(rendTarget, renderTarget);
+    drawTexture(tempTarget, renderTarget);
 
     Widget::render(renderTarget);
 }

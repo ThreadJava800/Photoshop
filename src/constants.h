@@ -14,7 +14,7 @@ static const char*     MAIN_WINDOW_NAME   = "Photoshop";
 static const int       ACTION_BTN_LEN     = 80;
 static const int       ACTION_BTN_HEIGHT  = 30;
 
-static const int       LINE_DIAM          = 10;
+static const int       LINE_DIAM          = 5;
 
 static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 100;
