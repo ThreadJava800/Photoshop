@@ -29,6 +29,10 @@ sf::Vector2f MPoint::toSfVector() {
     return sf::Vector2f(x, y);
 }
 
+bool MPoint::isNan() {
+    return std::isnan(x) || std::isnan(y);
+}
+
 void operator+=(MPoint& a, const MPoint& b) {
     a.x += b.x;
     a.y += b.y;
@@ -304,30 +308,33 @@ void RenderTarget::_drawSprite(MPoint start,  MPoint size,   MImage* img) {
 void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet* regions) {
     ON_ERROR(!texture, "Drawable area was null!",);
 
-    // if (!regions) {
+    if (!regions) {
         _drawSprite(start, size, img);
         return;
-    // }
+    }
+
+    if (!img->getSfTexture()) return;
 
     List<MathRectangle>* rects = regions->getRectangles();
     ON_ERROR(!rects, "List was nullptr!",);
 
+    sf::Sprite toCrop(*img->getSfTexture());
+    toCrop.setPosition(start.x, start.y);
+
     sf::RenderTexture tmp;
     tmp.create(texture->getSize().x, texture->getSize().y);
-    tmp.clear(sf::Color::Transparent);
-
-    sf::Sprite toCrop(*img->getSfTexture());
-    toCrop.setPosition(position.x, position.y);
-
     tmp.draw(toCrop);
     tmp.display();
 
     size_t rectSize = rects->getSize();
     for (size_t i = 0; i < rectSize; i++) {
-        if (img->getSfTexture()) {
-            sf::Sprite drawSprite(tmp.getTexture(), sf::IntRect((*rects)[i].getPosition().x, (*rects)[i].getPosition().x, (*rects)[i].getSize().x, (*rects)[i].getSize().y));
-            drawSprite.setPosition((*rects)[i].getPosition().toSfVector());
+        MPoint rectPos  = (*rects)[i].getPosition();
+        MPoint rectSize = (*rects)[i].getSize();
 
+        if (!rectPos.isNan() && !rectSize.isNan()) {
+            sf::Sprite drawSprite(tmp.getTexture(), sf::IntRect(rectPos.x, rectPos.y, rectSize.x, rectSize.y));
+            drawSprite.setPosition(rectPos.toSfVector());
+    
             texture->draw(drawSprite);
         }
     }
@@ -469,19 +476,16 @@ bool intersectLineRectangle(MPoint &lineStart, MPoint &lineEnd, MathRectangle re
 
     MPoint testStart = MPoint(rect.l(), rect.top()), testEnd = MPoint(rect.r(), rect.top());
     INTERSECTION_TYPE intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
-    std::cout << intersRes << '\n';
     if (intersRes == SAME) {
         resStart = testStart; resEnd = testEnd;
         return true;
     }
     else if (intersRes == POINT) {
-        std::cout << resStart.x << ' ' << resStart.y << ' ' << resEnd.x << ' ' << resEnd.y << '\n';
         pointCnt++;
     }
 
     testStart = MPoint(rect.l(), rect.down()), testEnd = MPoint(rect.r(), rect.down());
     intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
-    std::cout << intersRes << '\n';
     if (intersRes == SAME) {
         resStart = testStart; resEnd = testEnd;
         return true;
@@ -490,14 +494,12 @@ bool intersectLineRectangle(MPoint &lineStart, MPoint &lineEnd, MathRectangle re
         pointCnt++;
         if (pointCnt == 2) {
             resStart = intersPoints[0], resEnd = intersPoints[1];
-            std::cout << resStart.x << ' ' << resStart.y << ' ' << resEnd.x << ' ' << resEnd.y << '\n';
             return true;
         }
     }
 
     testStart = MPoint(rect.l(), rect.top()), testEnd = MPoint(rect.l(), rect.down());
     intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
-    std::cout << intersRes << '\n';
     if (intersRes == SAME) {
         resStart = testStart; resEnd = testEnd;
         return true;
@@ -512,7 +514,6 @@ bool intersectLineRectangle(MPoint &lineStart, MPoint &lineEnd, MathRectangle re
 
     testStart = MPoint(rect.r(), rect.top()), testEnd = MPoint(rect.r(), rect.down());
     intersRes = getIntersLineLine(lineStart, lineEnd, testStart, testEnd, intersPoints[pointCnt]);
-    std::cout << intersRes << '\n';
     if (intersRes == SAME) {
         resStart = testStart; resEnd = testEnd;
         return true;

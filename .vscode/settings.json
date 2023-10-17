@@ -1,7 +1,6 @@
 {
     "files.associations": {
         "*.s": "nasm",
-        "*.tcc": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -19,6 +18,7 @@
         "hash_map": "cpp",
         "hash_set": "cpp",
         "bit": "cpp",
+        "*.tcc": "cpp",
         "bitset": "cpp",
         "charconv": "cpp",
         "chrono": "cpp",

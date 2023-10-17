@@ -22,6 +22,8 @@ struct MPoint {
 
     sf::Vector2f toSfVector();
 
+    bool isNan();
+
     friend void   operator+=(      MPoint& a, const MPoint& b);
     friend MPoint operator+ (const MPoint& a, const MPoint& b);
     friend void   operator-=(      MPoint& a, const MPoint& b);
