@@ -47,9 +47,8 @@ TextButton::~TextButton() {
 void TextButton::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    // TODO move to const
     renderTarget->drawRect(position, size, color, MColor(TRANSPARENT), regSet);
-    renderTarget->drawText(position, text, MColor(BLACK), font, 25, regSet);
+    renderTarget->drawText(position, text, MColor(BLACK), font, BTN_TXT_PT, regSet);
 
     Widget::render(renderTarget);
 }

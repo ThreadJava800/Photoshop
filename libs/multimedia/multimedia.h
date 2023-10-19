@@ -77,7 +77,8 @@ public:
 
     ~MImage();
 
-    sf::Texture* getSfTexture();
+    List<List<MColor>>*  getPixels   ();
+    sf::Texture*         getSfTexture();
 };
 
 enum MKeyboard {

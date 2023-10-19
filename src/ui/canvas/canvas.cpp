@@ -15,11 +15,15 @@ Brush::Brush(MPoint _start, MPoint _end) :
     Tool(_start, _end)  {}
 
 bool Brush::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
     perm->drawCircle(cur, LINE_DIAM, color);
     return true;
 }
 
 bool Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
     perm->drawCircle(cur, LINE_DIAM, color);
     return true;
 }
@@ -27,6 +31,30 @@ bool Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MP
 bool Brush::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { return false; }
 
 bool Brush::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) { return false; }
+
+FillTool::FillTool() :
+    Tool()              {}
+
+FillTool::FillTool(MPoint _start, MPoint _end) :
+    Tool(_start, _end)  {}
+
+bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
+
+}
+
+bool FillTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    return false;
+}
+
+bool FillTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    return false;
+}
+
+bool FillTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) {
+    return false;
+}
 
 StraightTool::StraightTool() :
     Tool(),
@@ -275,6 +303,10 @@ void ToolManager::setTool (Tool* _tool) {
 
 void ToolManager::setColor(MColor _color) {
     color = _color;
+}
+
+Tool* ToolManager::getTool() {
+    return current;
 }
 
 bool ToolManager::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {

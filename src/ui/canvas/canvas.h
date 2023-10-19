@@ -13,6 +13,8 @@ public:
     explicit Tool();
     explicit Tool(MPoint _start, MPoint _end);
 
+    virtual ~Tool() = default;
+
     virtual bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
     virtual bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             = 0;
     virtual bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
@@ -27,7 +29,18 @@ public:
     bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
     bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
     bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                         override;
+};
+
+class FillTool : public Tool {
+public:
+    explicit FillTool();
+    explicit FillTool(MPoint _start, MPoint _end);
+
+    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                         override;
 };
 
 class StraightTool : public Tool {
@@ -117,6 +130,8 @@ public:
 
     void setTool (Tool* _tool);
     void setColor(MColor _color);
+
+    Tool* getTool();
 
     bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn);
     bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MPoint cur);

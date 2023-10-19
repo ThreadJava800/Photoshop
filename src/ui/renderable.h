@@ -17,8 +17,9 @@ protected:
 
     RegionSet* regSet = nullptr;
 
-    Widget* parent = nullptr;
-    bool    exists = true;
+    Widget* parent  = nullptr;
+    bool    exists  = true;
+    bool    visible = true;
 
     void createEmptyRegionSet();
 

@@ -149,6 +149,29 @@ MImage::~MImage() {
     imgPath = nullptr;
 }
 
+List<List<MColor>>* MImage::getPixels() {
+    ON_ERROR(!img, "Texture pointer was null!", nullptr);
+
+    sf::Image sfPixels = img->copyToImage();
+
+    size_t xSize = sfPixels.getSize().x;
+    size_t ySize = sfPixels.getSize().y;
+
+    // init list
+    List<List<MColor>>* res = new List<List<MColor>>(xSize);
+    for (size_t i = 0; i < ySize; i++) {
+        (*res)[i] = List<MColor>(ySize);
+    }
+
+    for (size_t i = 0; i < xSize; i++) {
+        for (size_t j = 0; j < ySize; j++) {
+            (*res)[i][j] = MColor(sfPixels.getPixel(i, j));
+        }
+    }
+
+    return res;
+}
+
 sf::Texture* MImage::getSfTexture() {
     return img;
 }

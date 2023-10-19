@@ -4,6 +4,7 @@ Widget::Widget(MPoint _position, MPoint _size, Widget* _parent) :
     position(_position),
     size    (_size),
     parent  (_parent),
+    visible (true),
     exists  (true) {
         debColor = MColor(DEB_COLS[rand() % DEB_COLS_CNT]);
         subWindows = new List<Widget*>();
@@ -15,6 +16,7 @@ Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _
     size      (_size),
     parent    (_parent),
     subWindows(_subWindows),
+    visible   (true),
     exists    (true)  {
         debColor = MColor(DEB_COLS[rand() % DEB_COLS_CNT]);
         createEmptyRegionSet();
@@ -191,6 +193,30 @@ void Widget::fillRegionSetsRoot() {
 
         for (size_t i = valInd; i < parentCCnt; i++) {
             Widget* cur = (*parentWins)[i];
+
+            if (cur->visible) {
+                MathRectangle curRect = MathRectangle(cur->position, cur->size);
+    
+                RegionSet curSet = RegionSet();
+                curSet.addRegion(curRect);
+    
+                regSet->subtract(&curSet);
+            }
+        }
+    }
+
+    size_t childCnt = subWindows->getSize();
+
+    for (size_t i = 0; i < childCnt; i++) {
+        Widget *subWin = (*subWindows)[i];
+        if (subWin->visible) subWin->fillRegionSetsRoot();
+    }
+
+    // minus children
+    for (size_t i = 0; i < childCnt; i++) {
+        Widget* cur = (*subWindows)[i];
+
+        if (cur->visible) {
             MathRectangle curRect = MathRectangle(cur->position, cur->size);
 
             RegionSet curSet = RegionSet();
@@ -198,22 +224,5 @@ void Widget::fillRegionSetsRoot() {
 
             regSet->subtract(&curSet);
         }
-    }
-
-    size_t childCnt = subWindows->getSize();
-
-    for (size_t i = 0; i < childCnt; i++) {
-        (*subWindows)[i]->fillRegionSetsRoot();
-    }
-
-    // minus children
-    for (size_t i = 0; i < childCnt; i++) {
-        Widget* cur = (*subWindows)[i];
-        MathRectangle curRect = MathRectangle(cur->position, cur->size);
-
-        RegionSet curSet = RegionSet();
-        curSet.addRegion(curRect);
-
-        regSet->subtract(&curSet);
     }
 }

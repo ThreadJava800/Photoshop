@@ -11,10 +11,12 @@ static const char*     RESTORE_BTN        = "assets/restore.png";
 static const char*     MINIMIZE_BTN       = "assets/minimize.png";
 
 static const char*     MAIN_WINDOW_NAME   = "Photoshop";
-static const int       ACTION_BTN_LEN     = 80;
+static const int       ACTION_BTN_LEN     = 100;
 static const int       ACTION_BTN_HEIGHT  = 30;
 
 static const int       LINE_DIAM          = 5;
+static const int       SUB_MENU_LEN       = 300;
+static const int       BTN_TXT_PT         = 25;
 
 static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 100;

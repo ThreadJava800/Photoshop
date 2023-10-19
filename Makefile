@@ -12,7 +12,7 @@ CFLAGS  = -D _DEBUG -ggdb3 -std=c++17 -O3 -w -Wall -Wextra -Weffc++ -Waggressive
 -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 
 
-SOURCES=src/ui/renderable.cpp src/ui/canvas/canvas.cpp src/ui/shapes/shapes.cpp src/ui/menu/menu.cpp src/ui/button/button.cpp src/ui/window/window.cpp libs/multimedia/multimedia.cpp src/main.cpp
+SOURCES=src/ui/renderable.cpp src/ui/submenu/submenu.cpp src/ui/canvas/canvas.cpp src/ui/shapes/shapes.cpp src/ui/menu/menu.cpp src/ui/button/button.cpp src/ui/window/window.cpp libs/multimedia/multimedia.cpp src/main.cpp
 
 EXECUTABLE=phshop
 
