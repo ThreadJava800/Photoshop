@@ -3,7 +3,7 @@
 
 #include "../../src/includes.h"
 
-static const double EPSILON = 1e-9;
+static const double EPSILON = 1e-12;
 
 class RegionSet;
 class MathRectangle;
@@ -47,6 +47,7 @@ struct MColor {
     ~MColor();
 
     sf::Color toSfColor();
+    friend bool operator==(const MColor& a, const MColor& b);
 }; 
 
 struct MFont {
@@ -77,8 +78,8 @@ public:
 
     ~MImage();
 
-    List<List<MColor>>*  getPixels   ();
-    sf::Texture*         getSfTexture();
+    List<List<MColor>*>*  getPixels   ();
+    sf::Texture*          getSfTexture();
 };
 
 enum MKeyboard {

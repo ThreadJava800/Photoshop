@@ -80,7 +80,7 @@ bool Widget::onMousePressed(MPoint pos, MMouse btn) {
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) {
+        if (widget && widget->getExists() && widget->visible) {
             wasClick = widget->onMousePressed(pos, btn);
             if (wasClick) return wasClick;
         }
@@ -196,10 +196,10 @@ void Widget::fillRegionSetsRoot() {
 
             if (cur->visible) {
                 MathRectangle curRect = MathRectangle(cur->position, cur->size);
-    
+
                 RegionSet curSet = RegionSet();
                 curSet.addRegion(curRect);
-    
+
                 regSet->subtract(&curSet);
             }
         }

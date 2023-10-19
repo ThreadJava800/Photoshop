@@ -74,7 +74,7 @@ MPoint operator*(const MPoint& a, const double b) {
 }
 
 bool operator==(const MPoint& a, const MPoint& b) {
-    return (a.x - b.x) < EPSILON && (a.y - b.y) < EPSILON;
+    return fabs(a.x - b.x) < EPSILON && fabs(a.y - b.y) < EPSILON;
 }
 
 MColor::MColor() :
@@ -104,6 +104,10 @@ MColor::~MColor() {
 
 sf::Color MColor::toSfColor() {
     return sf::Color(r, g, b, a);
+}
+
+bool operator==(const MColor& a, const MColor& b) {
+    return a.a == b.a && a.r == b.r && a.g == b.g && a.b == b.b;
 }
 
 MFont::MFont() :
@@ -149,7 +153,7 @@ MImage::~MImage() {
     imgPath = nullptr;
 }
 
-List<List<MColor>>* MImage::getPixels() {
+List<List<MColor>*>* MImage::getPixels() {
     ON_ERROR(!img, "Texture pointer was null!", nullptr);
 
     sf::Image sfPixels = img->copyToImage();
@@ -158,14 +162,14 @@ List<List<MColor>>* MImage::getPixels() {
     size_t ySize = sfPixels.getSize().y;
 
     // init list
-    List<List<MColor>>* res = new List<List<MColor>>(xSize);
-    for (size_t i = 0; i < ySize; i++) {
-        (*res)[i] = List<MColor>(ySize);
+    List<List<MColor>*>* res = new List<List<MColor>*>(xSize);
+    for (size_t i = 0; i < xSize; i++) {
+        res->pushBack(new List<MColor>(ySize));
     }
 
     for (size_t i = 0; i < xSize; i++) {
         for (size_t j = 0; j < ySize; j++) {
-            (*res)[i][j] = MColor(sfPixels.getPixel(i, j));
+            (*res)[i]->pushBack(MColor(sfPixels.getPixel(i, j)));
         }
     }
 

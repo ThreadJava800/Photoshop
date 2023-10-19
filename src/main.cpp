@@ -7,7 +7,8 @@ enum Tools {
     LINE,
     RECT,
     ELLIPSE,
-    CURVE
+    CURVE,
+    FILL
 };
 
 struct SubMenuArgs {
@@ -68,6 +69,9 @@ void chooseTool(void* arg) {
     case CURVE:
         newTool = new CurveTool();
         break;
+    case FILL:
+        newTool = new FillTool();
+        break;
     default:
         break;
     }
@@ -106,17 +110,22 @@ SubMenu* createToolPicker(Window* _winPtr, ToolManager* _manager, List<SubMenuAr
     SubMenuArgs* curveArgs = new SubMenuArgs(_manager, toolMenu, CURVE);
     TextButton* curveBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
 
+    SubMenuArgs* fillArgs = new SubMenuArgs(_manager, toolMenu, FILL);
+    TextButton* fillBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+
     toolArgs.pushBack(brushArgs);
     toolArgs.pushBack(lineArgs);
     toolArgs.pushBack(rectArgs);
     toolArgs.pushBack(ellipseArgs);
     toolArgs.pushBack(curveArgs);
+    toolArgs.pushBack(fillArgs);
 
     toolMenu->registerObject(brushBtn);
     toolMenu->registerObject(lineBtn);
     toolMenu->registerObject(rectBtn);
     toolMenu->registerObject(ellipseBtn);
     toolMenu->registerObject(curveBtn);
+    toolMenu->registerObject(fillBtn);
 
     return toolMenu;
 }

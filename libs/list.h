@@ -61,6 +61,16 @@ public:
         // ON_ERROR(!values, "Unable to realloc mem",);
     }
 
+    bool exists(T elem) {
+        ON_ERROR(!values, "List was null", false);
+
+        for (size_t i = 0; i < size; i++) {
+            if (values[i] == elem) return true;
+        }
+
+        return false;
+    }
+
     void pushBack(T elem) {
         ON_ERROR(!values, "List was null",);
 
@@ -124,6 +134,10 @@ public:
         }
 
         delete elem;
+    }
+
+    T pop() {
+        return values[--size];
     }
 
     void remove(size_t index) {

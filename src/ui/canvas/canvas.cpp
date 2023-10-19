@@ -41,7 +41,67 @@ FillTool::FillTool(MPoint _start, MPoint _end) :
 bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
     ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
 
+    MImage* textureImage              = perm->getImage();
+    List<List<MColor>*>* pixelListPtr = textureImage->getPixels();
+    if (!pixelListPtr) return false;
+    List<List<MColor>*> pixelList = *pixelListPtr;
 
+    size_t xSize = pixelList    .getSize();
+    size_t ySize = pixelList[0]->getSize();
+
+    List<MPoint>  bfsList = List<MPoint>();
+    List<MPoint>  was     = List<MPoint>();
+    bfsList.pushBack(cur);
+
+    while (bfsList.getSize())
+    {
+        MPoint bfs = bfsList.pop();
+        // std::cout << "BEFORE: " << bfsList.getSize() << '\n';
+
+        if (was.exists(bfs)) continue;
+        
+        was.pushBack(bfs);
+
+        if (bfs.y != 0) {
+            MPoint up = MPoint(bfs.x, bfs.y - 1);
+            if ((*pixelList[up.x])[up.y] == (*pixelList[bfs.x])[bfs.y]) {
+                bfsList.pushBack(up);
+                perm->setPixel(up, MColor(sf::Color::Blue));
+            }
+        }
+
+        if (bfs.x != 0) {
+            MPoint lp = MPoint(bfs.x - 1, bfs.y);
+            if ((*pixelList[lp.x])[lp.y] == (*pixelList[bfs.x])[bfs.y]) {
+                bfsList.pushBack(lp);
+                perm->setPixel(lp, MColor(sf::Color::Blue));
+            }
+        }
+
+        if (bfs.x != xSize - 1) {
+            MPoint rp = MPoint(bfs.x + 1, bfs.y);
+            if ((*pixelList[rp.x])[rp.y] == (*pixelList[bfs.x])[bfs.y]) {
+                bfsList.pushBack(rp);
+                perm->setPixel(rp, MColor(sf::Color::Blue));
+            }
+        }
+
+        if (bfs.y != ySize - 1) {
+            MPoint bp = MPoint(bfs.x, bfs.y + 1);
+            if ((*pixelList[bp.x])[bp.y] == (*pixelList[bfs.x])[bfs.y]) {
+                bfsList.pushBack(bp);
+                perm->setPixel(bp, MColor(sf::Color::Blue));
+            }
+        }
+
+        // std::cout << "AFTER: " << bfsList.getSize() << '\n';
+    }
+    
+    std::cout << "OUT\n";
+
+    delete textureImage;
+
+    return true;
 }
 
 bool FillTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
