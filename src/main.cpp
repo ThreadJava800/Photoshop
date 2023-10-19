@@ -40,8 +40,6 @@ void openToolMenu(void* arg) {
     if (!arg) return;
     SubMenu* menu = (SubMenu*) arg;
 
-    std::cout << menu->getPosition().x << '\n';
-
     if (menu) menu->changeActivity();
 }
 
@@ -86,15 +84,12 @@ void chooseColor(void* arg) {
     menu->subMenu->changeActivity();
 }
 
-Menu* createActionMenu(Window* _winPtr, ToolManager* _manager) {
+SubMenu* createToolPicker(Window* _winPtr, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
-    Menu* actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(3 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
-
     SubMenu* toolMenu = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), _winPtr);
-    SubMenu* colMenu  = new SubMenu(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
 
     SubMenuArgs* brushArgs = new SubMenuArgs(_manager, toolMenu, BRUSH);
     TextButton* brushBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);
@@ -111,11 +106,27 @@ Menu* createActionMenu(Window* _winPtr, ToolManager* _manager) {
     SubMenuArgs* curveArgs = new SubMenuArgs(_manager, toolMenu, CURVE);
     TextButton* curveBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
 
+    toolArgs.pushBack(brushArgs);
+    toolArgs.pushBack(lineArgs);
+    toolArgs.pushBack(rectArgs);
+    toolArgs.pushBack(ellipseArgs);
+    toolArgs.pushBack(curveArgs);
+
     toolMenu->registerObject(brushBtn);
     toolMenu->registerObject(lineBtn);
     toolMenu->registerObject(rectBtn);
     toolMenu->registerObject(ellipseBtn);
     toolMenu->registerObject(curveBtn);
+
+    return toolMenu;
+}
+
+SubMenu* createColorPicker(Window* _winPtr, ToolManager* _manager, List<ColPickerArgs*>& colArgs) {
+    MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
+    MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
+    MColor color = MColor(DEFAULT_BACK_COL);
+
+    SubMenu* colMenu  = new SubMenu(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
 
     ColPickerArgs* redArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Red));
     TextButton* redBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), size, MColor(sf::Color::Red), new MFont (DEFAULT_FONT), "Red", colMenu, chooseColor, redArgs);
@@ -138,6 +149,14 @@ Menu* createActionMenu(Window* _winPtr, ToolManager* _manager) {
     ColPickerArgs* magentaArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Magenta));    
     TextButton* magentaBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 8 * TOP_PANE_SIZE), size, MColor(sf::Color::Magenta), new MFont (DEFAULT_FONT), "Magenta", colMenu, chooseColor, magentaArgs);
 
+    colArgs.pushBack(redArgs);
+    colArgs.pushBack(greenArgs);
+    colArgs.pushBack(yellowArgs);
+    colArgs.pushBack(blueArgs);
+    colArgs.pushBack(blackArgs);
+    colArgs.pushBack(cyanArgs);
+    colArgs.pushBack(magentaArgs);
+
     colMenu->registerObject(redBtn);
     colMenu->registerObject(greenBtn);
     colMenu->registerObject(yellowBtn);
@@ -145,6 +164,18 @@ Menu* createActionMenu(Window* _winPtr, ToolManager* _manager) {
     colMenu->registerObject(blackBtn);
     colMenu->registerObject(cyanBtn);
     colMenu->registerObject(magentaBtn);
+
+    return colMenu;
+}
+
+Menu* createActionMenu(Window* _winPtr, ToolManager* _manager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs) {
+    MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
+    MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
+    MColor color = MColor(DEFAULT_BACK_COL);
+
+    Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(3 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
+    SubMenu* toolMenu   = createToolPicker (_winPtr, _manager, toolArgs);
+    SubMenu* colMenu    = createColorPicker(_winPtr, _manager, colArgs);
 
     TextButton* fileBtn  = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "New", actionMenu, testFunc);
     TextButton* toolBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools", actionMenu, openToolMenu, toolMenu);
@@ -169,7 +200,10 @@ void runMainCycle() {
     ToolManager manager = ToolManager(defaultTool, MColor(sf::Color::Red));
 
     Window mainWindow = Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, nullptr);
-    Menu* actions = createActionMenu(&mainWindow, &manager);
+
+    // create bar with tool picker, color picker, and new window creator
+    List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs;
+    Menu* actions = createActionMenu(&mainWindow, &manager, toolArgs, colArgs);
     mainWindow.setActions(actions);
 
     window.clear();
@@ -227,6 +261,9 @@ void runMainCycle() {
             }
         }
     }
+
+    for (size_t i = 0; i < toolArgs.getSize(); i++) delete toolArgs[i];
+    for (size_t i = 0; i < colArgs .getSize(); i++) delete colArgs [i];
 }
 
 int main() {

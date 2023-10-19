@@ -128,6 +128,8 @@ public:
     explicit ToolManager();
     explicit ToolManager(Tool *_current, MColor _color);
 
+    ~ToolManager();
+
     void setTool (Tool* _tool);
     void setColor(MColor _color);
 

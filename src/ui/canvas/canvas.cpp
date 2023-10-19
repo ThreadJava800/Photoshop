@@ -297,6 +297,10 @@ ToolManager::ToolManager(Tool *_current, MColor _color) :
     current(_current),
     color  (_color)     {}
 
+ToolManager::~ToolManager() {
+    delete current;
+}
+
 void ToolManager::setTool (Tool* _tool) {
     current = _tool;
 }
