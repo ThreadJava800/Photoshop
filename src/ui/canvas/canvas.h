@@ -57,18 +57,6 @@ public:
     bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       override;
 };
 
-class CircleTool : public StraightTool {
-private:
-    void drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);
-
-public:
-    explicit CircleTool();
-    explicit CircleTool(MPoint _start, MPoint _end);
-
-    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-};
-
 class EllipseTool : public StraightTool {
 private:
     void drawEllipse(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);

@@ -161,38 +161,6 @@ bool StraightTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColo
 
 bool StraightTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { return false; }
 
-CircleTool::CircleTool() :
-    StraightTool()    {}
-
-CircleTool::CircleTool(MPoint _start, MPoint _end) :
-    StraightTool(_start, _end)  {}
-
-void CircleTool::drawCircle(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
-    ON_ERROR(!drawTarget, "Drawable area was null!",);
-
-    double radius   = std::max(fabs(cur.x - lu.x) / 2, fabs(cur.y - lu.y) / 2);
-
-    double xMin     = std::min(cur.x, lu.x);
-    double yMin     = std::min(cur.y, lu.y);
-    MPoint circleLU = MPoint(xMin, yMin);
-
-    drawTarget->drawCircle(circleLU, radius, color);
-}
-
-bool CircleTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
-
-    temp->clear();
-    drawCircle(rectStart, cur, color, temp);
-}
-
-bool CircleTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
-
-    temp->clear();
-    drawCircle(rectStart, cur, color, perm);
-}
-
 SquareTool::SquareTool() :
     StraightTool()             {}
 

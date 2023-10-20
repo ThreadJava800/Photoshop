@@ -423,7 +423,7 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
     ON_ERROR(!drawFont, "Font ptr was null",)
     
     sf::Text drawText = sf::Text(text, *drawFont, pt);
-    drawText.setColor(color.toSfColor());
+    drawText.setFillColor(color.toSfColor());
     drawText.setPosition(start.toSfVector());
 
     texture->draw(drawText);
