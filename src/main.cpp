@@ -111,7 +111,7 @@ SubMenu* createToolPicker(Window* _winPtr, ToolManager* _manager, List<SubMenuAr
     TextButton* curveBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
 
     SubMenuArgs* fillArgs    = new SubMenuArgs(_manager, toolMenu, FILL);
-    TextButton* fillBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+    TextButton* fillBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
 
     toolArgs.pushBack(brushArgs);
     toolArgs.pushBack(lineArgs);

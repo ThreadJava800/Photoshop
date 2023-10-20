@@ -85,6 +85,8 @@ bool Brush::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color,
 bool Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
     ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
 
+    if (points->getSize() > 4) points->popFront();
+
     points->pushBack(cur);
     drawCatmull(perm, color);
 

@@ -140,6 +140,14 @@ public:
         return values[--size];
     }
 
+    T popFront() {
+        T popElem = values[0];
+        swapWithEnd(popElem);
+        pop();
+
+        return popElem;
+    }
+
     void remove(size_t index) {
         ON_ERROR(!values, "List was null",);
 
