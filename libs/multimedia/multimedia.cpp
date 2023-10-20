@@ -1,5 +1,9 @@
 #include "multimedia.h"
 
+double lerp(double t1, double t2, double t3) {
+    return t1 + t3 * (t2 - t1);
+}
+
 MPoint::MPoint() :
     x(NAN),
     y(NAN)        {}
@@ -75,6 +79,10 @@ MPoint operator*(const MPoint& a, const double b) {
 
 bool operator==(const MPoint& a, const MPoint& b) {
     return fabs(a.x - b.x) < EPSILON && fabs(a.y - b.y) < EPSILON;
+}
+
+double operator| (const MPoint& a, const MPoint& b) {
+    return a.x * b.x + a.y * b.y;
 }
 
 MColor::MColor() :

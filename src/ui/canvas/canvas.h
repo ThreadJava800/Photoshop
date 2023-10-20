@@ -22,9 +22,18 @@ public:
 };
 
 class Brush : public Tool {
+private:
+    List<MPoint>* points = nullptr;
+
+    double        getCatmullCoeff (double prevCoeff, MPoint p1, MPoint p2);
+    List<MPoint>* getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3);
+    void          drawCatmull     (RenderTarget* perm, MColor color);
+
 public:
     explicit Brush();
     explicit Brush(MPoint _start, MPoint _end);
+
+    ~Brush();
 
     bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
     bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;

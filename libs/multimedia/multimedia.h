@@ -8,6 +8,8 @@ static const double EPSILON = 1e-12;
 class RegionSet;
 class MathRectangle;
 
+double lerp(double t1, double t2, double t3);
+
 struct MPoint {
     double x = 0;
     double y = 0;
@@ -32,6 +34,7 @@ struct MPoint {
     friend void   operator*=(      MPoint& a, const double  b);
     friend MPoint operator* (const MPoint& a, const double  b);
     friend bool   operator==(const MPoint& a, const MPoint& b);
+    friend double operator| (const MPoint& a, const MPoint& b); // dot product
 };
 
 struct MColor {

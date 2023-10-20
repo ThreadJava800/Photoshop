@@ -95,23 +95,23 @@ SubMenu* createToolPicker(Window* _winPtr, ToolManager* _manager, List<SubMenuAr
 
     SubMenu* toolMenu = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), _winPtr);
 
-    SubMenuArgs* brushArgs = new SubMenuArgs(_manager, toolMenu, BRUSH);
-    TextButton* brushBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);
-
-    SubMenuArgs* lineArgs = new SubMenuArgs(_manager, toolMenu, LINE);
-    TextButton* lineBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Line", toolMenu, chooseTool, lineArgs);
-
-    SubMenuArgs* rectArgs = new SubMenuArgs(_manager, toolMenu, RECT);
-    TextButton* rectBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Rectangle", toolMenu, chooseTool, rectArgs);
+    SubMenuArgs* brushArgs   = new SubMenuArgs(_manager, toolMenu, BRUSH);
+    TextButton* brushBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);
+  
+    SubMenuArgs* lineArgs    = new SubMenuArgs(_manager, toolMenu, LINE);
+    TextButton* lineBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Line", toolMenu, chooseTool, lineArgs);
+  
+    SubMenuArgs* rectArgs    = new SubMenuArgs(_manager, toolMenu, RECT);
+    TextButton* rectBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Rectangle", toolMenu, chooseTool, rectArgs);
 
     SubMenuArgs* ellipseArgs = new SubMenuArgs(_manager, toolMenu, ELLIPSE);
-    TextButton* ellipseBtn = new TextButton(start + MPoint(ACTION_BTN_LEN, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Ellipse", toolMenu, chooseTool, ellipseArgs);
+    TextButton* ellipseBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Ellipse", toolMenu, chooseTool, ellipseArgs);
 
-    SubMenuArgs* curveArgs = new SubMenuArgs(_manager, toolMenu, CURVE);
-    TextButton* curveBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
+    SubMenuArgs* curveArgs   = new SubMenuArgs(_manager, toolMenu, CURVE);
+    TextButton* curveBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
 
-    SubMenuArgs* fillArgs = new SubMenuArgs(_manager, toolMenu, FILL);
-    TextButton* fillBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+    SubMenuArgs* fillArgs    = new SubMenuArgs(_manager, toolMenu, FILL);
+    TextButton* fillBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
 
     toolArgs.pushBack(brushArgs);
     toolArgs.pushBack(lineArgs);
@@ -137,26 +137,26 @@ SubMenu* createColorPicker(Window* _winPtr, ToolManager* _manager, List<ColPicke
 
     SubMenu* colMenu  = new SubMenu(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
 
-    ColPickerArgs* redArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Red));
-    TextButton* redBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), size, MColor(sf::Color::Red), new MFont (DEFAULT_FONT), "Red", colMenu, chooseColor, redArgs);
+    ColPickerArgs* redArgs     = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Red));
+    TextButton* redBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), size, MColor(sf::Color::Red), new MFont (DEFAULT_FONT), "Red", colMenu, chooseColor, redArgs);
     
-    ColPickerArgs* greenArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Green));
-    TextButton* greenBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 3 * TOP_PANE_SIZE), size, MColor(sf::Color::Green), new MFont (DEFAULT_FONT), "Green", colMenu, chooseColor, greenArgs);
+    ColPickerArgs* greenArgs   = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Green));
+    TextButton* greenBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 3 * TOP_PANE_SIZE), size, MColor(sf::Color::Green), new MFont (DEFAULT_FONT), "Green", colMenu, chooseColor, greenArgs);
     
-    ColPickerArgs* yellowArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Yellow));
-    TextButton* yellowBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 4 * TOP_PANE_SIZE), size, MColor(sf::Color::Yellow), new MFont (DEFAULT_FONT), "Yellow", colMenu, chooseColor, yellowArgs);
+    ColPickerArgs* yellowArgs  = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Yellow));
+    TextButton* yellowBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 4 * TOP_PANE_SIZE), size, MColor(sf::Color::Yellow), new MFont (DEFAULT_FONT), "Yellow", colMenu, chooseColor, yellowArgs);
     
-    ColPickerArgs* blueArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Blue));
-    TextButton* blueBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 5 * TOP_PANE_SIZE), size, MColor(sf::Color::Blue), new MFont (DEFAULT_FONT), "Blue", colMenu, chooseColor, blueArgs);
+    ColPickerArgs* blueArgs    = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Blue));
+    TextButton* blueBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 5 * TOP_PANE_SIZE), size, MColor(sf::Color::Blue), new MFont (DEFAULT_FONT), "Blue", colMenu, chooseColor, blueArgs);
     
-    ColPickerArgs* blackArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Black));
-    TextButton* blackBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 6 * TOP_PANE_SIZE), size, MColor(sf::Color::Black), new MFont (DEFAULT_FONT), "Black", colMenu, chooseColor, blackArgs);
+    ColPickerArgs* blackArgs   = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Black));
+    TextButton* blackBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 6 * TOP_PANE_SIZE), size, MColor(sf::Color::Black), new MFont (DEFAULT_FONT), "Black", colMenu, chooseColor, blackArgs);
     
-    ColPickerArgs* cyanArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Cyan));
-    TextButton* cyanBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), size, MColor(sf::Color::Cyan), new MFont (DEFAULT_FONT), "Cyan", colMenu, chooseColor, cyanArgs);
+    ColPickerArgs* cyanArgs    = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Cyan));
+    TextButton* cyanBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), size, MColor(sf::Color::Cyan), new MFont (DEFAULT_FONT), "Cyan", colMenu, chooseColor, cyanArgs);
     
     ColPickerArgs* magentaArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Magenta));    
-    TextButton* magentaBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 8 * TOP_PANE_SIZE), size, MColor(sf::Color::Magenta), new MFont (DEFAULT_FONT), "Magenta", colMenu, chooseColor, magentaArgs);
+    TextButton*    magentaBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 8 * TOP_PANE_SIZE), size, MColor(sf::Color::Magenta), new MFont (DEFAULT_FONT), "Magenta", colMenu, chooseColor, magentaArgs);
 
     colArgs.pushBack(redArgs);
     colArgs.pushBack(greenArgs);
