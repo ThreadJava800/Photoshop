@@ -160,7 +160,6 @@ void MImage::imgFromPixel(List<List<MColor>*>* pixels) {
     size_t ySize = (*pixels)[0]->getSize();
 
     sf::Image sfImg;
-    std::cout << xSize << ' ' << ySize << '\n';
     sfImg.create(xSize, ySize, sf::Color::Transparent);
 
     for (size_t i = 0; i < xSize; i++) {
@@ -169,6 +168,9 @@ void MImage::imgFromPixel(List<List<MColor>*>* pixels) {
         }
     }
 
+    delete img;
+
+    img = new sf::Texture();
     img->loadFromImage(sfImg);
 }
 

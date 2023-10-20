@@ -45,11 +45,8 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
     List<List<MColor>*>* pixelListPtr = textureImage->getPixels();
     if (!pixelListPtr) return false;
 
-    List<List<MColor>*> pixelList = *pixelListPtr;
-
-    size_t xSize = pixelList    .getSize();
-    size_t ySize = pixelList[0]->getSize();
-    std::cout << "FUCK: " << xSize << ' ' << ySize << '\n';
+    size_t xSize =   pixelListPtr    ->getSize();
+    size_t ySize = (*pixelListPtr)[0]->getSize();
 
     List<MPoint>  bfsList = List<MPoint>();
     List<bool>    was     = List<bool>(xSize * ySize);
@@ -71,46 +68,50 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
 
         if (bfs.y != 0) {
             MPoint up = MPoint(bfs.x, bfs.y - 1);
-            if ((*pixelList[up.x])[up.y] == (*pixelList[bfs.x])[bfs.y]) {
+            if ((*((*pixelListPtr)[up.x]))[up.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(up);
-                (*(resPixels)[up.x])[up.y] = MColor(sf::Color::Blue);
-                // perm->setPixel(up, MColor(sf::Color::Blue));
+
+                (*(resPixels)[up.x])[up.y] = color;
             }
         }
 
         if (bfs.x != 0) {
             MPoint lp = MPoint(bfs.x - 1, bfs.y);
-            if ((*pixelList[lp.x])[lp.y] == (*pixelList[bfs.x])[bfs.y]) {
+            if ((*((*pixelListPtr)[lp.x]))[lp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(lp);
-                (*(resPixels)[lp.x])[lp.y] = MColor(sf::Color::Blue);
-                // perm->setPixel(lp, MColor(sf::Color::Blue));
+
+                (*(resPixels)[lp.x])[lp.y] = color;
             }
         }
 
         if (bfs.x != xSize - 1) {
             MPoint rp = MPoint(bfs.x + 1, bfs.y);
-            if ((*pixelList[rp.x])[rp.y] == (*pixelList[bfs.x])[bfs.y]) {
+            if ((*((*pixelListPtr)[rp.x]))[rp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(rp);
-                (*(resPixels)[rp.x])[rp.y] = MColor(sf::Color::Blue);
-                // perm->setPixel(rp, MColor(sf::Color::Blue));
+
+                (*(resPixels)[rp.x])[rp.y] = color;
             }
         }
 
         if (bfs.y != ySize - 1) {
             MPoint bp = MPoint(bfs.x, bfs.y + 1);
-            if ((*pixelList[bp.x])[bp.y] == (*pixelList[bfs.x])[bfs.y]) {
+            if ((*((*pixelListPtr)[bp.x]))[bp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(bp);
-                (*(resPixels)[bp.x])[bp.y] = MColor(sf::Color::Blue);
-                // perm->setPixel(bp, MColor(sf::Color::Blue));
+
+                (*(resPixels)[bp.x])[bp.y] = color;
             }
         }
     }
-    std::cout << "OUT\n";
 
     textureImage->imgFromPixel(&resPixels);
     perm->drawSprite(MPoint(0, 0), MPoint(xSize, ySize), textureImage);
 
     delete textureImage;
+
+    for (size_t i = 0; i < xSize; i++) delete (*pixelListPtr)[i];
+    delete pixelListPtr;
+
+    for (size_t i = 0; i < xSize; i++) delete resPixels[i];
 
     return true;
 }
