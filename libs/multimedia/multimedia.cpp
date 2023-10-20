@@ -153,6 +153,25 @@ MImage::~MImage() {
     imgPath = nullptr;
 }
 
+void MImage::imgFromPixel(List<List<MColor>*>* pixels) {
+    ON_ERROR(!pixels, "List was null!",);
+
+    size_t xSize = pixels      ->getSize();
+    size_t ySize = (*pixels)[0]->getSize();
+
+    sf::Image sfImg;
+    std::cout << xSize << ' ' << ySize << '\n';
+    sfImg.create(xSize, ySize, sf::Color::Transparent);
+
+    for (size_t i = 0; i < xSize; i++) {
+        for (size_t j = 0; j < ySize; j++) {
+            sfImg.setPixel(i, j, (*(*pixels)[i])[j].toSfColor());
+        }
+    }
+
+    img->loadFromImage(sfImg);
+}
+
 List<List<MColor>*>* MImage::getPixels() {
     ON_ERROR(!img, "Texture pointer was null!", nullptr);
 
@@ -235,6 +254,11 @@ MPoint RenderTarget::getStart() {
 MPoint RenderTarget::getSize () {
     sf::Vector2u size = texture->getSize();
     return MPoint(size);
+}
+
+void RenderTarget::setTexture(MImage* const mImage) {
+    ON_ERROR(!mImage, "Texture ptr was null!",);
+
 }
 
 void RenderTarget::clear(MColor col) {

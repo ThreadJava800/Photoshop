@@ -78,6 +78,8 @@ public:
 
     ~MImage();
 
+    void imgFromPixel(List<List<MColor>*>* pixels);
+
     List<List<MColor>*>*  getPixels   ();
     sf::Texture*          getSfTexture();
 };
@@ -109,6 +111,7 @@ public:
     sf::RenderTexture* getRenderTexture();
     sf::RenderWindow * getRenderWindow ();
 
+    void    setTexture(MImage* mImage);
     void    clear(MColor col = MColor(TRANSPARENT));
     MImage* getImage();
 
