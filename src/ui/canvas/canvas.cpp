@@ -68,7 +68,7 @@ void Brush::drawCatmullOf3(RenderTarget* perm, MColor color, MPoint p1, MPoint p
     size_t drawCnt = drawPoints->getSize();
         
     for (long i = 0; i < long(drawCnt); i++) {
-        perm->drawCircle((*drawPoints)[i], LINE_DIAM, color);
+        perm->drawCircle((*drawPoints)[i], LINE_DIAM, color, nullptr, color);
     }
 
     delete drawPoints;
@@ -80,7 +80,7 @@ void Brush::drawCatmull(RenderTarget* perm, MColor color) {
     size_t pointCnt = points->getSize();
 
     if (pointCnt == 1) {
-        perm->drawCircle((*points)[0], LINE_DIAM, color);
+        perm->drawCircle((*points)[0], LINE_DIAM, color, nullptr, color);
     }
     if (pointCnt == 2) {
         perm->drawLine((*points)[0], (*points)[1], color);
@@ -99,7 +99,7 @@ void Brush::drawCatmull(RenderTarget* perm, MColor color) {
         size_t drawCnt = drawPoints->getSize();
         
         for (long i = 0; i < long(drawCnt) - 1; i++) {
-            perm->drawCircle((*drawPoints)[i], LINE_DIAM, color);
+            perm->drawCircle((*drawPoints)[i], LINE_DIAM, color, nullptr, color);
         }
 
         delete drawPoints;

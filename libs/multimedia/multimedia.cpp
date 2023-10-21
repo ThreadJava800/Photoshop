@@ -349,12 +349,12 @@ void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor 
     }
 }
 
-void RenderTarget::_drawCircle(MPoint lu, double radius, MColor color) {
+void RenderTarget::_drawCircle(MPoint lu, double radius, MColor color, MColor fillColor) {
     ON_ERROR(!texture, "Drawable area was null!",);
 
     sf::CircleShape circle    (radius);
     circle.setPosition        (lu.toSfVector());
-    circle.setFillColor       (sf::Color::Transparent);
+    circle.setFillColor       (fillColor.toSfColor());
     circle.setOutlineThickness(LINE_DIAM);
     circle.setOutlineColor    (color.toSfColor());
 
@@ -363,13 +363,13 @@ void RenderTarget::_drawCircle(MPoint lu, double radius, MColor color) {
     if (sprite) window ->draw(*sprite);
 }
 
-void RenderTarget::drawCircle(MPoint lu, double radius, MColor color, RegionSet* regions) {
+void RenderTarget::drawCircle(MPoint lu, double radius, MColor color, RegionSet* regions, MColor fillColor) {
     ON_ERROR(!texture, "Drawable area was null!",);
 
     if (regions) {
         
     } else {
-        _drawCircle(lu, radius, color);
+        _drawCircle(lu, radius, color, fillColor);
     }
 }
 

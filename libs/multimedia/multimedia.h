@@ -122,8 +122,8 @@ public:
     void drawLine   (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);
     void _drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
     void drawRect   (MPoint start,  MPoint size,   MColor fillColor, MColor outColor, RegionSet* regions = nullptr);
-    void _drawCircle(MPoint lu,     double radius, MColor color);
-    void drawCircle (MPoint lu,     double radius, MColor color, RegionSet* regions = nullptr);
+    void _drawCircle(MPoint lu,     double radius, MColor color, MColor fillColor = MColor(TRANSPARENT));
+    void drawCircle (MPoint lu,     double radius, MColor color, RegionSet* regions = nullptr, MColor fillColor = MColor(TRANSPARENT));
     void _drawSprite(MPoint start,  MPoint size,   MImage* img); 
     void drawSprite (MPoint start,  MPoint size,   MImage* img, RegionSet* regions = nullptr); 
     void _drawText  (MPoint start,  MPoint size,   MImage* img); 
