@@ -28,7 +28,7 @@ double Brush::getCatmullCoeff(double prevCoeff, MPoint p1, MPoint p2) {
     return std::pow((diffPoint | diffPoint), CATMULL_ALPHA * 0.5) + prevCoeff;
 }
 
-List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3) {
+List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3, bool setOf3) {
     ON_ERROR(!points, "Point list ptr area was nullptr!", nullptr);
 
     double t0 = 0;
@@ -38,7 +38,7 @@ List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3
 
     List<MPoint>* coeffs = new List<MPoint>();
 
-    for (double i = 0; i < 1; i += 0.1) {
+    for (double i = 0; i < 1; i += 0.01) {
         double t  = lerp(t1, t2, i);
 
         if (t1 == t0 || t1 == t3 || t1 == t2 || t2 == t3 || t2 == t0) continue;
@@ -47,8 +47,12 @@ List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3
         MPoint a2 = p1 * ((t2 - t) / (t2 - t1)) + p2 * ((t - t1) / (t2 - t1));
         MPoint a3 = p2 * ((t3 - t) / (t3 - t2)) + p3 * ((t - t2) / (t3 - t2));
         MPoint b1 = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
-        MPoint b2 = a2 * ((t3 - t) / (t3 - t1)) + a3 * ((t - t1) / (t3 - t1));
+        if (setOf3) {
+            coeffs->pushBack(b1);
+            continue;
+        }
 
+        MPoint b2 = a2 * ((t3 - t) / (t3 - t1)) + a3 * ((t - t1) / (t3 - t1));
         MPoint c  = b1 * ((t2 - t) / (t2 - t1)) + b2 * ((t - t1) / (t2 - t1));
 
         coeffs->pushBack(c);
@@ -57,24 +61,57 @@ List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3
     return coeffs;
 }
 
+void Brush::drawCatmullOf3(RenderTarget* perm, MColor color, MPoint p1, MPoint p2, MPoint p3) {
+    ON_ERROR(!perm, "RenderTarget was null!",);
+
+    List<MPoint>* drawPoints = getCatmullCoeffs(p1, p2, p3, MPoint(), true);
+    size_t drawCnt = drawPoints->getSize();
+        
+    for (long i = 0; i < long(drawCnt); i++) {
+        perm->drawCircle((*drawPoints)[i], LINE_DIAM, color);
+    }
+
+    delete drawPoints;
+}
+
 void Brush::drawCatmull(RenderTarget* perm, MColor color) {
     ON_ERROR(!perm, "RenderTarget was null!",);
 
     size_t pointCnt = points->getSize();
-    for (long i = 0; i < long(pointCnt) - 4; i++) {
+
+    if (pointCnt == 1) {
+        perm->drawCircle((*points)[0], LINE_DIAM, color);
+    }
+    if (pointCnt == 2) {
+        perm->drawLine((*points)[0], (*points)[1], color);
+    }
+    if (pointCnt == 3) {
+        drawCatmullOf3(perm, color, (*points)[2], (*points)[1], (*points)[0]);
+        drawCatmullOf3(perm, color, (*points)[0], (*points)[1], (*points)[2]);
+    }
+
+    if (pointCnt < 4) return;
+
+    drawCatmullOf3(perm, color, (*points)[2], (*points)[1], (*points)[0]);
+    for (long i = 0; i < long(pointCnt) - 3; i++) {
         List<MPoint>* drawPoints = getCatmullCoeffs((*points)[i], (*points)[i + 1], (*points)[i + 2], (*points)[i + 3]);
+
         size_t drawCnt = drawPoints->getSize();
         
-        for (size_t i = 0; i < drawCnt; i++) {
+        for (long i = 0; i < long(drawCnt) - 1; i++) {
             perm->drawCircle((*drawPoints)[i], LINE_DIAM, color);
         }
 
         delete drawPoints;
     }
+
+    drawCatmullOf3(perm, color, (*points)[pointCnt - 3], (*points)[pointCnt - 2], (*points)[pointCnt - 1]);
 }
 
 bool Brush::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
     ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
+    if (points->getSize() > 4) points->popFront();
 
     points->pushBack(cur);
     drawCatmull(perm, color);
@@ -93,12 +130,57 @@ bool Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MP
     return true;
 }
 
-bool Brush::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { return false; }
+bool Brush::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { 
+    points->clear();
+
+    return false; 
+}
 
 bool Brush::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) { 
     points->clear();
 
     return false; 
+}
+
+Spline::Spline() :
+    Brush()             {}
+
+Spline::Spline(MPoint _start, MPoint _end) :
+    Brush(_start, _end) {}
+
+bool Spline::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
+    if (btn == LEFT) {
+        points->pushBack(cur);
+
+        temp->clear();
+        drawCatmull(temp, color);
+
+        return true;
+    }
+
+    return paintOnDeactivate(perm, temp, color);
+}
+
+
+bool Spline::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
+    return true;
+}
+
+bool Spline::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+    return true;
+}
+
+bool Spline::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) {
+    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+
+    temp->clear();
+    drawCatmull(perm, color);
+
+    points->clear();
+
+    return false;
 }
 
 FillTool::FillTool() :

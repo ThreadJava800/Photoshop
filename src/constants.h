@@ -12,7 +12,7 @@ static const char*     MAIN_WINDOW_NAME   = "Photoshop";
 static const int       ACTION_BTN_LEN     = 100;
 static const int       ACTION_BTN_HEIGHT  = 30;
 
-static const int       LINE_DIAM          = 5;
+static const int       LINE_DIAM          = 1;
 static const int       SUB_MENU_LEN       = 300;
 static const int       BTN_TXT_PT         = 25;
 

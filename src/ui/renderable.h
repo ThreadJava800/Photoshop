@@ -4,12 +4,22 @@
 #include "../includes.h"
 #include "../../libs/multimedia/multimedia.h"
 
+class EventProcessable {
+public:
+    virtual bool onKeyPressed (MKeyboard key) = 0;
+    virtual bool onKeyReleased(MKeyboard key) = 0;
+
+    virtual bool onMousePressed (MPoint pos, MMouse btn) = 0;
+    virtual bool onMouseReleased(MPoint pos, MMouse btn) = 0;
+    virtual bool onMouseMove    (MPoint pos, MMouse btn) = 0;
+};
+
 class Renderable {
 public:
     virtual void render(RenderTarget* renderTarget) = 0;
 };
 
-class Widget : public Renderable {
+class Widget : public Renderable, public EventProcessable {
 protected:
     MPoint         position   = MPoint();
     MPoint         size       = MPoint();
@@ -39,12 +49,12 @@ public:
 
     void setParent(Widget* _parent);
 
-    virtual bool onKeyPressed (MKeyboard key) {return false;};
-    virtual bool onKeyReleased(MKeyboard key) {return false;};
+    bool onKeyPressed (MKeyboard key) override {return false;};
+    bool onKeyReleased(MKeyboard key) override {return false;};
 
-    virtual bool onMousePressed (MPoint pos, MMouse btn);
-    virtual bool onMouseReleased(MPoint pos, MMouse btn);
-    virtual bool onMouseMove    (MPoint pos, MMouse btn);
+    bool onMousePressed (MPoint pos, MMouse btn) override;
+    bool onMouseReleased(MPoint pos, MMouse btn) override;
+    bool onMouseMove    (MPoint pos, MMouse btn) override;
 
     virtual void move(MPoint shift);
 

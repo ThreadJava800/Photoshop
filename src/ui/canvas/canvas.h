@@ -22,11 +22,12 @@ public:
 };
 
 class Brush : public Tool {
-private:
+protected:
     List<MPoint>* points = nullptr;
 
     double        getCatmullCoeff (double prevCoeff, MPoint p1, MPoint p2);
-    List<MPoint>* getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3);
+    List<MPoint>* getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3, bool setOf3 = false);
+    void          drawCatmullOf3  (RenderTarget* perm, MColor color, MPoint p1, MPoint p2, MPoint p3);
     void          drawCatmull     (RenderTarget* perm, MColor color);
 
 public:
@@ -34,6 +35,17 @@ public:
     explicit Brush(MPoint _start, MPoint _end);
 
     ~Brush();
+
+    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
+    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                         override;
+};
+
+class Spline : public Brush {
+public:
+    explicit Spline();
+    explicit Spline(MPoint _start, MPoint _end);
 
     bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
     bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;

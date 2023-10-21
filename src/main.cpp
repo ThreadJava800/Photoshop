@@ -8,6 +8,7 @@ enum Tools {
     RECT,
     ELLIPSE,
     CURVE,
+    SPLINE,
     FILL
 };
 
@@ -69,6 +70,9 @@ void chooseTool(void* arg) {
     case CURVE:
         newTool = new CurveTool();
         break;
+    case SPLINE:
+        newTool = new Spline();
+        break;
     case FILL:
         newTool = new FillTool();
         break;
@@ -110,14 +114,18 @@ SubMenu* createToolPicker(Window* _winPtr, ToolManager* _manager, List<SubMenuAr
     SubMenuArgs* curveArgs   = new SubMenuArgs(_manager, toolMenu, CURVE);
     TextButton* curveBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
 
+    SubMenuArgs* splineArgs   = new SubMenuArgs(_manager, toolMenu, SPLINE);
+    TextButton* splineBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
+
     SubMenuArgs* fillArgs    = new SubMenuArgs(_manager, toolMenu, FILL);
-    TextButton* fillBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+    TextButton* fillBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
 
     toolArgs.pushBack(brushArgs);
     toolArgs.pushBack(lineArgs);
     toolArgs.pushBack(rectArgs);
     toolArgs.pushBack(ellipseArgs);
     toolArgs.pushBack(curveArgs);
+    toolArgs.pushBack(splineArgs);
     toolArgs.pushBack(fillArgs);
 
     toolMenu->registerObject(brushBtn);
@@ -125,6 +133,7 @@ SubMenu* createToolPicker(Window* _winPtr, ToolManager* _manager, List<SubMenuAr
     toolMenu->registerObject(rectBtn);
     toolMenu->registerObject(ellipseBtn);
     toolMenu->registerObject(curveBtn);
+    toolMenu->registerObject(splineBtn);
     toolMenu->registerObject(fillBtn);
 
     return toolMenu;
