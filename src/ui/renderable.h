@@ -2,17 +2,7 @@
 #define _RENDERABLE_h_
 
 #include "../includes.h"
-#include "../../libs/multimedia/multimedia.h"
-
-class EventProcessable {
-public:
-    virtual bool onKeyPressed (MKeyboard key) = 0;
-    virtual bool onKeyReleased(MKeyboard key) = 0;
-
-    virtual bool onMousePressed (MPoint pos, MMouse btn) = 0;
-    virtual bool onMouseReleased(MPoint pos, MMouse btn) = 0;
-    virtual bool onMouseMove    (MPoint pos, MMouse btn) = 0;
-};
+#include "../events/events.h"
 
 class Renderable {
 public:

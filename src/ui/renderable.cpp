@@ -1,6 +1,7 @@
 #include "renderable.h"
 
 Widget::Widget(MPoint _position, MPoint _size, Widget* _parent) :
+    EventProcessable(),
     position(_position),
     size    (_size),
     parent  (_parent),
@@ -12,6 +13,7 @@ Widget::Widget(MPoint _position, MPoint _size, Widget* _parent) :
     }
 
 Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _subWindows) :
+    EventProcessable(),
     position  (_position),
     size      (_size),
     parent    (_parent),
