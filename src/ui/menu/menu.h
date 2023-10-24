@@ -25,7 +25,6 @@ public:
 
     bool isInside(MPoint checkPoint);
 
-    void render(RenderTarget* renderTarget)      override;
     bool onMousePressed (MPoint pos, MMouse btn) override;
     bool onMouseReleased(MPoint pos, MMouse btn) override;
     bool onMouseMove    (MPoint pos, MMouse btn) override;

@@ -149,7 +149,17 @@ void Widget::registerObject(Widget* widget) {
 }
 
 void Widget::render(RenderTarget* renderTarget) {
-    // regSet->visualize(renderTarget, debColor);
+    if (visible) {
+        size_t listSize = subWindows->getSize();
+        for (size_t i = 0; i < listSize; i++) {
+            Widget* widget = (*subWindows)[i];
+            if (widget) {
+                widget->render(renderTarget);
+            }
+        }
+
+        // regSet->visualize(renderTarget, debColor);
+    }
 }
 
 void Widget::clearRegionSets() {

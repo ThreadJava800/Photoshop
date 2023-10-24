@@ -18,13 +18,5 @@ void SubMenu::render(RenderTarget* renderTarget) {
 
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY), regSet);
 
-    size_t listSize = subWindows->getSize();
-    for (size_t i = 0; i < listSize; i++) {
-        Widget* widget = (*subWindows)[i];
-        if (widget) {
-            widget->render(renderTarget);
-        }
-    }
-
     Widget::render(renderTarget);
 }

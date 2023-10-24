@@ -87,16 +87,7 @@ void Window::render(RenderTarget* renderTarget) {
         }
     }
 
-    if (vis) {
-    for (size_t i = 0; i < listSize; i++) {
-        Widget* widget = (*subWindows)[i];
-        if (widget) {
-            widget->render(renderTarget);
-        }
-    }
-
     Widget::render(renderTarget);
-    }
 }
 
 void prioritizeWindow(Window* window) {

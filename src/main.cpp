@@ -242,18 +242,20 @@ void runMainCycle() {
     Brush* defaultTool = new Brush();
     ToolManager manager = ToolManager(defaultTool, MColor(sf::Color::Red));
 
-    Window mainWindow = Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, nullptr);
+    Widget drawWidget  = Widget(MPoint(0, 0), MPoint(1920, 1080), nullptr);
+    Window* mainWindow = new Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, &drawWidget);
+    drawWidget.registerObject(mainWindow);
 
     EventManager eventBoy = EventManager();
-    eventBoy.registerObject(&mainWindow);
+    eventBoy.registerObject(mainWindow);
 
     // create bar with tool picker, color picker, and new window creator
     List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs;
-    Menu* actions = createActionMenu(&mainWindow, &manager, &eventBoy, toolArgs, colArgs);
-    mainWindow.setActions(actions);
+    Menu* actions = createActionMenu(mainWindow, &manager, &eventBoy, toolArgs, colArgs);
+    mainWindow->setActions(actions);
 
     window.clear();
-    mainWindow.render(&renderTarget);
+    drawWidget.render(&renderTarget);
     window.display();
 
     while (window.isOpen())
@@ -277,7 +279,7 @@ void runMainCycle() {
                 if (event.mouseButton.button == sf::Mouse::Right)
                     eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), RIGHT);
 
-                mainWindow.render(&renderTarget);
+                drawWidget.render(&renderTarget);
                 window.display();
 
                 break;
@@ -289,7 +291,7 @@ void runMainCycle() {
                 if (event.mouseButton.button == sf::Mouse::Right)
                     eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), RIGHT);
 
-                mainWindow.render(&renderTarget);
+                drawWidget.render(&renderTarget);
                 window.display();
 
                 break;
@@ -298,7 +300,7 @@ void runMainCycle() {
                 renderTarget.getRenderTexture()->clear();
                 eventBoy.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 
-                mainWindow.render(&renderTarget);
+                drawWidget.render(&renderTarget);
                 window.display();
 
                 break;

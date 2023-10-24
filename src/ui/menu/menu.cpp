@@ -10,19 +10,6 @@ Menu::Menu(MPoint _position, MPoint _size, Widget* _parent, Window* _window, OnM
 
 Menu::~Menu() {}
 
-void Menu::render(RenderTarget* renderTarget) {
-    ON_ERROR(!renderTarget, "Render target pointer was null!",);
-    ON_ERROR(!subWindows, "Buttons pointer was null!",);
-
-    size_t listSize = subWindows->getSize();
-    for (size_t i = 0; i < listSize; i++) {
-        Widget* btn = (*subWindows)[i];
-        if (btn) btn->render(renderTarget);
-    }
-
-    Widget::render(renderTarget);
-}
-
 bool Menu::isInside(MPoint checkPoint) {
     return checkPoint.x - position.x >= 0      &&
            checkPoint.x - position.x <= size.x &&

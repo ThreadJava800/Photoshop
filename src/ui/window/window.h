@@ -16,8 +16,6 @@ private:
     void createTestWindow();
     
 public:
-    bool vis = true;
-
     explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, uint8_t _priority = 0);
     explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
     ~Window();
