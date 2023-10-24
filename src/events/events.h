@@ -40,8 +40,6 @@ private:
 public:
     EventManager();
 
-    ~EventManager();
-
     void registerObject  (EventProcessable* eventProc);
     void unregisterObject(EventProcessable* eventProc);
     void privatizeEvents (List<EventType> events, int priority);

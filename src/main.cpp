@@ -187,25 +187,49 @@ SubMenu* createColorPicker(Window* _winPtr, ToolManager* _manager, List<ColPicke
     return colMenu;
 }
 
-Menu* createActionMenu(Window* _winPtr, ToolManager* _manager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs) {
+void open(Window* _winPtr, ToolManager* _manager, EventManager* _evManager) {
+    Window* modalWindow = new Window(MPoint(300, 300), MPoint(200, 200), _manager, _winPtr, 1);
+}
+
+SubMenu* createFilterMenu(Window* _winPtr, ToolManager* _manager, EventManager* _evManager) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
-    Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(3 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
+    SubMenu* filtMenu  = new SubMenu(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
+
+    TextButton* constBlurBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (default)", filtMenu);
+    TextButton* customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)", filtMenu);
+
+    filtMenu->registerObject(constBlurBtn);
+    filtMenu->registerObject(customBlurBtn);
+
+    return filtMenu;
+}
+
+Menu* createActionMenu(Window* _winPtr, ToolManager* _manager, EventManager* _evManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs) {
+    MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
+    MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
+    MColor color = MColor(DEFAULT_BACK_COL);
+
+    Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(4 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
     SubMenu* toolMenu   = createToolPicker (_winPtr, _manager, toolArgs);
     SubMenu* colMenu    = createColorPicker(_winPtr, _manager, colArgs);
+    SubMenu* filtMenu   = createFilterMenu (_winPtr, _manager, _evManager);
 
-    TextButton* fileBtn  = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "New", actionMenu, testFunc);
-    TextButton* toolBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools", actionMenu, openToolMenu, toolMenu);
-    TextButton* colBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Color", actionMenu, openToolMenu, colMenu);
+    TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "New",    actionMenu, testFunc);
+    TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);
+    TextButton* colBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Color",  actionMenu, openToolMenu, colMenu);
+    TextButton* filterBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Filter", actionMenu, openToolMenu, filtMenu);
 
     actionMenu->registerObject(fileBtn);
     actionMenu->registerObject(toolBtn);
     actionMenu->registerObject(colBtn);
+    actionMenu->registerObject(filterBtn);
 
     _winPtr->registerObject(toolMenu);
     _winPtr->registerObject(colMenu);
+    _winPtr->registerObject(filtMenu);
 
     return actionMenu;
 }
@@ -225,7 +249,7 @@ void runMainCycle() {
 
     // create bar with tool picker, color picker, and new window creator
     List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs;
-    Menu* actions = createActionMenu(&mainWindow, &manager, toolArgs, colArgs);
+    Menu* actions = createActionMenu(&mainWindow, &manager, &eventBoy, toolArgs, colArgs);
     mainWindow.setActions(actions);
 
     window.clear();

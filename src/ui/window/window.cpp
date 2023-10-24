@@ -2,16 +2,16 @@
 
 bool isCreated = false;
 
-Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent) :
-    Widget    (_position, _size, _parent),
+Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, uint8_t _priority) :
+    Widget    (_position, _size, _parent, _priority),
     manager   (_manager),
     actions   (nullptr)   {
         createTopPanel();
         if (!isCreated) createTestWindow();
     }
 
-Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions) :
-    Widget    (_position, _size, _parent),
+Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions, uint8_t _priority) :
+    Widget    (_position, _size, _parent, _priority),
     manager   (_manager),
     actions   (_actions)  {
         createTopPanel();

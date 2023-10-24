@@ -16,11 +16,6 @@ EventManager::EventManager() :
         children = new List<EventProcessable*>();
     }
 
-EventManager::~EventManager() {
-    resetPriorities();
-    delete children;
-}
-
 void EventManager::registerObject(EventProcessable* eventProc) {
     ON_ERROR(!eventProc, "EventProcessable was nullptr!",);
 
@@ -42,7 +37,7 @@ void EventManager::unregisterObject(EventProcessable* eventProc) {
 void EventManager::privatizeEvents(List<EventType> events, int priority) {
     size_t eventCnt = events.getSize();
     for (size_t i = 0; i < eventCnt; i++) {
-        priorities[events[i]] = 1;
+        priorities[events[i]] = priority;
     }
 }
 

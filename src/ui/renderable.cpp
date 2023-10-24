@@ -1,7 +1,7 @@
 #include "renderable.h"
 
-Widget::Widget(MPoint _position, MPoint _size, Widget* _parent) :
-    EventProcessable(),
+Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, uint8_t _priority) :
+    EventProcessable(_priority),
     position(_position),
     size    (_size),
     parent  (_parent),
@@ -12,8 +12,8 @@ Widget::Widget(MPoint _position, MPoint _size, Widget* _parent) :
         createEmptyRegionSet();
     }
 
-Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _subWindows) :
-    EventProcessable(),
+Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _subWindows, uint8_t _priority) :
+    EventProcessable(_priority),
     position  (_position),
     size      (_size),
     parent    (_parent),

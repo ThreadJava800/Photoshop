@@ -26,8 +26,8 @@ protected:
 public:
     MColor debColor;
 
-    explicit Widget(MPoint _position, MPoint _size, Widget* _parent);
-    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* subWindows);
+    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, uint8_t _priority = 0);
+    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* subWindows, uint8_t _priority = 0);
     virtual ~Widget();
 
     MPoint         getPosition();
@@ -47,7 +47,6 @@ public:
     bool onMouseMove    (MPoint pos, MMouse btn) override;
 
     virtual void move(MPoint shift);
-
     virtual void registerObject(Widget* widget);
 
     void render(RenderTarget* renderTarget) override;
