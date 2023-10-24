@@ -542,8 +542,7 @@ Canvas::~Canvas() {
 bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    MathRectangle canvRect = MathRectangle(position, size);
-    if (canvRect.isPointInside(pos)) {
+    if (isInside(pos)) {
         drawing = manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, btn);
     
         return drawing;
@@ -563,8 +562,7 @@ bool Canvas::onMouseReleased(MPoint pos, MMouse btn) {
 bool Canvas::onMouseMove(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    MathRectangle canvRect = MathRectangle(position, size);
-    if (!canvRect.isPointInside(pos) && drawing) {
+    if (!isInside(pos) && drawing) {
         drawing = manager->paintOnDeactivate(rendTarget, tempTarget);
     
         return drawing;

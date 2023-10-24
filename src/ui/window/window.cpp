@@ -22,7 +22,7 @@ Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _p
 Window::~Window() {}
 
 bool Window::onMousePressed (MPoint pos, MMouse btn) {
-    if (MathRectangle(position, size).isPointInside(pos)) {
+    if (isInside(pos)) {
         prioritizeWindow();
     }
 

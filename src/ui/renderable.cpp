@@ -148,6 +148,10 @@ void Widget::registerObject(Widget* widget) {
     fillRegionSets();  
 }
 
+bool Widget::isInside(MPoint point) {
+    return MathRectangle(position, size).isPointInside(point);
+}
+
 void Widget::render(RenderTarget* renderTarget) {
     unregisterObject();
 
