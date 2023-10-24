@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "ui/window/window.h"
 #include "ui/submenu/submenu.h"
+#include "events/events.h"
 
 enum Tools {
     BRUSH,
@@ -219,6 +220,9 @@ void runMainCycle() {
 
     Window mainWindow = Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, nullptr);
 
+    EventManager eventBoy = EventManager();
+    eventBoy.registerObject(&mainWindow);
+
     // create bar with tool picker, color picker, and new window creator
     List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs;
     Menu* actions = createActionMenu(&mainWindow, &manager, toolArgs, colArgs);
@@ -244,11 +248,10 @@ void runMainCycle() {
                 break;
             case sf::Event::MouseButtonPressed: {
                 renderTarget.getRenderTexture()->clear();
-                mainWindow.render(&renderTarget);
                 if (event.mouseButton.button == sf::Mouse::Left) 
-                    mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
+                    eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
                 if (event.mouseButton.button == sf::Mouse::Right)
-                    mainWindow.onMousePressed(MPoint(sf::Mouse::getPosition()), RIGHT);
+                    eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), RIGHT);
 
                 mainWindow.render(&renderTarget);
                 window.display();
@@ -258,9 +261,9 @@ void runMainCycle() {
             case sf::Event::MouseButtonReleased: {
                 renderTarget.getRenderTexture()->clear();
                 if (event.mouseButton.button == sf::Mouse::Left)
-                    mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
+                    eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
                 if (event.mouseButton.button == sf::Mouse::Right)
-                    mainWindow.onMouseReleased(MPoint(sf::Mouse::getPosition()), RIGHT);
+                    eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), RIGHT);
 
                 mainWindow.render(&renderTarget);
                 window.display();
@@ -269,7 +272,7 @@ void runMainCycle() {
             }
             case sf::Event::MouseMoved: {
                 renderTarget.getRenderTexture()->clear();
-                mainWindow.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
+                eventBoy.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 
                 mainWindow.render(&renderTarget);
                 window.display();

@@ -3,15 +3,16 @@
 
 #include "../../libs/multimedia/multimedia.h"
 
-static const int EVENT_TYPES_NUM = 5;
-
 enum EventType {
     KEY_PRESSED,
     KEY_RELEASED,
+    
     MOUSE_PRESSED,
     MOUSE_MOVE,
     MOUSE_RELEASED
 };
+
+static const int EVENT_TYPES_NUM = MOUSE_RELEASED - KEY_PRESSED + 1;
 
 class EventProcessable {
 private:
@@ -31,18 +32,13 @@ public:
     virtual bool onMouseMove    (MPoint pos, MMouse btn) = 0;
 };
 
-class Window;
 class EventManager : public EventProcessable {
 private:
-    Window* mainWindowPtr  = nullptr;
-    // Logger* logger;
-
     List<EventProcessable*>* children = nullptr;
     int priorities[EVENT_TYPES_NUM];
 
 public:
     EventManager();
-    EventManager(Window* _mainWindowPtr);
 
     ~EventManager();
 
@@ -50,6 +46,13 @@ public:
     void unregisterObject(EventProcessable* eventProc);
     void privatizeEvents (List<EventType> events, int priority);
     void resetPriorities ();
+
+    bool onKeyPressed (MKeyboard key) override;
+    bool onKeyReleased(MKeyboard key) override;
+
+    bool onMousePressed (MPoint pos, MMouse btn) override;
+    bool onMouseReleased(MPoint pos, MMouse btn) override;
+    bool onMouseMove    (MPoint pos, MMouse btn) override;
 };
 
 #endif
