@@ -24,6 +24,18 @@ public:
     void render(RenderTarget* renderTarget) override;
 };
 
+class ModalWindow : public Window {
+private:
+    EventManager* eventMan = nullptr;
+
+    void makeEventPrivate();
+
+public:
+    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent);
+    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions);
+    ~ModalWindow();
+};
+
 void prioritizeWindow(Window* window);
 void onMove(Window* window, MPoint newPos, MPoint oldPos);
 void closeFunc(void* window);

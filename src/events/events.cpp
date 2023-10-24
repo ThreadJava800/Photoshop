@@ -34,7 +34,7 @@ void EventManager::unregisterObject(EventProcessable* eventProc) {
     }
 }
 
-void EventManager::privatizeEvents(List<EventType> events, int priority) {
+void EventManager::privatizeEvents(List<EventType>& events, int priority) {
     size_t eventCnt = events.getSize();
     for (size_t i = 0; i < eventCnt; i++) {
         priorities[events[i]] = priority;

@@ -55,7 +55,6 @@ void Window::createTestWindow() {
 
     Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), manager, this);
     subWin2->createCanvas();
-    // subWin2->vis = false;
     registerObject(subWin2);
 
     Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, this);
@@ -73,21 +72,37 @@ void Window::render(RenderTarget* renderTarget) {
 
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
 
-    long listSize = long(subWindows->getSize());
-    for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
-        if (widget && !widget->getExists()) {
-            Widget* delParent = widget->getParent();
+    Widget::render(renderTarget);
+}
 
-            delete widget;
-            subWindows->remove(i);
-            listSize--;
+void ModalWindow::makeEventPrivate() {
+    if (eventMan) {
+            eventMan->registerObject(this);
 
-            fillRegionSets();
-        }
+            List<EventType> privateEvents = List<EventType>();
+            privateEvents.pushBack(MOUSE_MOVE);
+            privateEvents.pushBack(MOUSE_PRESSED);
+            privateEvents.pushBack(MOUSE_RELEASED);
+
+            eventMan->privatizeEvents(privateEvents, 1);
+    }
+}
+
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent) :
+    Window  (_position, _size, _manager, _parent, 1),
+    eventMan(_eventMan) {
+        makeEventPrivate();
     }
 
-    Widget::render(renderTarget);
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions) :
+    Window  (_position, _size, _manager, _parent, _actions, 1),
+    eventMan(_eventMan) {
+        makeEventPrivate();
+    }
+
+ModalWindow::~ModalWindow() {
+    eventMan->resetPriorities ();
+    eventMan->unregisterObject(this);
 }
 
 void prioritizeWindow(Window* window) {

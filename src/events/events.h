@@ -42,7 +42,7 @@ public:
 
     void registerObject  (EventProcessable* eventProc);
     void unregisterObject(EventProcessable* eventProc);
-    void privatizeEvents (List<EventType> events, int priority);
+    void privatizeEvents (List<EventType>& events, int priority);
     void resetPriorities ();
 
     bool onKeyPressed (MKeyboard key) override;

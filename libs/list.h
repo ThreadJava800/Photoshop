@@ -148,19 +148,19 @@ public:
         return popElem;
     }
 
-    void remove(size_t index) {
+    void remove(long index) {
         ON_ERROR(!values, "List was null",);
 
-        for (size_t i = index; i < size - 1; i++) {
+        for (long i = index; i < long(size) - 1; i++) {
             values[i] = values[i + 1];
         }
 
-        if (size < capacity / 2 - 1) {
-            values = (T*) realloc(values, capacity / 2 * sizeof(T));
-            ON_ERROR(!values, "Unable to realloc mem",);
+        // if (size < capacity / 2 - 1) {
+        //     values = (T*) realloc(values, capacity / 2 * sizeof(T));
+        //     ON_ERROR(!values, "Unable to realloc mem",);
 
-            capacity /= 2;
-        }
+        //     capacity /= 2;
+        // }
         size--;
     }
 

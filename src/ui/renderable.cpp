@@ -149,6 +149,8 @@ void Widget::registerObject(Widget* widget) {
 }
 
 void Widget::render(RenderTarget* renderTarget) {
+    unregisterObject();
+
     if (visible) {
         size_t listSize = subWindows->getSize();
         for (size_t i = 0; i < listSize; i++) {
@@ -159,6 +161,22 @@ void Widget::render(RenderTarget* renderTarget) {
         }
 
         // regSet->visualize(renderTarget, debColor);
+    }
+}
+
+void Widget::unregisterObject() {
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
+        Widget* widget = (*subWindows)[i];
+        if (widget && !widget->getExists()) {
+            Widget* delParent = widget->getParent();
+
+            delete widget;
+            subWindows->remove(i);
+            listSize--;
+
+            fillRegionSets();
+        }
     }
 }
 
