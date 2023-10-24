@@ -1,11 +1,10 @@
 #include "menu.h"
 
-Menu::Menu(MPoint _position, MPoint _size, Widget* _parent, Window* _window, OnMoveFunc _onMove, PriorFunc _priorFun) :
+Menu::Menu(MPoint _position, MPoint _size, Widget* _parent, Window* _window, OnMoveFunc _onMove) :
     Widget   (_position, _size, _parent),
     isClicked(false),
     window   (_window),
     onMove   (_onMove),
-    prior    (_priorFun),
     prevPos  (MPoint())     {}
 
 Menu::~Menu() {}
@@ -21,8 +20,6 @@ bool Menu::onMousePressed(MPoint pos, MMouse btn) {
     if (isInside(pos) && btn == LEFT && !Widget::onMousePressed(pos, btn)) {
         isClicked = true;
         prevPos = pos;
-
-        if (prior) prior(window);
     }
 
     return isClicked;

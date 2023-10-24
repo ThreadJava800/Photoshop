@@ -11,7 +11,7 @@ public:
 
     void changeActivity();
 
-    void render     (RenderTarget* renderTarget) override;
+    void render(RenderTarget* renderTarget) override;
 };
 
 #endif

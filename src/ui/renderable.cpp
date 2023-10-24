@@ -256,3 +256,10 @@ void Widget::fillRegionSetsRoot() {
         }
     }
 }
+
+void Widget::prioritizeWindow() {
+    if (parent && parent->getWindows()) {
+        parent->getWindows()->swapWithEnd(this);
+        parent->fillRegionSets();
+    }
+}

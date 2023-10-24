@@ -55,6 +55,7 @@ public:
     void clearRegionSets   ();
     void fillRegionSets    ();
     void fillRegionSetsRoot();
+    void prioritizeWindow  ();
 };
 
 #endif

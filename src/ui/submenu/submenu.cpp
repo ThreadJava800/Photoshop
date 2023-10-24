@@ -9,6 +9,9 @@ SubMenu::~SubMenu() {}
 
 void SubMenu::changeActivity() {
     visible = !visible;
+    fillRegionSets();
+
+    if (visible) prioritizeWindow();
 }
 
 void SubMenu::render(RenderTarget* renderTarget) {
@@ -16,7 +19,8 @@ void SubMenu::render(RenderTarget* renderTarget) {
 
     if (!visible) return;
 
-    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(GRAY), regSet);
+    renderTarget->drawRect(position, size,  MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
+    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
 
     Widget::render(renderTarget);
 }

@@ -21,13 +21,21 @@ Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _p
 
 Window::~Window() {}
 
+bool Window::onMousePressed (MPoint pos, MMouse btn) {
+    if (MathRectangle(position, size).isPointInside(pos)) {
+        prioritizeWindow();
+    }
+
+    return Widget::onMousePressed(pos, btn);
+}
+
 void Window::createCanvas() {
     Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), manager);
     registerObject(canvas);
 }
 
 void Window::createTopPanel() {
-    Menu* topPanel = new Menu(position, MPoint(size.x, TOP_PANE_SIZE), this, this, onMove, prioritizeWindow);
+    Menu* topPanel = new Menu(position, MPoint(size.x, TOP_PANE_SIZE), this, this, onMove);
     Rectangle*   topRect = new Rectangle(position, MPoint(size.x, TOP_PANE_SIZE), MColor(sf::Color(161, 200, 241)), MColor(BLACK), topPanel);
 
     MImage* closeImg    = new MImage(CLOSE_BTN);
@@ -103,13 +111,6 @@ ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _siz
 ModalWindow::~ModalWindow() {
     eventMan->resetPriorities ();
     eventMan->unregisterObject(this);
-}
-
-void prioritizeWindow(Window* window) {
-    ON_ERROR(!window, "Window pointer was null!",);
-
-    Widget* parent = window->getParent();
-    if (parent && parent->getWindows()) parent->getWindows()->swapWithEnd(window);
 }
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {

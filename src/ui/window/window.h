@@ -20,6 +20,8 @@ public:
     explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
     ~Window();
 
+    bool onMousePressed (MPoint pos, MMouse btn) override;
+
     void setActions(Menu* _actions);
     void render(RenderTarget* renderTarget) override;
 };
