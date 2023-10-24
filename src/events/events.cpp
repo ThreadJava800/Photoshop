@@ -16,6 +16,10 @@ EventManager::EventManager() :
         children = new List<EventProcessable*>();
     }
 
+EventManager::~EventManager() {
+    delete children;
+}
+
 void EventManager::registerObject(EventProcessable* eventProc) {
     ON_ERROR(!eventProc, "EventProcessable was nullptr!",);
 

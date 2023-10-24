@@ -205,7 +205,7 @@ SubMenu* createColorPicker(Window* _winPtr, ToolManager* _manager, List<ColPicke
     return colMenu;
 }
 
-SubMenu* createFilterMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager, EventManager* _evManager) {
+SubMenu* createFilterMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager, EventManager* _evManager, List<ModalWindowArgs*>& modArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
@@ -217,13 +217,15 @@ SubMenu* createFilterMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _mana
     ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, _evManager);
     TextButton* customBlurBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)", filtMenu, openBlurPicker, modWinArgs);
 
+    modArgs.pushBack(modWinArgs);
+
     filtMenu->registerObject(constBlurBtn);
     filtMenu->registerObject(customBlurBtn);
 
     return filtMenu;
 }
 
-Menu* createActionMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager, EventManager* _evManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs) {
+Menu* createActionMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager, EventManager* _evManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs, List<ModalWindowArgs*>& modArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
@@ -231,7 +233,7 @@ Menu* createActionMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager
     Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(4 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
     SubMenu* toolMenu   = createToolPicker (_winPtr, _manager, toolArgs);
     SubMenu* colMenu    = createColorPicker(_winPtr, _manager, colArgs);
-    SubMenu* filtMenu   = createFilterMenu (_drawZone, _winPtr, _manager, _evManager);
+    SubMenu* filtMenu   = createFilterMenu (_drawZone, _winPtr, _manager, _evManager, modArgs);
 
     TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "New",    actionMenu, testFunc);
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);
@@ -266,8 +268,8 @@ void runMainCycle() {
     eventBoy.registerObject(mainWindow);
 
     // create bar with tool picker, color picker, and new window creator
-    List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs;
-    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &eventBoy, toolArgs, colArgs);
+    List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs; List<ModalWindowArgs*> modArgs;
+    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &eventBoy, toolArgs, colArgs, modArgs);
     mainWindow->setActions(actions);
 
     window.clear();
@@ -327,6 +329,7 @@ void runMainCycle() {
 
     for (size_t i = 0; i < toolArgs.getSize(); i++) delete toolArgs[i];
     for (size_t i = 0; i < colArgs .getSize(); i++) delete colArgs [i];
+    for (size_t i = 0; i < modArgs .getSize(); i++) delete modArgs [i];
 }
 
 int main() {
