@@ -520,17 +520,19 @@ bool ToolManager::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
     return current->paintOnDeactivate(perm, temp, color);
 }
 
-Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager) :
-    Widget (_position, _size, nullptr),
-    manager(_manager)  {
+Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager,  FilterManager *_filtManager) :
+    Widget     (_position, _size, nullptr),
+    manager    (_manager),
+    filtManager(_filtManager)     {
         rendTarget = new RenderTarget(_position, _size);        
         tempTarget = new RenderTarget(_position, _size);
     }
 
-Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, RenderTarget *_rendTarget) :
-    Widget    (_position, _size, nullptr),
-    rendTarget(_rendTarget),
-    manager   (_manager)     {
+Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, RenderTarget *_rendTarget) :
+    Widget     (_position, _size, nullptr),
+    rendTarget (_rendTarget),
+    manager    (_manager),
+    filtManager(_filtManager)     {
         tempTarget = new RenderTarget(_position, _size);
     }
 
@@ -543,6 +545,13 @@ bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
     if (isInside(pos)) {
+        if (filtManager && filtManager->getActive()) {
+            filtManager->setRT(rendTarget);
+            filtManager->applyFilter();
+            
+            return true;
+        }
+
         drawing = manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, btn);
     
         return drawing;

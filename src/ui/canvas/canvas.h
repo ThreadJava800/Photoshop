@@ -3,6 +3,7 @@
 
 #include "../../../libs/multimedia/multimedia.h"
 #include "../renderable.h"
+#include "filters.h"
 
 class Tool {
 protected:
@@ -152,16 +153,17 @@ public:
 
 class Canvas : public Widget {
 private:
-    bool          drawing    = false;
-    RenderTarget* rendTarget = nullptr;
-    RenderTarget* tempTarget = nullptr;
-    ToolManager * manager    = nullptr;
+    bool           drawing     = false;
+    RenderTarget * rendTarget  = nullptr;
+    RenderTarget * tempTarget  = nullptr;
+    ToolManager  * manager     = nullptr;
+    FilterManager* filtManager = nullptr;
 
     void drawTexture(RenderTarget* toDraw, RenderTarget* drawOn);
 
 public:
-    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager);
-    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, RenderTarget *_rendTarget);
+    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager);
+    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, RenderTarget *_rendTarget);
 
     ~Canvas();
 

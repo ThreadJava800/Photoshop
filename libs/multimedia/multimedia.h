@@ -51,6 +51,7 @@ struct MColor {
 
     sf::Color toSfColor();
     friend bool operator==(const MColor& a, const MColor& b);
+    friend void operator+=(      MColor& a, const int     b);
 }; 
 
 struct MFont {
@@ -83,6 +84,7 @@ public:
 
     void imgFromPixel(List<List<MColor>*>* pixels);
 
+    MColor                getPixel    (MPoint pos);
     List<List<MColor>*>*  getPixels   ();
     sf::Texture*          getSfTexture();
 };

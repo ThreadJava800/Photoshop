@@ -2,18 +2,20 @@
 
 bool isCreated = false;
 
-Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, uint8_t _priority) :
-    Widget    (_position, _size, _parent, _priority),
-    manager   (_manager),
-    actions   (nullptr)   {
+Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, uint8_t _priority) :
+    Widget     (_position, _size, _parent, _priority),
+    manager    (_manager),
+    filtManager(_filtManager),
+    actions    (nullptr)   {
         createTopPanel();
         if (!isCreated) createTestWindow();
     }
 
-Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions, uint8_t _priority) :
-    Widget    (_position, _size, _parent, _priority),
-    manager   (_manager),
-    actions   (_actions)  {
+Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions, uint8_t _priority) :
+    Widget     (_position, _size, _parent, _priority),
+    manager    (_manager),
+    filtManager(_filtManager),
+    actions    (_actions)  {
         createTopPanel();
         registerObject(actions);
         if (!isCreated) createTestWindow();
@@ -30,7 +32,7 @@ bool Window::onMousePressed (MPoint pos, MMouse btn) {
 }
 
 void Window::createCanvas() {
-    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), manager);
+    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), manager, filtManager);
     registerObject(canvas);
 }
 
@@ -57,15 +59,15 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), manager, this);
+    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), manager, filtManager, this);
     subWin->createCanvas();
     registerObject(subWin);
 
-    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), manager, this);
+    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), manager, filtManager, this);
     subWin2->createCanvas();
     registerObject(subWin2);
 
-    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, this);
+    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, filtManager, this);
     subWin3->createCanvas();
     registerObject(subWin3);
 }
@@ -96,14 +98,14 @@ void ModalWindow::makeEventPrivate() {
     }
 }
 
-ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent) :
-    Window  (_position, _size, _manager, _parent, 1),
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
+    Window  (_position, _size, _manager, _filtManager, _parent, 1),
     eventMan(_eventMan) {
         makeEventPrivate();
     }
 
-ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions) :
-    Window  (_position, _size, _manager, _parent, _actions, 1),
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
+    Window  (_position, _size, _manager, _filtManager, _parent, _actions, 1),
     eventMan(_eventMan) {
         makeEventPrivate();
     }

@@ -81,6 +81,12 @@ bool operator==(const MPoint& a, const MPoint& b) {
     return fabs(a.x - b.x) < EPSILON && fabs(a.y - b.y) < EPSILON;
 }
 
+void operator+=(MColor& a, const int b) {
+    a.r = std::min(255, a.r + b);
+    a.g = std::min(255, a.g + b);
+    a.b = std::min(255, a.b + b);
+}
+
 double operator| (const MPoint& a, const MPoint& b) {
     return a.x * b.x + a.y * b.y;
 }
@@ -180,6 +186,12 @@ void MImage::imgFromPixel(List<List<MColor>*>* pixels) {
 
     img = new sf::Texture();
     img->loadFromImage(sfImg);
+}
+
+MColor MImage::getPixel(MPoint pos) {
+    sf::Image sfPixels = img->copyToImage();
+
+    return MColor(sfPixels.getPixel(pos.x, pos.y));
 }
 
 List<List<MColor>*>* MImage::getPixels() {

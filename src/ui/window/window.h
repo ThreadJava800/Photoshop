@@ -5,19 +5,21 @@
 #include "../renderable.h"
 #include "../menu/menu.h"
 #include "../canvas/canvas.h"
+#include "../canvas/filters.h"
 
 class Window : public Widget {
 private:
-    Menu*        actions = nullptr;
-    ToolManager* manager = nullptr; 
+    Menu*          actions     = nullptr;
+    ToolManager*   manager     = nullptr; 
+    FilterManager* filtManager = nullptr;
     
     void createCanvas    ();
     void createTopPanel  ();
     void createTestWindow();
     
 public:
-    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, uint8_t _priority = 0);
-    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
+    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, uint8_t _priority = 0);
+    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
     ~Window();
 
     bool onMousePressed (MPoint pos, MMouse btn) override;
@@ -33,8 +35,8 @@ private:
     void makeEventPrivate();
 
 public:
-    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent);
-    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, Widget* _parent, Menu* _actions);
+    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
+    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
     ~ModalWindow();
 };
 
