@@ -4,11 +4,12 @@ double EditBox::getCursorX(MFont* font, int pt) {
     size_t charCnt = text->getSize();
     if (charCnt == 0) return position.x;
 
-    double posX = position.x;
+    double shiftConst = getTextSize(text->getCArray(), font, pt).x / charCnt;
+    double posX = position.x + shiftConst * (charCnt);
 
-    for (size_t i = 0; i < charCnt - 1; i++) {
-        posX += getSymbolSize((*text)[i], font, pt).x;
-    }
+    // for (size_t i = 0; i < charCnt - 1; i++) {
+    //     posX += (getTextSize(text->getCArray(), font, pt).x / charCnt);
+    // }
 
     return posX;
 }
@@ -43,7 +44,7 @@ void EditBox::render(RenderTarget* renderTarget) {
 
     int xCursorPos = getCursorX(new MFont(DEFAULT_FONT), BTN_TXT_PT);
 
-    renderTarget->drawLine(MPoint(xCursorPos, position.y), MPoint(xCursorPos, position.y + size.y), MColor(BLACK), regSet);
+    if (cursorState) renderTarget->drawLine(MPoint(xCursorPos, position.y), MPoint(xCursorPos, position.y + size.y), MColor(BLACK), regSet);
 }
 
 bool EditBox::onKeyPressed(MKeyboard key) {
@@ -66,6 +67,12 @@ bool EditBox::onKeyPressed(MKeyboard key) {
     else               text->pushBack(key.symbol);
 
     text->pushBack('\0');
+
+    return true;
+}
+
+bool EditBox::onTimerTick(double delta) {
+    cursorState = !cursorState;
 
     return true;
 }

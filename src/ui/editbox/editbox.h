@@ -23,6 +23,7 @@ public:
 
     void render      (RenderTarget* renderTarget) override;
     bool onKeyPressed(MKeyboard key)              override;
+    bool onTimerTick (double delta)               override;
 };
 
 #endif

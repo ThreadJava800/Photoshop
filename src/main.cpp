@@ -337,7 +337,16 @@ void runMainCycle() {
         auto timerEnd = std::chrono::system_clock::now();
         auto passed   = std::chrono::duration_cast<std::chrono::seconds>(timerEnd - timerStart);
 
-        if (passed.count() >= 1) eventBoy.onTimerTick(passed.count());
+        if (passed.count() >= 1) {
+            renderTarget.getRenderTexture()->clear();
+
+            eventBoy.onTimerTick(passed.count());
+
+            drawWidget.render(&renderTarget);
+            window.display();
+
+            timerStart = timerEnd;
+        }
 
         // event switch
         sf::Event event;
