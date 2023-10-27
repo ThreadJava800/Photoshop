@@ -129,13 +129,17 @@ void ModalWindow::render(RenderTarget* renderTarget) {
 }
 
 EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
-    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent)           {}
+    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent)           {
+        editBoxes = new List<EditBox*>();
+    }
 
 EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
-    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent, _actions) {}
+    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent, _actions) {
+        editBoxes = new List<EditBox*>();
+    }
 
 EditBoxModal::~EditBoxModal() {
-    if (onDestroyFunc) onDestroyFunc(onDestroyArgs);
+    if (onDestroyFunc) onDestroyFunc(this);
 
     delete editBoxes;
 }
@@ -144,8 +148,8 @@ List<EditBox*>* EditBoxModal::getEditBoxes() {
     return editBoxes;
 }
 
-void EditBoxModal::setOnDestroy(List<EditBox*>* _editBoxes) {
-    editBoxes = _editBoxes;
+void EditBoxModal::setOnDestroy(ButtonFunc _editBoxes) {
+    onDestroyFunc = _editBoxes;
 }
 
 void EditBoxModal::setDestrArgs (void* _args) {

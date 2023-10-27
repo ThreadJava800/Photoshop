@@ -60,8 +60,8 @@ public:
     ~EditBoxModal();
 
     List<EditBox*>* getEditBoxes();
-    void            setOnDestroy(List<EditBox*>* _editBoxes);
-    void            setDestrArgs (void* _args);
+    void            setOnDestroy(ButtonFunc _editBoxes);
+    void            setDestrArgs(void* _args);
 
     void addEditBox(EditBox* _editBox);
 };

@@ -62,7 +62,13 @@ void openToolMenu(void* arg) {
     if (menu) menu->changeActivity();
 }
 
+
+
 void closeModal(void* arg) {
+    if (!arg) {
+        return;
+    }
+
     EditBoxModal* modWindow = (EditBoxModal*) arg;
 
     Filter*         filter       = modWindow->getFiltManager()->getLast();
@@ -75,11 +81,19 @@ void closeModal(void* arg) {
         doubleArgs.pushBack(doubleArg);
     }
 
+    filter = new BrightnessFilter();
     filter->setParams(doubleArgs);
+
+    std::cout << doubleArgs[0] << '\n';
+
+    modWindow->getFiltManager()->setLast(filter);
+    modWindow->getFiltManager()->setActive(true);
 }
 
 void openBlurPicker(void* arg) {
-    if (!arg) return;
+    if (!arg) {
+        return;
+    }
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
     EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
@@ -88,7 +102,7 @@ void openBlurPicker(void* arg) {
 
     EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 100), modalWindow, new MFont(DEFAULT_FONT));
 
-    modalWindow->registerObject(editBox);
+    modalWindow->addEditBox(editBox);
     modalWinArgs->drawZone->registerObject(modalWindow);
 }
 
@@ -339,7 +353,7 @@ void runMainCycle() {
                 renderTarget.getRenderTexture()->clear();
 
                 eventBoy.onKeyPressed(MKeyboard(event.text.unicode));
-                std::cout << (int) event.text.unicode << '\n';
+                // std::cout << (int) event.text.unicode << '\n';
 
                 drawWidget.render(&renderTarget);
                 window.display();
