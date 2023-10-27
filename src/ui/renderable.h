@@ -39,8 +39,8 @@ public:
 
     void setParent(Widget* _parent);
 
-    bool onKeyPressed (MKeyboard key) override {return false;};
-    bool onKeyReleased(MKeyboard key) override {return false;};
+    bool onKeyPressed (MKeyboard key) override;
+    bool onKeyReleased(MKeyboard key) override;
 
     bool onMousePressed (MPoint pos, MMouse btn) override;
     bool onMouseReleased(MPoint pos, MMouse btn) override;

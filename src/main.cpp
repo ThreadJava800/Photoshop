@@ -2,6 +2,7 @@
 #include "ui/window/window.h"
 #include "ui/submenu/submenu.h"
 #include "events/events.h"
+#include "ui/editbox/editbox.h"
 
 enum Tools {
     BRUSH,
@@ -65,8 +66,11 @@ void openBlurPicker(void* arg) {
     if (!arg) return;
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
-    ModalWindow* modalWindow  = new ModalWindow(modalWinArgs->evManager, MPoint(300, 300), MPoint(200, 200), nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
+    ModalWindow* modalWindow  = new ModalWindow(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
 
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 100), modalWindow, new MFont(DEFAULT_FONT));
+
+    modalWindow->registerObject(editBox);
     modalWinArgs->drawZone->registerObject(modalWindow);
 }
 
@@ -312,7 +316,13 @@ void runMainCycle() {
             case sf::Event::KeyPressed:
                 if (event.key.code == sf::Keyboard::Escape)
                     window.close();
+                else eventBoy.onKeyPressed(MKeyboard(event.text.unicode));
                 break;
+
+            case sf::Event::KeyReleased:
+                eventBoy.onKeyReleased(MKeyboard(event.text.unicode));
+                break;
+
             case sf::Event::MouseButtonPressed: {
                 renderTarget.getRenderTexture()->clear();
                 if (event.mouseButton.button == sf::Mouse::Left) 

@@ -89,9 +89,15 @@ public:
     sf::Texture*          getSfTexture();
 };
 
-enum MKeyboard {
-    ESCAPE = sf::Keyboard::Escape
+struct MKeyboard {
+    char symbol;
+
+    explicit MKeyboard(char _symbol) : symbol(_symbol)   {}
 };
+
+// enum MKeyboard {
+//     ESCAPE = sf::Keyboard::Escape
+// };
 
 enum MMouse {
     LEFT  = sf::Mouse::Left,

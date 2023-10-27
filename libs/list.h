@@ -55,6 +55,10 @@ public:
         return size;
     }
 
+    T* getCArray() {
+        return values;
+    }
+
     void clear() {
         size = 0;
         // values = (T*) realloc(values, sizeof(T));

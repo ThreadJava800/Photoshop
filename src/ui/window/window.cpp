@@ -115,6 +115,14 @@ ModalWindow::~ModalWindow() {
     eventMan->unregisterObject(this);
 }
 
+void ModalWindow::render(RenderTarget* renderTarget) {
+    ON_ERROR(!renderTarget, "Render target pointer was null!",);
+
+    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
+
+    Widget::render(renderTarget);
+}
+
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 

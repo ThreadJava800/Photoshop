@@ -38,6 +38,8 @@ public:
     ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
     ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
     ~ModalWindow();
+
+    void render(RenderTarget* renderTarget) override;
 };
 
 void prioritizeWindow(Window* window);
