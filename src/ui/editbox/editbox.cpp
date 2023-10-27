@@ -31,7 +31,16 @@ void EditBox::render(RenderTarget* renderTarget) {
 bool EditBox::onKeyPressed(MKeyboard key) {
     ON_ERROR(!text, "Text pointer was null!", false);
 
-    if (!(key.symbol >= '0' && key.symbol <= '9')) return false;
+    if (!(key.symbol >= '0' && key.symbol <= '9' || key.symbol == BACKSPACE)) return false;
+
+    if (key.symbol == BACKSPACE) {
+        size_t charCnt = text->getSize();
+        if (charCnt >= 2) {
+            text->remove(charCnt - 2);
+        }
+
+        return true;
+    }
 
     size_t charCnt = text->getSize();
 

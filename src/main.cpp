@@ -62,8 +62,6 @@ void openToolMenu(void* arg) {
     if (menu) menu->changeActivity();
 }
 
-
-
 void closeModal(void* arg) {
     if (!arg) {
         return;
@@ -353,7 +351,7 @@ void runMainCycle() {
                 renderTarget.getRenderTexture()->clear();
 
                 eventBoy.onKeyPressed(MKeyboard(event.text.unicode));
-                // std::cout << (int) event.text.unicode << '\n';
+                std::cout << (int) event.text.unicode << '\n';
 
                 drawWidget.render(&renderTarget);
                 window.display();
