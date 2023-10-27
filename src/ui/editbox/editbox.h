@@ -15,6 +15,8 @@ public:
 
     ~EditBox();
 
+    char* getText();
+
     void render      (RenderTarget* renderTarget) override;
     bool onKeyPressed(MKeyboard key)              override;
 };

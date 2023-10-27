@@ -62,11 +62,29 @@ void openToolMenu(void* arg) {
     if (menu) menu->changeActivity();
 }
 
+void closeModal(void* arg) {
+    EditBoxModal* modWindow = (EditBoxModal*) arg;
+
+    Filter*         filter       = modWindow->getFiltManager()->getLast();
+    List<EditBox*>* editBoxes    = modWindow->getEditBoxes();
+    size_t          editBoxesCnt = editBoxes->getSize();
+    List<double>    doubleArgs   = List<double>();
+
+    for (size_t i = 0; i < editBoxesCnt; i++) {
+        double doubleArg = atof((*editBoxes)[i]->getText());
+        doubleArgs.pushBack(doubleArg);
+    }
+
+    filter->setParams(doubleArgs);
+}
+
 void openBlurPicker(void* arg) {
     if (!arg) return;
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
-    ModalWindow* modalWindow  = new ModalWindow(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
+    EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
+    modalWindow->setOnDestroy(closeModal);
+    modalWindow->setDestrArgs(modalWindow);
 
     EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 100), modalWindow, new MFont(DEFAULT_FONT));
 
@@ -318,7 +336,13 @@ void runMainCycle() {
                     window.close();
                 break;
             case sf::Event::TextEntered:
+                renderTarget.getRenderTexture()->clear();
+
                 eventBoy.onKeyPressed(MKeyboard(event.text.unicode));
+                std::cout << (int) event.text.unicode << '\n';
+
+                drawWidget.render(&renderTarget);
+                window.display();
                 break;
             case sf::Event::KeyReleased:
                 eventBoy.onKeyReleased(MKeyboard(event.text.unicode));

@@ -12,6 +12,12 @@ EditBox::~EditBox() {
     delete text;
 }
 
+char* EditBox::getText() {
+    ON_ERROR(!text, "Pointer to str was null!", nullptr);
+
+    return text->getCArray();
+}
+
 void EditBox::render(RenderTarget* renderTarget) {
     ON_ERROR(!text, "Text pointer was null!",);
     ON_ERROR(!renderTarget, "Drawable area was null!",);
@@ -24,6 +30,8 @@ void EditBox::render(RenderTarget* renderTarget) {
 
 bool EditBox::onKeyPressed(MKeyboard key) {
     ON_ERROR(!text, "Text pointer was null!", false);
+
+    if (!(key.symbol >= '0' && key.symbol <= '9')) return false;
 
     size_t charCnt = text->getSize();
 

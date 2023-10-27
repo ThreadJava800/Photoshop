@@ -3,6 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
+typedef void (*ButtonFunc)(void*);
+
 static const char*     DEFAULT_FONT       = "assets/MS_SANS.ttf";
 static const char*     CLOSE_BTN          = "assets/close_btn.png";
 static const char*     RESTORE_BTN        = "assets/restore.png";

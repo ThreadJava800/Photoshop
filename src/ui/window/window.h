@@ -6,9 +6,10 @@
 #include "../menu/menu.h"
 #include "../canvas/canvas.h"
 #include "../canvas/filters.h"
+#include "../editbox/editbox.h"
 
 class Window : public Widget {
-private:
+protected:
     Menu*          actions     = nullptr;
     ToolManager*   manager     = nullptr; 
     FilterManager* filtManager = nullptr;
@@ -24,25 +25,47 @@ public:
 
     bool onMousePressed (MPoint pos, MMouse btn) override;
 
+    FilterManager* getFiltManager();
+
     void setActions(Menu* _actions);
     void render(RenderTarget* renderTarget) override;
 };
 
 class ModalWindow : public Window {
-private:
+protected:
     EventManager* eventMan = nullptr;
+    ButtonFunc  * onClose  = nullptr;
+    void        * args     = nullptr;
 
     void makeEventPrivate();
 
 public:
-    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
-    ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
+    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
+    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
     ~ModalWindow();
 
-    void render(RenderTarget* renderTarget) override;
+    void render (RenderTarget* renderTarget) override;
 };
 
-void prioritizeWindow(Window* window);
+class EditBoxModal : public ModalWindow {
+private:
+    List<EditBox*>* editBoxes     = nullptr;
+    ButtonFunc      onDestroyFunc = nullptr;
+    void*           onDestroyArgs = nullptr;
+
+public:
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
+
+    ~EditBoxModal();
+
+    List<EditBox*>* getEditBoxes();
+    void            setOnDestroy(List<EditBox*>* _editBoxes);
+    void            setDestrArgs (void* _args);
+
+    void addEditBox(EditBox* _editBox);
+};
+
 void onMove(Window* window, MPoint newPos, MPoint oldPos);
 void closeFunc(void* window);
 

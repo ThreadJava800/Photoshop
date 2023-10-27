@@ -31,6 +31,10 @@ bool Window::onMousePressed (MPoint pos, MMouse btn) {
     return Widget::onMousePressed(pos, btn);
 }
 
+FilterManager* Window::getFiltManager() {
+    return filtManager;
+}
+
 void Window::createCanvas() {
     Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), manager, filtManager);
     registerObject(canvas);
@@ -118,9 +122,39 @@ ModalWindow::~ModalWindow() {
 void ModalWindow::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
+    renderTarget->drawRect (position, size, MColor(sf::Color::White), MColor(TRANSPARENT));
     renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
 
     Widget::render(renderTarget);
+}
+
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
+    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent)           {}
+
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
+    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent, _actions) {}
+
+EditBoxModal::~EditBoxModal() {
+    if (onDestroyFunc) onDestroyFunc(onDestroyArgs);
+
+    delete editBoxes;
+}
+
+List<EditBox*>* EditBoxModal::getEditBoxes() {
+    return editBoxes;
+}
+
+void EditBoxModal::setOnDestroy(List<EditBox*>* _editBoxes) {
+    editBoxes = _editBoxes;
+}
+
+void EditBoxModal::setDestrArgs (void* _args) {
+    args = _args;
+}
+
+void EditBoxModal::addEditBox(EditBox* _editBox) {
+    editBoxes->pushBack(_editBox);
+    registerObject     (_editBox);
 }
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {

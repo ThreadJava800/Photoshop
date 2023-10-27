@@ -4,8 +4,6 @@
 #include "../../includes.h"
 #include "../renderable.h"
 
-typedef void (*ButtonFunc)(void*);
-
 class Button : public Widget {
 protected:
     MColor color = MColor();
