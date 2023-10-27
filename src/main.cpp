@@ -316,9 +316,10 @@ void runMainCycle() {
             case sf::Event::KeyPressed:
                 if (event.key.code == sf::Keyboard::Escape)
                     window.close();
-                else eventBoy.onKeyPressed(MKeyboard(event.text.unicode));
                 break;
-
+            case sf::Event::TextEntered:
+                eventBoy.onKeyPressed(MKeyboard(event.text.unicode));
+                break;
             case sf::Event::KeyReleased:
                 eventBoy.onKeyReleased(MKeyboard(event.text.unicode));
                 break;
