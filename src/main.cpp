@@ -14,14 +14,16 @@ enum Tools {
 };
 
 struct SubMenuArgs {
-    ToolManager* manager;
-    SubMenu    * subMenu;
-    Tools        toolType;
+    FilterManager* filtManager;
+    ToolManager  * manager;
+    SubMenu      * subMenu;
+    Tools          toolType;
 
-    SubMenuArgs(ToolManager* _manager, SubMenu* _subMenu, Tools _toolType) :
-        manager (_manager),
-        subMenu (_subMenu),
-        toolType(_toolType) {}
+    SubMenuArgs(FilterManager* _filtManager, ToolManager* _manager, SubMenu* _subMenu, Tools _toolType) :
+        filtManager(_filtManager),
+        manager    (_manager),
+        subMenu    (_subMenu),
+        toolType   (_toolType)      {}
 };
 
 struct ColPickerArgs {
@@ -77,7 +79,7 @@ void changeBrightConst(void* arg) {
     modalWinArgs->filtManager->setActive(true);
     
     List<double> arguments = List<double>();
-    arguments.pushBack(1);
+    arguments.pushBack(BRIGHTNESS_SHIFT);
 
     modalWinArgs->filtManager->getLast()->setParams(arguments);
 
@@ -121,6 +123,7 @@ void chooseTool(void* arg) {
 
     menu->manager->setTool(newTool);
     menu->subMenu->changeActivity();
+    menu->filtManager->setActive(false);
 }
 
 void chooseColor(void* arg) {
@@ -131,32 +134,32 @@ void chooseColor(void* arg) {
     menu->subMenu->changeActivity();
 }
 
-SubMenu* createToolPicker(Window* _winPtr, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
+SubMenu* createToolPicker(Window* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     SubMenu* toolMenu = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), _winPtr);
 
-    SubMenuArgs* brushArgs   = new SubMenuArgs(_manager, toolMenu, BRUSH);
+    SubMenuArgs* brushArgs   = new SubMenuArgs(_filtManager, _manager, toolMenu, BRUSH);
     TextButton* brushBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);
   
-    SubMenuArgs* lineArgs    = new SubMenuArgs(_manager, toolMenu, LINE);
+    SubMenuArgs* lineArgs    = new SubMenuArgs(_filtManager, _manager, toolMenu, LINE);
     TextButton* lineBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Line", toolMenu, chooseTool, lineArgs);
   
-    SubMenuArgs* rectArgs    = new SubMenuArgs(_manager, toolMenu, RECT);
+    SubMenuArgs* rectArgs    = new SubMenuArgs(_filtManager, _manager, toolMenu, RECT);
     TextButton* rectBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Rectangle", toolMenu, chooseTool, rectArgs);
 
-    SubMenuArgs* ellipseArgs = new SubMenuArgs(_manager, toolMenu, ELLIPSE);
+    SubMenuArgs* ellipseArgs = new SubMenuArgs(_filtManager, _manager, toolMenu, ELLIPSE);
     TextButton* ellipseBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Ellipse", toolMenu, chooseTool, ellipseArgs);
 
-    SubMenuArgs* curveArgs   = new SubMenuArgs(_manager, toolMenu, CURVE);
+    SubMenuArgs* curveArgs   = new SubMenuArgs(_filtManager, _manager, toolMenu, CURVE);
     TextButton* curveBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
 
-    SubMenuArgs* splineArgs   = new SubMenuArgs(_manager, toolMenu, SPLINE);
-    TextButton* splineBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
+    SubMenuArgs* splineArgs  = new SubMenuArgs(_filtManager, _manager, toolMenu, SPLINE);
+    TextButton* splineBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
 
-    SubMenuArgs* fillArgs    = new SubMenuArgs(_manager, toolMenu, FILL);
+    SubMenuArgs* fillArgs    = new SubMenuArgs(_filtManager, _manager, toolMenu, FILL);
     TextButton* fillBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
 
     toolArgs.pushBack(brushArgs);
@@ -250,7 +253,7 @@ Menu* createActionMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager
     MColor color = MColor(DEFAULT_BACK_COL);
 
     Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(4 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
-    SubMenu* toolMenu   = createToolPicker (_winPtr, _manager, toolArgs);
+    SubMenu* toolMenu   = createToolPicker (_winPtr, _filtManager, _manager, toolArgs);
     SubMenu* colMenu    = createColorPicker(_winPtr, _manager, colArgs);
     SubMenu* filtMenu   = createFilterMenu (_drawZone, _winPtr, _manager, _filtManager, _evManager, modArgs);
 

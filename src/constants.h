@@ -27,6 +27,7 @@ static const sf::Color TRANSPARENT        = sf::Color::Transparent;
 static const sf::Color YELLOW             = sf::Color::Yellow;
 
 static const double    CATMULL_ALPHA      = 0.5;
+static const int       BRIGHTNESS_SHIFT   = 10;
 
 static const int DEB_COLS_CNT = 7;
 static const sf::Color DEB_COLS[] = {

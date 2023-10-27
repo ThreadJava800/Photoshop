@@ -1,8 +1,10 @@
 #include "filters.h"
 
 BrightnessFilter::BrightnessFilter() {
-    List<const char*>* paramNames = new List<const char*>();
-    paramNames->pushBack("Brightness");
+    List<const char*>* _paramNames = new List<const char*>();
+    _paramNames->pushBack("Brightness");
+
+    paramNames = _paramNames;
 }
 
 BrightnessFilter::~BrightnessFilter() {
