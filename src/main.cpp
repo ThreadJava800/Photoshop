@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "includes.h"
 #include "ui/window/window.h"
 #include "ui/submenu/submenu.h"
@@ -328,8 +330,16 @@ void runMainCycle() {
     drawWidget.render(&renderTarget);
     window.display();
 
+    auto timerStart = std::chrono::system_clock::now(); 
+
     while (window.isOpen())
     {
+        auto timerEnd = std::chrono::system_clock::now();
+        auto passed   = std::chrono::duration_cast<std::chrono::seconds>(timerEnd - timerStart);
+
+        if (passed.count() >= 1) eventBoy.onTimerTick(passed.count());
+
+        // event switch
         sf::Event event;
         while (window.pollEvent(event))
         {

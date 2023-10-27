@@ -5,6 +5,7 @@
 #include <cmath>
 #include <SFML/Graphics.hpp>
 #include <float.h>
+#include <string>
 
 #include "../libs/list.h"
 #include "constants.h"

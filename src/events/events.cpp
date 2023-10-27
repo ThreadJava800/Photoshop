@@ -72,6 +72,17 @@ bool EventManager::onKeyReleased(MKeyboard key) {
     return true;
 }
 
+bool EventManager::onTimerTick(double delta) {
+    size_t childCnt = children->getSize();
+    for (size_t i = 0; i < childCnt; i++) {
+        if ((*children)[i]->getPriority() >= priorities[TIMER]) {
+            (*children)[i]->onTimerTick(delta);
+        }
+    }
+
+    return true;
+}
+
 bool EventManager::onMousePressed(MPoint pos, MMouse btn) {
     size_t childCnt = children->getSize();
     for (size_t i = 0; i < childCnt; i++) {

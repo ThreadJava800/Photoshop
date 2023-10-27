@@ -42,6 +42,8 @@ public:
     bool onKeyPressed (MKeyboard key) override;
     bool onKeyReleased(MKeyboard key) override;
 
+    bool onTimerTick(double delta) override;
+
     bool onMousePressed (MPoint pos, MMouse btn) override;
     bool onMouseReleased(MPoint pos, MMouse btn) override;
     bool onMouseMove    (MPoint pos, MMouse btn) override;

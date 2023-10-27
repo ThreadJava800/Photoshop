@@ -91,6 +91,19 @@ bool Widget::onKeyPressed(MKeyboard key) {
     return wasClick;
 }
 
+bool Widget::onTimerTick(double delta) {
+    ON_ERROR(!subWindows, "List pointer was null!", false);
+
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
+        Widget* widget = (*subWindows)[i];
+
+        if (widget && widget->getExists()) widget->onTimerTick(delta);
+    }
+
+    return true;
+}
+
 bool Widget::onKeyReleased(MKeyboard key) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 

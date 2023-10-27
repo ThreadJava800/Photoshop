@@ -5,7 +5,7 @@
 
 typedef void (*ButtonFunc)(void*);
 
-static const char*     DEFAULT_FONT       = "assets/MS_SANS.ttf";
+static const char*     DEFAULT_FONT       = "assets/DraftingMono-Bold.ttf";
 static const char*     CLOSE_BTN          = "assets/close_btn.png";
 static const char*     RESTORE_BTN        = "assets/restore.png";
 static const char*     MINIMIZE_BTN       = "assets/minimize.png";

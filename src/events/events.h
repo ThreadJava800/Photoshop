@@ -7,6 +7,8 @@ enum EventType {
     KEY_PRESSED,
     KEY_RELEASED,
     
+    TIMER,
+
     MOUSE_PRESSED,
     MOUSE_MOVE,
     MOUSE_RELEASED
@@ -26,6 +28,8 @@ public:
 
     virtual bool onKeyPressed (MKeyboard key) = 0;
     virtual bool onKeyReleased(MKeyboard key) = 0;
+
+    virtual bool onTimerTick  (double delta)  = 0;
 
     virtual bool onMousePressed (MPoint pos, MMouse btn) = 0;
     virtual bool onMouseReleased(MPoint pos, MMouse btn) = 0;
@@ -49,6 +53,8 @@ public:
 
     bool onKeyPressed (MKeyboard key) override;
     bool onKeyReleased(MKeyboard key) override;
+
+    bool onTimerTick(double delta) override;
 
     bool onMousePressed (MPoint pos, MMouse btn) override;
     bool onMouseReleased(MPoint pos, MMouse btn) override;

@@ -124,6 +124,15 @@ bool operator==(const MColor& a, const MColor& b) {
     return a.a == b.a && a.r == b.r && a.g == b.g && a.b == b.b;
 }
 
+static MPoint getSymbolSize(char symbol, MFont* font, int pt) {
+    ON_ERROR(!font, "Font ptr was null!", MPoint());
+
+    char str[2] = {symbol, '\0'};
+    sf::Text text(str, *font->getSfFont(), pt);
+
+    return MPoint(text.getLocalBounds().getSize());
+}
+
 MFont::MFont() :
     font    (nullptr),
     fontFile(nullptr)   {}

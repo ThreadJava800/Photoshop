@@ -1,9 +1,23 @@
 #include "editbox.h"
 
+double EditBox::getCursorX(MFont* font, int pt) {
+    size_t charCnt = text->getSize();
+    if (charCnt == 0) return position.x;
+
+    double posX = position.x;
+
+    for (size_t i = 0; i < charCnt - 1; i++) {
+        posX += getSymbolSize((*text)[i], font, pt).x;
+    }
+
+    return posX;
+}
+
 EditBox::EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font) :
-    Widget(_position, _size, _parent),
-    font  (_font),
-    curPos(0)       {
+    Widget     (_position, _size, _parent),
+    font       (_font),
+    curPos     (0),
+    cursorState(false)       {
         text = new List<char>();
     }
 
@@ -26,6 +40,10 @@ void EditBox::render(RenderTarget* renderTarget) {
 
     renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
     renderTarget->drawText (position, printText, MColor(GRAY), font, BTN_TXT_PT, regSet);
+
+    int xCursorPos = getCursorX(new MFont(DEFAULT_FONT), BTN_TXT_PT);
+
+    renderTarget->drawLine(MPoint(xCursorPos, position.y), MPoint(xCursorPos, position.y + size.y), MColor(BLACK), regSet);
 }
 
 bool EditBox::onKeyPressed(MKeyboard key) {

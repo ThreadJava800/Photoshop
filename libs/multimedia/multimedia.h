@@ -69,6 +69,8 @@ public:
     sf::Font* getSfFont();
 };
 
+static MPoint getSymbolSize(char symbol, MFont* font, int pt);
+
 struct MImage {
 private:
     sf::Texture* img = nullptr;
