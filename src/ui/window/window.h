@@ -64,6 +64,8 @@ public:
     void            setDestrArgs(void* _args);
 
     void addEditBox(EditBox* _editBox);
+
+    void render (RenderTarget* renderTarget) override;
 };
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos);

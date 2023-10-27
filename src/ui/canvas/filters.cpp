@@ -2,7 +2,7 @@
 
 BrightnessFilter::BrightnessFilter() {
     List<const char*>* _paramNames = new List<const char*>();
-    _paramNames->pushBack("Brightness");
+    _paramNames->pushBack("Brightness:");
 
     paramNames = _paramNames;
 }

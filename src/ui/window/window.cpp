@@ -161,6 +161,34 @@ void EditBoxModal::addEditBox(EditBox* _editBox) {
     registerObject     (_editBox);
 }
 
+void EditBoxModal::render(RenderTarget* renderTarget) {
+    ON_ERROR(!renderTarget, "Render target pointer was null!",);
+
+    renderTarget->drawRect (position, size, MColor(sf::Color::White), MColor(TRANSPARENT));
+    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
+
+    Filter* filter           = filtManager->getLast();
+    List<const char*>* names = filter->getParamNames();
+
+    size_t nameCnt    = names    ->getSize();
+    size_t editBoxCnt = editBoxes->getSize();
+
+    MFont* textFont = new MFont(DEFAULT_FONT);
+    
+    if (nameCnt == editBoxCnt) {
+        for (size_t i = 0; i < nameCnt; i++) {
+            EditBox* editBox = (*editBoxes)[i];
+
+            renderTarget->drawText(editBox->getPosition() - MPoint(0, 2 * BTN_TXT_PT), (*names)[i], MColor(GRAY), textFont, BTN_TXT_PT);
+            editBox->render(renderTarget);
+        }
+    }
+
+    delete textFont;
+
+    Widget::render(renderTarget);
+}
+
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 

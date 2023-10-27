@@ -79,26 +79,21 @@ void closeModal(void* arg) {
         doubleArgs.pushBack(doubleArg);
     }
 
-    filter = new BrightnessFilter();
     filter->setParams(doubleArgs);
-
-    std::cout << doubleArgs[0] << '\n';
-
-    modWindow->getFiltManager()->setLast(filter);
     modWindow->getFiltManager()->setActive(true);
 }
 
 void openBlurPicker(void* arg) {
-    if (!arg) {
-        return;
-    }
+    if (!arg) return;
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
     EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
     modalWindow->setOnDestroy(closeModal);
     modalWindow->setDestrArgs(modalWindow);
 
-    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 100), modalWindow, new MFont(DEFAULT_FONT));
+    modalWinArgs->filtManager->setLast(new BrightnessFilter());
+
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT));
 
     modalWindow->addEditBox(editBox);
     modalWinArgs->drawZone->registerObject(modalWindow);
