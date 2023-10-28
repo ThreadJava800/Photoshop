@@ -168,6 +168,17 @@ public:
         size--;
     }
 
+    void insert(T value, size_t index) {
+        ON_ERROR(!value, "List was null!",);
+
+        pushBack(value);
+        for (long i = long(size) - 1; i >= index + 1; i--) {
+            T tmp         = values[i];
+            values[i]     = values[i - 1];
+            values[i - 1] = tmp;
+        }
+    }
+
     T& operator[](const size_t index) {
         return values[index];
     }

@@ -93,13 +93,20 @@ public:
 };
 
 enum MKeysIDS {
-    BACKSPACE = 8
+    BACKSPACE   = 8,
+    LEFT_KEY    = sf::Keyboard::Left,
+    RIGHT_KEY   = sf::Keyboard::Right,
+    DOWN_KEY    = sf::Keyboard::Down,
+    UP_KEY      = sf::Keyboard::Up,
+
+    DEFAULT_KEY = -1
 };
 
 struct MKeyboard {
-    char symbol;
+    char     symbol;
+    MKeysIDS keyId;
 
-    explicit MKeyboard(char _symbol) : symbol(_symbol)   {}
+    explicit MKeyboard(char _symbol, MKeysIDS _keyId) : symbol(_symbol), keyId(_keyId) {}
 };
 
 enum MMouse {

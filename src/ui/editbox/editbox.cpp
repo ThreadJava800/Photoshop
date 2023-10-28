@@ -4,8 +4,8 @@ double EditBox::getCursorX(MFont* font, int pt) {
     size_t charCnt = text->getSize();
     if (charCnt == 0) return position.x;
 
-    double shiftConst = getTextSize(text->getCArray(), font, pt).x / charCnt;
-    double posX = position.x + shiftConst * (charCnt);
+    double shiftConst = getTextSize(text->getCArray(), font, pt).x / (charCnt - 1);
+    double posX = position.x + shiftConst * curPos;
 
     // for (size_t i = 0; i < charCnt - 1; i++) {
     //     posX += (getTextSize(text->getCArray(), font, pt).x / charCnt);
@@ -50,23 +50,39 @@ void EditBox::render(RenderTarget* renderTarget) {
 bool EditBox::onKeyPressed(MKeyboard key) {
     ON_ERROR(!text, "Text pointer was null!", false);
 
-    if (!(key.symbol >= '0' && key.symbol <= '9' || key.symbol == BACKSPACE)) return false;
+    if (!(key.symbol >= '0' && key.symbol <= '9' || key.symbol == BACKSPACE || key.keyId == LEFT_KEY || key.keyId == RIGHT_KEY)) return false;
+
+    if (key.keyId == LEFT_KEY) {
+        curPos--;
+        return true;
+    }
+
+    if (key.keyId == RIGHT_KEY) {
+        curPos++;
+        return true;
+    }
 
     if (key.symbol == BACKSPACE) {
         size_t charCnt = text->getSize();
-        if (charCnt >= 2) {
-            text->remove(charCnt - 2);
+        if (charCnt >= 2 && curPos > 0) {
+            text->remove(curPos - 1);
         }
+
+        curPos--;
 
         return true;
     }
 
     size_t charCnt = text->getSize();
 
-    if (charCnt > 0) (*text)[charCnt - 1] = key.symbol;
-    else               text->pushBack(key.symbol);
+    if (charCnt > 0) {
+        text->pop();
+        text->insert  (key.symbol, curPos);
+    }
+    else             text->pushBack(key.symbol);
 
     text->pushBack('\0');
+    curPos++;
 
     return true;
 }

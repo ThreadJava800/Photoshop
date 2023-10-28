@@ -360,18 +360,26 @@ void runMainCycle() {
             case sf::Event::KeyPressed:
                 if (event.key.code == sf::Keyboard::Escape)
                     window.close();
+                if (event.key.code == sf::Keyboard::Left)
+                    eventBoy.onKeyPressed(MKeyboard(0, LEFT_KEY));
+                if (event.key.code == sf::Keyboard::Right)
+                    eventBoy.onKeyPressed(MKeyboard(0, RIGHT_KEY));
+                if (event.key.code == sf::Keyboard::Down)
+                    eventBoy.onKeyPressed(MKeyboard(0, DOWN_KEY));
+                if (event.key.code == sf::Keyboard::Up)
+                    eventBoy.onKeyPressed(MKeyboard(0, UP_KEY));
                 break;
             case sf::Event::TextEntered:
                 renderTarget.getRenderTexture()->clear();
 
-                eventBoy.onKeyPressed(MKeyboard(event.text.unicode));
+                eventBoy.onKeyPressed(MKeyboard(event.text.unicode, DEFAULT_KEY));
                 std::cout << (int) event.text.unicode << '\n';
 
                 drawWidget.render(&renderTarget);
                 window.display();
                 break;
             case sf::Event::KeyReleased:
-                eventBoy.onKeyReleased(MKeyboard(event.text.unicode));
+                eventBoy.onKeyReleased(MKeyboard(event.text.unicode, DEFAULT_KEY));
                 break;
 
             case sf::Event::MouseButtonPressed: {
