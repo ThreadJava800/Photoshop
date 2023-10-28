@@ -42,7 +42,7 @@ void EditBox::render(RenderTarget* renderTarget) {
     renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
     renderTarget->drawText (position, printText, MColor(GRAY), font, BTN_TXT_PT, regSet);
 
-    int xCursorPos = getCursorX(new MFont(DEFAULT_FONT), BTN_TXT_PT);
+    int xCursorPos = getCursorX(font, BTN_TXT_PT);
 
     if (cursorState) renderTarget->drawLine(MPoint(xCursorPos, position.y), MPoint(xCursorPos, position.y + size.y), MColor(BLACK), regSet);
 }
