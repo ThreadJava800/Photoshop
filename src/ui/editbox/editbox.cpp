@@ -14,11 +14,12 @@ double EditBox::getCursorX(MFont* font, int pt) {
     return posX;
 }
 
-EditBox::EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font) :
+EditBox::EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, int _pt) :
     Widget     (_position, _size, _parent),
     font       (_font),
     curPos     (0),
-    cursorState(false)       {
+    cursorState(false),
+    pt         (_pt)       {
         text = new List<char>();
     }
 
@@ -45,6 +46,24 @@ void EditBox::render(RenderTarget* renderTarget) {
     int xCursorPos = getCursorX(font, BTN_TXT_PT);
 
     if (cursorState) renderTarget->drawLine(MPoint(xCursorPos, position.y), MPoint(xCursorPos, position.y + size.y), MColor(BLACK), regSet);
+}
+
+bool EditBox::onMousePressed(MPoint pos, MMouse btn) {
+    ON_ERROR(!text, "Text pointer was null!", false);
+
+    size_t charCnt    = text->getSize();
+    double shiftConst = getTextSize(text->getCArray(), font, pt).x / (charCnt - 1);
+
+    for (size_t i = 0; i < charCnt - 1; i++) {
+        if (i * shiftConst <= (pos - position).x && (pos - position).x <= (i + 1) * shiftConst) {
+            curPos = i + 1;
+            break;
+        }
+    }
+
+    if ((pos - position).x > charCnt * shiftConst) curPos = charCnt - 1;
+
+    return true;
 }
 
 bool EditBox::onKeyPressed(MKeyboard key) {
@@ -74,6 +93,10 @@ bool EditBox::onKeyPressed(MKeyboard key) {
     }
 
     size_t charCnt = text->getSize();
+
+    // values are out from frame
+    double shiftConst = getTextSize(text->getCArray(), font, pt).x / (charCnt - 1);
+    if (charCnt * shiftConst > size.x) return true;
 
     if (charCnt > 0) {
         text->pop();

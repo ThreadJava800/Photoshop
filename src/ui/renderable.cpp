@@ -126,7 +126,7 @@ bool Widget::onMousePressed(MPoint pos, MMouse btn) {
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget && widget->getExists() && widget->visible) {
+        if (widget && widget->getExists() && widget->visible && widget->isInside(pos)) {
             wasClick = widget->onMousePressed(pos, btn);
             if (wasClick) return wasClick;
         }

@@ -373,7 +373,7 @@ void runMainCycle() {
                 renderTarget.getRenderTexture()->clear();
 
                 eventBoy.onKeyPressed(MKeyboard(event.text.unicode, DEFAULT_KEY));
-                std::cout << (int) event.text.unicode << '\n';
+                // std::cout << (int) event.text.unicode << '\n';
 
                 drawWidget.render(&renderTarget);
                 window.display();
