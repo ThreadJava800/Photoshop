@@ -9,10 +9,13 @@ static const char*     DEFAULT_FONT       = "assets/DraftingMono-Bold.ttf";
 static const char*     CLOSE_BTN          = "assets/close_btn.png";
 static const char*     RESTORE_BTN        = "assets/restore.png";
 static const char*     MINIMIZE_BTN       = "assets/minimize.png";
+static const char*     BRUSH_BTN          = "assets/brush_logo.png";
+static const char*     RECT_BTN           = "assets/rect_tool.png";
 
 static const char*     MAIN_WINDOW_NAME   = "Photoshop";
 static const int       ACTION_BTN_LEN     = 100;
 static const int       ACTION_BTN_HEIGHT  = 30;
+static const int       PICKER_BTN_SIZE    = 50;
 
 static const int       LINE_DIAM          = 1;
 static const int       SUB_MENU_LEN       = 300;

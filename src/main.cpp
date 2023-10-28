@@ -305,6 +305,27 @@ Menu* createActionMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager
     return actionMenu;
 }
 
+Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager* _filtManager) {
+    MPoint start = MPoint(2 * MAIN_WIN_BRD_SHIFT, 2 * MAIN_WIN_BRD_SHIFT);
+    MPoint size  = MPoint(400, 400);
+    MColor color = MColor(DEFAULT_COLOR);
+
+    MPoint btnSize = MPoint(PICKER_BTN_SIZE, PICKER_BTN_SIZE);
+
+    Window* window = new Window(start, size, _toolMan, _filtManager, _parent);
+
+    MImage     * brLogo   = new MImage(BRUSH_BTN); 
+    ImageButton* brush    = new ImageButton(start + MPoint(10, 40), btnSize, brLogo, window);
+
+    MImage     * rectLogo = new MImage(RECT_BTN); 
+    ImageButton* rect     = new ImageButton(start + MPoint(70, 40), btnSize, rectLogo, window);
+
+    window->registerObject(brush);
+    window->registerObject(rect);
+
+    return window;
+}
+
 void runMainCycle() {
     sf::RenderWindow window(sf::VideoMode(), "Photoshop", sf::Style::Fullscreen);
     window.setPosition(sf::Vector2i(0, 0));
@@ -318,6 +339,11 @@ void runMainCycle() {
     Window* mainWindow = new Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, &filtManager, &drawWidget);
     drawWidget.registerObject(mainWindow);
 
+    //create graphics picker of tools and colors
+    Window* pickerWindow = createPickerWindow(mainWindow, &manager, &filtManager);
+    mainWindow->registerObject(pickerWindow);
+
+    // create event manager
     EventManager eventBoy = EventManager();
     eventBoy.registerObject(mainWindow);
 

@@ -85,6 +85,7 @@ void Window::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
+    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
 
     Widget::render(renderTarget);
 }
