@@ -94,6 +94,8 @@ public:
 
 enum MKeysIDS {
     BACKSPACE   = 8,
+    RETURN      = 13,
+
     LEFT_KEY    = sf::Keyboard::Left,
     RIGHT_KEY   = sf::Keyboard::Right,
     DOWN_KEY    = sf::Keyboard::Down,
