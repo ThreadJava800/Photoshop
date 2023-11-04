@@ -366,12 +366,12 @@ void runMainCycle() {
         auto passed   = std::chrono::duration_cast<std::chrono::seconds>(timerEnd - timerStart);
 
         if (passed.count() >= 1) {
-            renderTarget.getRenderTexture()->clear();
+            // renderTarget.getRenderTexture()->clear();
 
             eventBoy.onTimerTick(passed.count());
 
-            drawWidget.render(&renderTarget);
-            window.display();
+            // drawWidget.render(&renderTarget);
+            // window.display();
 
             timerStart = timerEnd;
         }

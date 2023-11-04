@@ -11,7 +11,7 @@ void SubMenu::changeActivity() {
     visible = !visible;
     // fillRegionSets();
 
-    // if (visible) prioritizeWindow();
+    if (visible) prioritizeWindow();
 }
 
 void SubMenu::render(RenderTarget* renderTarget) {

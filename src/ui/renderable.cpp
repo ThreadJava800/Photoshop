@@ -202,6 +202,11 @@ bool Widget::isInside(MPoint point) {
     return MathRectangle(position, size).isPointInside(point);
 }
 
+RegionSet* Widget::getDefaultRegSet() {
+    createEmptyRegionSet();
+    return regSet;
+}
+
 void Widget::render(RenderTarget* renderTarget) {
     unregisterObject();
 
@@ -255,10 +260,12 @@ void Widget::fillRegionSets() {
 void Widget::fillRegionSetsRoot() {
     if (!regSet || !regSet->getRectangles()) return;
 
-    regSet->getRectangles()->clear();
+    // regSet->getRectangles()->clear();
 
-    MathRectangle thisRect = MathRectangle(position, size);
-    regSet->addRegion(thisRect);
+    // MathRectangle thisRect = MathRectangle(position, size);
+    // regSet->addRegion(thisRect);
+
+    regSet = getDefaultRegSet();
 
     if (parent) {
         RegionSet* oldRegSet = regSet;
@@ -279,12 +286,7 @@ void Widget::fillRegionSetsRoot() {
             Widget* cur = (*parentWins)[i];
 
             if (cur->visible) {
-                MathRectangle curRect = MathRectangle(cur->position, cur->size);
-
-                RegionSet curSet = RegionSet();
-                curSet.addRegion(curRect);
-
-                regSet->subtract(&curSet);
+                regSet->subtract(cur->getDefaultRegSet());
             }
         }
     }
@@ -301,12 +303,7 @@ void Widget::fillRegionSetsRoot() {
         Widget* cur = (*subWindows)[i];
 
         if (cur->visible) {
-            MathRectangle curRect = MathRectangle(cur->position, cur->size);
-
-            RegionSet curSet = RegionSet();
-            curSet.addRegion(curRect);
-
-            regSet->subtract(&curSet);
+            regSet->subtract(cur->getDefaultRegSet());
         }
     }
 }

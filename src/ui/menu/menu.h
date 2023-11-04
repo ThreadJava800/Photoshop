@@ -29,7 +29,8 @@ public:
     bool onMouseReleased(MPoint pos, MMouse btn) override;
     bool onMouseMove    (MPoint pos, MMouse btn) override;
 
-    void render(RenderTarget* renderTarget) override;
+    void       render(RenderTarget* renderTarget) override;
+    RegionSet* getDefaultRegSet()                 override;
 };
 
 #endif

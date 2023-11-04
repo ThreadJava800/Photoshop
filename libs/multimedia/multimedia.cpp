@@ -812,8 +812,9 @@ void RegionSet::merge(const RegionSet* b) {
     if(!rectangles || !b || !b->rectangles) return;
 
     size_t listSize = b->rectangles->getSize();
+
     for (size_t i = 0; i < listSize; i++) {
-        addRegion((*b)[i]);
+        if (!(*b)[i].getSize().isNan()) addRegion((*b)[i]);
     }
 }
 

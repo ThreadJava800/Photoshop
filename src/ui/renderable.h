@@ -49,9 +49,10 @@ public:
     bool onMouseReleased(MPoint pos, MMouse btn) override;
     bool onMouseMove    (MPoint pos, MMouse btn) override;
 
-    virtual void move          (MPoint shift);
-    virtual void registerObject(Widget* widget);
-    virtual bool isInside      (MPoint point);
+    virtual void       move            (MPoint shift);
+    virtual void       registerObject  (Widget* widget);
+    virtual bool       isInside        (MPoint point);
+    virtual RegionSet* getDefaultRegSet();
 
     void render(RenderTarget* renderTarget) override;
 
