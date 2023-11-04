@@ -9,6 +9,34 @@ Menu::Menu(MPoint _position, MPoint _size, Widget* _parent, Window* _window, OnM
 
 Menu::~Menu() {}
 
+void Menu::calculateRegSet() {
+    size_t childrenCnt = subWindows->getSize();
+
+    // if (regSet) delete regSet;
+
+    // regSet = new RegionSet();
+    // regSet->addRegion(MathRectangle(MPoint(0, 0), MPoint(1920, 1080)));
+
+    // reset region set
+    createEmptyRegionSet();
+
+    for (size_t i = 0; i < childrenCnt; i++) {
+        Widget* child = (*subWindows)[i];
+
+        if (child->getVisible()) {
+            // MathRectangle r = (*child->getRegSet()->getRectangles())[0];
+            // std::cout << r.getSize().x << ' ' << r.getSize().y << '\n';
+            regSet->merge(child->getRegSet());
+        }
+    } 
+
+    // fillRegionSets();
+
+    // std::cout << "\n\n\n";
+
+
+}
+
 bool Menu::isInside(MPoint checkPoint) {
     return checkPoint.x - position.x >= 0      &&
            checkPoint.x - position.x <= size.x &&
@@ -38,4 +66,9 @@ bool Menu::onMouseMove(MPoint pos, MMouse btn) {
         }
     }
     return true;
+}
+
+void Menu::render(RenderTarget* renderTarget) {
+    calculateRegSet();
+    Widget::render(renderTarget);
 }

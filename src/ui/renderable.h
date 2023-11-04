@@ -34,6 +34,7 @@ public:
     List<Widget*>* getWindows ();
     void           setExists  (bool val);
     bool           getExists  ();
+    bool           getVisible ();
     RegionSet*     getRegSet  ();
     Widget   *     getParent  ();
 

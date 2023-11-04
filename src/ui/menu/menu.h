@@ -17,6 +17,8 @@ private:
 
     OnMoveFunc onMove    = nullptr;
 
+    void calculateRegSet();
+
 public:
     explicit Menu(MPoint _position, MPoint _size, Widget* _parent, Window* _window = nullptr, OnMoveFunc _onMove = nullptr);
     ~Menu();
@@ -26,6 +28,8 @@ public:
     bool onMousePressed (MPoint pos, MMouse btn) override;
     bool onMouseReleased(MPoint pos, MMouse btn) override;
     bool onMouseMove    (MPoint pos, MMouse btn) override;
+
+    void render(RenderTarget* renderTarget) override;
 };
 
 #endif

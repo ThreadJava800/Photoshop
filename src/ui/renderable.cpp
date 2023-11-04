@@ -25,6 +25,8 @@ Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _
     }
 
 void Widget::createEmptyRegionSet() {
+    if (regSet) delete regSet;
+
     regSet = new RegionSet();
     regSet->addRegion(MathRectangle(position, size));
 }
@@ -59,6 +61,10 @@ void Widget::setExists(bool val) {
 
 bool Widget::getExists() {
     return exists;
+}
+
+bool Widget::getVisible() {
+    return visible;
 }
 
 RegionSet* Widget::getRegSet() {

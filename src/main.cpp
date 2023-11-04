@@ -61,6 +61,8 @@ void openToolMenu(void* arg) {
     if (!arg) return;
     SubMenu* menu = (SubMenu*) arg;
 
+    std::cout << "TESTCLICKED\n";
+
     if (menu) menu->changeActivity();
 }
 
@@ -165,7 +167,7 @@ void chooseColor(void* arg) {
     menu->subMenu->changeActivity();
 }
 
-SubMenu* createToolPicker(Window* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
+SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
@@ -212,7 +214,7 @@ SubMenu* createToolPicker(Window* _winPtr, FilterManager* _filtManager, ToolMana
     return toolMenu;
 }
 
-SubMenu* createColorPicker(Window* _winPtr, ToolManager* _manager, List<ColPickerArgs*>& colArgs) {
+SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ColPickerArgs*>& colArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
@@ -259,7 +261,7 @@ SubMenu* createColorPicker(Window* _winPtr, ToolManager* _manager, List<ColPicke
     return colMenu;
 }
 
-SubMenu* createFilterMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<ModalWindowArgs*>& modArgs) {
+SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<ModalWindowArgs*>& modArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
@@ -278,15 +280,15 @@ SubMenu* createFilterMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _mana
     return filtMenu;
 }
 
-Menu* createActionMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs, List<ModalWindowArgs*>& modArgs) {
+Menu* createActionMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs, List<ModalWindowArgs*>& modArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(4 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
-    SubMenu* toolMenu   = createToolPicker (_winPtr, _filtManager, _manager, toolArgs);
-    SubMenu* colMenu    = createColorPicker(_winPtr, _manager, colArgs);
-    SubMenu* filtMenu   = createFilterMenu (_drawZone, _winPtr, _manager, _filtManager, _evManager, modArgs);
+    SubMenu* toolMenu   = createToolPicker (actionMenu, _filtManager, _manager, toolArgs);
+    SubMenu* colMenu    = createColorPicker(actionMenu, _manager, colArgs);
+    SubMenu* filtMenu   = createFilterMenu (_drawZone, actionMenu, _manager, _filtManager, _evManager, modArgs);
 
     TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "New",    actionMenu, testFunc);
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);
@@ -298,9 +300,9 @@ Menu* createActionMenu(Widget* _drawZone, Window* _winPtr, ToolManager* _manager
     actionMenu->registerObject(colBtn);
     actionMenu->registerObject(filterBtn);
 
-    _winPtr->registerObject(toolMenu);
-    _winPtr->registerObject(colMenu);
-    _winPtr->registerObject(filtMenu);
+    actionMenu->registerObject(toolMenu);
+    actionMenu->registerObject(colMenu);
+    actionMenu->registerObject(filtMenu);
 
     return actionMenu;
 }
