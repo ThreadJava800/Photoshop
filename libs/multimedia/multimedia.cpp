@@ -825,7 +825,12 @@ RegionSet* RegionSet::cross(const RegionSet* b) {
     size_t bListSize = b->rectangles->getSize();
     for (size_t i = 0; i < listSize; i++) {
         for (size_t j = 0; j < bListSize; j++) {
+            // std::cout << (*rectangles)[i].getSize().x << ' ' << (*rectangles)[i].getSize().y << '\n';
+            // std::cout << (*b->rectangles)[j].getSize().x << ' ' << (*b->rectangles)[j].getSize().y << '\n';
+
             MathRectangle inters = getIntersection((*rectangles)[i], (*b->rectangles)[j]);
+
+            // std::cout << inters.getSize().x << ' ' << inters.getSize().y << "\n\n";
 
             RegionSet tmp = RegionSet();
             tmp.addRegion(inters);

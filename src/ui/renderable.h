@@ -31,6 +31,7 @@ public:
     virtual ~Widget();
 
     MPoint         getPosition();
+    MPoint         getSize    ();
     List<Widget*>* getWindows ();
     void           setExists  (bool val);
     bool           getExists  ();
@@ -38,7 +39,8 @@ public:
     RegionSet*     getRegSet  ();
     Widget   *     getParent  ();
 
-    void setParent(Widget* _parent);
+    void setParent (Widget* _parent);
+    void setVisible(bool _visible);
 
     bool onKeyPressed (MKeyboard key) override;
     bool onKeyReleased(MKeyboard key) override;

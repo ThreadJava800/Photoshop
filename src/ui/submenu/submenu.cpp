@@ -19,8 +19,25 @@ void SubMenu::render(RenderTarget* renderTarget) {
 
     if (!visible) return;
 
-    renderTarget->drawRect (position, size,  MColor(sf::Color::Red), MColor(sf::Color::Red), regSet);
+    renderTarget->drawRect (position, size, MColor(sf::Color::Red), MColor(sf::Color::Red), regSet);
     renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
 
-    // Widget::render(renderTarget);
+    Widget::render(renderTarget);
+}
+
+RegionSet* SubMenu::getDefaultRegSet() {
+    size_t childrenCnt = subWindows->getSize();
+
+    // reset region set
+    createEmptyRegionSet();
+
+    for (size_t i = 0; i < childrenCnt; i++) {
+        Widget* child = (*subWindows)[i];
+
+        if (child->getVisible()) {
+            regSet->merge(child->getRegSet());
+        }
+    } 
+
+    return regSet;
 }

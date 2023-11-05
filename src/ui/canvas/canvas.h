@@ -162,8 +162,8 @@ private:
     void drawTexture(RenderTarget* toDraw, RenderTarget* drawOn);
 
 public:
-    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager);
-    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, RenderTarget *_rendTarget);
+    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
+    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, RenderTarget *_rendTarget);
 
     ~Canvas();
 

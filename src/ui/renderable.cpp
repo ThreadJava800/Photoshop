@@ -51,6 +51,10 @@ MPoint Widget::getPosition() {
     return position;
 }
 
+MPoint Widget::getSize() {
+    return size;
+}
+
 List<Widget*>* Widget::getWindows() {
     return subWindows;
 }
@@ -77,6 +81,10 @@ Widget* Widget::getParent  () {
 
 void Widget::setParent(Widget* _parent) {
     parent = _parent;
+}
+
+void Widget::setVisible(bool _visible) {
+    visible = _visible;
 }
 
 bool Widget::onKeyPressed(MKeyboard key) {
@@ -250,7 +258,6 @@ void Widget::clearRegionSets() {
 }
 
 void Widget::fillRegionSets() {
-    int cnt = 0;
     Widget* test = this;
     while (test->parent != 0) test = test->parent;
 
@@ -260,12 +267,11 @@ void Widget::fillRegionSets() {
 void Widget::fillRegionSetsRoot() {
     if (!regSet || !regSet->getRectangles()) return;
 
-    // regSet->getRectangles()->clear();
-
-    // MathRectangle thisRect = MathRectangle(position, size);
-    // regSet->addRegion(thisRect);
-
     regSet = getDefaultRegSet();
+
+    // if (!parent) {
+    //     std::cout << size.x << ' ' << size.y << '\n';
+    // }
 
     if (parent) {
         RegionSet* oldRegSet = regSet;

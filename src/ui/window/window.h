@@ -7,6 +7,7 @@
 #include "../canvas/canvas.h"
 #include "../canvas/filters.h"
 #include "../editbox/editbox.h"
+#include "../button/scrollbar.h"
 
 class Window : public Widget {
 protected:

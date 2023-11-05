@@ -520,16 +520,16 @@ bool ToolManager::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
     return current->paintOnDeactivate(perm, temp, color);
 }
 
-Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager,  FilterManager *_filtManager) :
-    Widget     (_position, _size, nullptr),
+Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager,  FilterManager *_filtManager, Widget* _parent) :
+    Widget     (_position, _size, _parent),
     manager    (_manager),
     filtManager(_filtManager)     {
         rendTarget = new RenderTarget(_position, _size);        
         tempTarget = new RenderTarget(_position, _size);
     }
 
-Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, RenderTarget *_rendTarget) :
-    Widget     (_position, _size, nullptr),
+Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, RenderTarget *_rendTarget) :
+    Widget     (_position, _size, _parent),
     rendTarget (_rendTarget),
     manager    (_manager),
     filtManager(_filtManager)     {
@@ -595,6 +595,13 @@ void Canvas::drawTexture(RenderTarget* toDraw, RenderTarget* drawOn) {
 void Canvas::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target was null!",);
 
+    delete regSet;
+
+    regSet = new RegionSet();
+    MathRectangle canvasRect = MathRectangle(position, size);
+    MathRectangle parentRect = MathRectangle(parent->getPosition() - , parent->getSize());
+    regSet->addRegion(getIntersection(canvasRect, parentRect));
+    
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
     renderTarget->drawFrame(position, size, MColor(sf::Color::Red), regSet);
 

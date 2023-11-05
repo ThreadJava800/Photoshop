@@ -36,7 +36,11 @@ FilterManager* Window::getFiltManager() {
 }
 
 void Window::createCanvas() {
-    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(size.x, size.y - TOP_PANE_SIZE), manager, filtManager);
+    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this);
+    
+    ScrollBar* verticalBar = new ScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), canvas);
+    canvas->registerObject(verticalBar);
+
     registerObject(canvas);
 }
 
@@ -123,7 +127,7 @@ ModalWindow::~ModalWindow() {
 void ModalWindow::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect (position, size, MColor(sf::Color::White), MColor(TRANSPARENT));
+    renderTarget->drawRect (position, size, MColor(sf::Color::White), MColor(TRANSPARENT), regSet);
     renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
 
     Widget::render(renderTarget);

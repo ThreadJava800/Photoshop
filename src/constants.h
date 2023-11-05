@@ -21,6 +21,8 @@ static const int       LINE_DIAM          = 1;
 static const int       SUB_MENU_LEN       = 300;
 static const int       BTN_TXT_PT         = 23;
 
+static const int       CANVAS_SIZE        = 1000;
+
 static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 100;
 static const sf::Color DEFAULT_BACK_COL   = sf::Color::White;
