@@ -599,7 +599,7 @@ void Canvas::render(RenderTarget* renderTarget) {
 
     regSet = new RegionSet();
     MathRectangle canvasRect = MathRectangle(position, size);
-    MathRectangle parentRect = MathRectangle(parent->getPosition() + MPoint(0, TOP_PANE_SIZE), parent->getSize());
+    MathRectangle parentRect = MathRectangle(parent->getPosition() + MPoint(0, TOP_PANE_SIZE), parent->getSize() - MPoint(0, TOP_PANE_SIZE));
     regSet->addRegion(getIntersection(canvasRect, parentRect));
     
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);

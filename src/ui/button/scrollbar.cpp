@@ -9,6 +9,15 @@ ScrollBar::ScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _
     scrollArgs(_args),
     delta     (_delta)    {}
 
+bool ScrollBar::moveSlider() {
+    MathRectangle scrollBar = MathRectangle(position, size);
+    MathRectangle slider    = MathRectangle(sliderPos, sliderSize);
+
+    MathRectangle intersection = getIntersection(scrollBar, slider);
+
+    return intersection == slider;
+}
+
 bool ScrollBar::onMousePressed(MPoint pos, MMouse btn) {
     if (!isInside(pos)) return false;
 
@@ -30,6 +39,8 @@ bool ScrollBar::onMouseMove(MPoint pos, MMouse btn) {
         if (delta.y != 0) sliderPos.y += (pos.y - prevPos.y);
 
         prevPos = pos;
+
+        if (!moveSlider()) isMoving = false;
 
         return true;
     }

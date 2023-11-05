@@ -37,7 +37,7 @@ FilterManager* Window::getFiltManager() {
 
 void onVertScroll(void* args, MPoint delta) {
     Canvas* canvas = (Canvas*) args;
-    std::cout << "SCROLLING\n";
+
     canvas->move(delta);
 }
 
@@ -45,10 +45,14 @@ void Window::createCanvas() {
     Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this);
     registerObject(canvas);
 
-    double delta = canvas->getSize().y / (size.y - TOP_PANE_SIZE);
+    double deltaY = canvas->getSize().y / (size.y - TOP_PANE_SIZE);
+    double deltaX = canvas->getSize().x / (size.x);
 
-    ScrollBar* verticalBar = new ScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, delta));
+    ScrollBar* verticalBar = new ScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, deltaY));
     registerObject(verticalBar);
+
+    ScrollBar* horizontalBar = new ScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x, TOP_PANE_SIZE), MPoint(position.x, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(deltaX, 0));
+    registerObject(horizontalBar);
 }
 
 void Window::createTopPanel() {
@@ -96,9 +100,10 @@ void Window::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
-    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
 
     Widget::render(renderTarget);
+
+    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
 }
 
 void ModalWindow::makeEventPrivate() {
