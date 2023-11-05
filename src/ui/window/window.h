@@ -69,6 +69,7 @@ public:
     void render (RenderTarget* renderTarget) override;
 };
 
+void onVertScroll(void* args, MPoint delta);
 void onMove(Window* window, MPoint newPos, MPoint oldPos);
 void closeFunc(void* window);
 

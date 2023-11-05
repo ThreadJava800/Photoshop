@@ -15,6 +15,7 @@ bool ScrollBar::onMousePressed(MPoint pos, MMouse btn) {
     MathRectangle sliderRect = MathRectangle(sliderPos, sliderSize);
     if (sliderRect.isPointInside(pos)) {
         isMoving = true;
+        prevPos  = pos;
         return true;
     }
 
@@ -22,6 +23,17 @@ bool ScrollBar::onMousePressed(MPoint pos, MMouse btn) {
 }
 
 bool ScrollBar::onMouseMove(MPoint pos, MMouse btn) {
+    if (isMoving) {
+        if (onScroll) onScroll(scrollArgs, MPoint((pos.x - prevPos.x) * delta.x, (pos.y - prevPos.y) * delta.y));
+        
+        if (delta.x != 0) sliderPos.x += (pos.x - prevPos.x);
+        if (delta.y != 0) sliderPos.y += (pos.y - prevPos.y);
+
+        prevPos = pos;
+
+        return true;
+    }
+
     return false;
 }
 

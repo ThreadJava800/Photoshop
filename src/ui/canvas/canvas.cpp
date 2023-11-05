@@ -599,11 +599,10 @@ void Canvas::render(RenderTarget* renderTarget) {
 
     regSet = new RegionSet();
     MathRectangle canvasRect = MathRectangle(position, size);
-    MathRectangle parentRect = MathRectangle(parent->getPosition() - , parent->getSize());
+    MathRectangle parentRect = MathRectangle(parent->getPosition() + MPoint(0, TOP_PANE_SIZE), parent->getSize());
     regSet->addRegion(getIntersection(canvasRect, parentRect));
     
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
-    renderTarget->drawFrame(position, size, MColor(sf::Color::Red), regSet);
 
     drawTexture(rendTarget, renderTarget);
     drawTexture(tempTarget, renderTarget);

@@ -16,6 +16,7 @@ private:
     void*      scrollArgs  = nullptr;
     ScrollFunc onScroll    = nullptr;
     MPoint     delta       = MPoint();
+    MPoint     prevPos     = MPoint();
 
 public:
     explicit ScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func = nullptr, void* _args = nullptr, MPoint _delta = MPoint());

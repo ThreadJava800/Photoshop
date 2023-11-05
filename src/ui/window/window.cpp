@@ -35,13 +35,20 @@ FilterManager* Window::getFiltManager() {
     return filtManager;
 }
 
+void onVertScroll(void* args, MPoint delta) {
+    Canvas* canvas = (Canvas*) args;
+    std::cout << "SCROLLING\n";
+    canvas->move(delta);
+}
+
 void Window::createCanvas() {
     Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this);
-    
-    ScrollBar* verticalBar = new ScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), canvas);
-    canvas->registerObject(verticalBar);
-
     registerObject(canvas);
+
+    double delta = canvas->getSize().y / (size.y - TOP_PANE_SIZE);
+
+    ScrollBar* verticalBar = new ScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, delta));
+    registerObject(verticalBar);
 }
 
 void Window::createTopPanel() {
