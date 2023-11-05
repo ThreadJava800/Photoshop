@@ -38,7 +38,7 @@ FilterManager* Window::getFiltManager() {
 void onVertScroll(void* args, MPoint delta) {
     Canvas* canvas = (Canvas*) args;
 
-    canvas->move(delta);
+    canvas->move(delta * -1);
 }
 
 void Window::createCanvas() {

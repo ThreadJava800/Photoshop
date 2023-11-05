@@ -28,7 +28,27 @@ bool ScrollBar::onMousePressed(MPoint pos, MMouse btn) {
         return true;
     }
 
-    return false;
+    // clicked on scroll bar outside of slider
+    if (delta.x != 0) {
+        if (pos.x < sliderPos.x) {
+            sliderPos.x -= sliderSize.x;
+            if (onScroll) onScroll(scrollArgs, MPoint(-sliderSize.x * delta.x, 0));
+        } else {
+            sliderPos.x += sliderSize.x;
+            if (onScroll) onScroll(scrollArgs, MPoint(sliderSize.x * delta.x, 0));
+        }
+    }
+    if (delta.y != 0) {
+        if (pos.y < sliderPos.y) {
+            sliderPos.y -= sliderSize.y;
+            if (onScroll) onScroll(scrollArgs, MPoint(0, -sliderSize.y * delta.y));
+        } else {
+            sliderPos.y += sliderSize.y;
+            if (onScroll) onScroll(scrollArgs, MPoint(0, sliderSize.y * delta.y));
+        }
+    }
+
+    return true;
 }
 
 bool ScrollBar::onMouseMove(MPoint pos, MMouse btn) {
