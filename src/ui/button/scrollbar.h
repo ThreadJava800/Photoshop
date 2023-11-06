@@ -6,7 +6,7 @@
 typedef void (*ScrollFunc)(void* args, MPoint delta);
 
 class ScrollBar : public Button {
-private:
+protected:
     double     sensitivity = 0;
     MPoint     sliderPos   = MPoint();
     MPoint     sliderSize  = MPoint();
@@ -18,7 +18,7 @@ private:
     MPoint     delta       = MPoint();
     MPoint     prevPos     = MPoint();
 
-    bool moveSlider();
+    virtual bool moveSlider();
 
 public:
     explicit ScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func = nullptr, void* _args = nullptr, MPoint _delta = MPoint());
@@ -28,6 +28,28 @@ public:
     bool onMouseReleased(MPoint pos, MMouse btn)     override;
     void render         (RenderTarget* renderTarget) override;
     void move           (MPoint shift)               override;
+};
+
+class VerticalScrollBar : public ScrollBar {
+private:
+    void addButtons();
+
+protected:
+    bool moveSlider() override;
+
+public:
+    explicit VerticalScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func = nullptr, void* _args = nullptr, MPoint _delta = MPoint());
+};
+
+class HorizontalScrollBar : public ScrollBar {
+private:
+    void addButtons();
+
+protected:
+    bool moveSlider() override;
+
+public:
+    explicit HorizontalScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func = nullptr, void* _args = nullptr, MPoint _delta = MPoint());
 };
 
 #endif

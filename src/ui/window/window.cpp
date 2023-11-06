@@ -41,18 +41,24 @@ void onVertScroll(void* args, MPoint delta) {
     canvas->onScroll(delta * -1);
 }
 
+void onButtonScroll(void* args) {
+    ScrollBar* scrollBar = (ScrollBar*) args;
+
+    
+}
+
 void Window::createCanvas() {
     MathRectangle parentRect = MathRectangle(position + MPoint(0, TOP_PANE_SIZE), size - MPoint(0, TOP_PANE_SIZE));
     Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this, parentRect);
     registerObject(canvas);
 
-    double deltaY = canvas->getSize().y / (size.y - TOP_PANE_SIZE);
-    double deltaX = canvas->getSize().x / (size.x);
+    double deltaY = canvas->getSize().y / (size.y + 2 * TOP_PANE_SIZE);
+    double deltaX = canvas->getSize().x / (size.x + 2 * TOP_PANE_SIZE);
 
-    ScrollBar* verticalBar = new ScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, deltaY));
+    VerticalScrollBar* verticalBar = new VerticalScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - 2 * TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE + SCROLLBAR_BTN_H), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, deltaY));
     registerObject(verticalBar);
 
-    ScrollBar* horizontalBar = new ScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x, TOP_PANE_SIZE), MPoint(position.x, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(deltaX, 0));
+    HorizontalScrollBar* horizontalBar = new HorizontalScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x - TOP_PANE_SIZE, TOP_PANE_SIZE), MPoint(position.x, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(deltaX, 0));
     registerObject(horizontalBar);
 }
 

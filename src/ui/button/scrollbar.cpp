@@ -78,9 +78,55 @@ void ScrollBar::render(RenderTarget* renderTarget) {
     renderTarget->drawRect(position, size, MColor(GRAY), MColor(BLACK), regSet);
     // drawing slider
     renderTarget->drawRect(sliderPos, sliderSize, MColor(BLACK), MColor(BLACK), regSet);
+
+    Widget::render(renderTarget);
 }
 
 void ScrollBar::move(MPoint shift) {
     sliderPos += shift;
     Widget::move(shift);
+}
+
+VerticalScrollBar::VerticalScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func, void* _args, MPoint _delta) :
+    ScrollBar(_position, _size, _sliderPos, _sliderSize, _parent, _func, _args, _delta) {
+        addButtons();
+    }
+
+void VerticalScrollBar::addButtons() {
+    ImageButton* upBtn = new ImageButton(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y), MPoint(TOP_PANE_SIZE, SCROLLBAR_BTN_H), new MImage(UP_ARROW), this);
+    ImageButton* doBtn = new ImageButton(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + size.y - SCROLLBAR_BTN_H), MPoint(TOP_PANE_SIZE, SCROLLBAR_BTN_H), new MImage(DOWN_ARROW), this);
+    
+    registerObject(upBtn);
+    registerObject(doBtn);
+}
+
+bool VerticalScrollBar::moveSlider() {
+    MathRectangle scrollBar = MathRectangle(position + MPoint(0, SCROLLBAR_BTN_H), size - MPoint(0, 2 * SCROLLBAR_BTN_H));
+    MathRectangle slider    = MathRectangle(sliderPos, sliderSize);
+
+    MathRectangle intersection = getIntersection(scrollBar, slider);
+
+    return intersection == slider;
+}
+
+HorizontalScrollBar::HorizontalScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func, void* _args, MPoint _delta) :
+    ScrollBar(_position, _size, _sliderPos, _sliderSize, _parent, _func, _args, _delta) {
+        addButtons();
+    }
+
+void HorizontalScrollBar::addButtons() {
+    ImageButton* rightBtn = new ImageButton(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_H, TOP_PANE_SIZE), new MImage(LEFT_ARROW), this);
+    ImageButton* leftBtn  = new ImageButton(MPoint(position.x + size.x - SCROLLBAR_BTN_H, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_H, TOP_PANE_SIZE), new MImage(RIGHT_ARROW), this);
+    
+    registerObject(rightBtn);
+    registerObject(leftBtn);
+}
+
+bool HorizontalScrollBar::moveSlider() {
+    MathRectangle scrollBar = MathRectangle(position + MPoint(SCROLLBAR_BTN_H, 0), size - MPoint(2 * SCROLLBAR_BTN_H, 0));
+    MathRectangle slider    = MathRectangle(sliderPos, sliderSize);
+
+    MathRectangle intersection = getIntersection(scrollBar, slider);
+
+    return intersection == slider;
 }

@@ -70,6 +70,7 @@ public:
 };
 
 void onVertScroll(void* args, MPoint delta);
+void onButtonScroll(void* args);
 void onMove(Window* window, MPoint newPos, MPoint oldPos);
 void closeFunc(void* window);
 

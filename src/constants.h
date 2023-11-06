@@ -11,6 +11,10 @@ static const char*     RESTORE_BTN        = "assets/restore.png";
 static const char*     MINIMIZE_BTN       = "assets/minimize.png";
 static const char*     BRUSH_BTN          = "assets/brush_logo.png";
 static const char*     RECT_BTN           = "assets/rect_tool.png";
+static const char*     LEFT_ARROW         = "assets/left.png";
+static const char*     RIGHT_ARROW        = "assets/right.png";
+static const char*     DOWN_ARROW         = "assets/down.png";
+static const char*     UP_ARROW           = "assets/up.png";
 
 static const char*     MAIN_WINDOW_NAME   = "Photoshop";
 static const int       ACTION_BTN_LEN     = 100;
@@ -22,11 +26,13 @@ static const int       SUB_MENU_LEN       = 300;
 static const int       BTN_TXT_PT         = 23;
 
 static const int       CANVAS_SIZE        = 1000;
+static const int       CANV_SHIFT         = 5;
 
 static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 100;
 static const sf::Color DEFAULT_BACK_COL   = sf::Color::White;
 static const int       TOP_PANE_SIZE      = 30;
+static const int       SCROLLBAR_BTN_H    = 10;
 static const sf::Color DEFAULT_COLOR      = sf::Color::Transparent;
 static const sf::Color BLACK              = sf::Color::Black;
 static const sf::Color GRAY               = sf::Color(128, 128, 128);
