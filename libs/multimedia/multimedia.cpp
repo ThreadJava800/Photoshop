@@ -543,6 +543,10 @@ MPoint MathRectangle::getSize() {
     return size;
 }
 
+void MathRectangle::move(MPoint delta) {
+    position += delta;
+}
+
 bool MathRectangle::isYInside(double yPoint) {
     return top() <= yPoint && yPoint <= down();
 }

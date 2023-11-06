@@ -520,19 +520,21 @@ bool ToolManager::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
     return current->paintOnDeactivate(perm, temp, color);
 }
 
-Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager,  FilterManager *_filtManager, Widget* _parent) :
+Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager,  FilterManager *_filtManager, Widget* _parent, MathRectangle _parentRect) :
     Widget     (_position, _size, _parent),
     manager    (_manager),
-    filtManager(_filtManager)     {
+    filtManager(_filtManager),
+    parentRect (_parentRect)     {
         rendTarget = new RenderTarget(_position, _size);        
         tempTarget = new RenderTarget(_position, _size);
     }
 
-Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, RenderTarget *_rendTarget) :
+Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, MathRectangle _parentRect, RenderTarget *_rendTarget) :
     Widget     (_position, _size, _parent),
     rendTarget (_rendTarget),
     manager    (_manager),
-    filtManager(_filtManager)     {
+    filtManager(_filtManager),
+    parentRect (_parentRect)     {
         tempTarget = new RenderTarget(_position, _size);
     }
 
@@ -541,10 +543,14 @@ Canvas::~Canvas() {
     delete tempTarget;
 }
 
+void Canvas::onScroll(MPoint shift) {
+    Widget::move(shift);
+}
+
 bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 
-    if (isInside(pos)) {
+    if (parentRect.isPointInside(pos)) {
         if (filtManager && filtManager->getActive()) {
             filtManager->setRT(rendTarget);
             filtManager->applyFilter();
@@ -599,7 +605,6 @@ void Canvas::render(RenderTarget* renderTarget) {
 
     regSet = new RegionSet();
     MathRectangle canvasRect = MathRectangle(position, size);
-    MathRectangle parentRect = MathRectangle(parent->getPosition() + MPoint(0, TOP_PANE_SIZE), parent->getSize() - MPoint(0, TOP_PANE_SIZE));
     regSet->addRegion(getIntersection(canvasRect, parentRect));
     
     renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
@@ -608,4 +613,9 @@ void Canvas::render(RenderTarget* renderTarget) {
     drawTexture(tempTarget, renderTarget);
 
     Widget::render(renderTarget);
+}
+
+void Canvas::move(MPoint shift) {
+    parentRect.move(shift);
+    Widget::move(shift);
 }

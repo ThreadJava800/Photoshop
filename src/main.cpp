@@ -171,10 +171,10 @@ SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolMana
     MColor color = MColor(DEFAULT_BACK_COL);
 
     SubMenu* toolMenu = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), _winPtr);
-    SubMenu* testSub  = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE) + MPoint(2 * ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), MPoint(100, 100), toolMenu);
-    testSub->setVisible(true);
+    // SubMenu* testSub  = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE) + MPoint(2 * ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), MPoint(100, 100), toolMenu);
+    // testSub->setVisible(true);
 
-    toolMenu->registerObject(testSub);
+    // toolMenu->registerObject(testSub);
 
     SubMenuArgs* brushArgs   = new SubMenuArgs(_filtManager, _manager, toolMenu, BRUSH);
     TextButton* brushBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);

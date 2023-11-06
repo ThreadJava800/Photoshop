@@ -38,11 +38,12 @@ FilterManager* Window::getFiltManager() {
 void onVertScroll(void* args, MPoint delta) {
     Canvas* canvas = (Canvas*) args;
 
-    canvas->move(delta * -1);
+    canvas->onScroll(delta * -1);
 }
 
 void Window::createCanvas() {
-    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this);
+    MathRectangle parentRect = MathRectangle(position + MPoint(0, TOP_PANE_SIZE), size - MPoint(0, TOP_PANE_SIZE));
+    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this, parentRect);
     registerObject(canvas);
 
     double deltaY = canvas->getSize().y / (size.y - TOP_PANE_SIZE);

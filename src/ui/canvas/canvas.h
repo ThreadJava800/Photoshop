@@ -159,19 +159,24 @@ private:
     ToolManager  * manager     = nullptr;
     FilterManager* filtManager = nullptr;
 
+    MathRectangle  parentRect;
+
     void drawTexture(RenderTarget* toDraw, RenderTarget* drawOn);
 
 public:
-    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
-    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, RenderTarget *_rendTarget);
+    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, MathRectangle _parentRect);
+    explicit Canvas(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, MathRectangle _parentRect, RenderTarget *_rendTarget);
 
     ~Canvas();
+
+    void onScroll(MPoint shift);
 
     bool onMousePressed (MPoint pos, MMouse btn) override;
     bool onMouseReleased(MPoint pos, MMouse btn) override;
     bool onMouseMove    (MPoint pos, MMouse btn) override;
 
     void render(RenderTarget* renderTarget) override;
+    void move  (MPoint shift)               override;
 };
 
 #endif

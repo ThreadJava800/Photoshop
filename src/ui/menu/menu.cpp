@@ -28,7 +28,7 @@ RegionSet* Menu::getDefaultRegSet() {
     return regSet;
 }
 
-bool Menu::isInside(MPoint checkPoint) {
+bool Menu::isInsideBar(MPoint checkPoint) {
     return checkPoint.x - position.x >= 0      &&
            checkPoint.x - position.x <= size.x &&
            checkPoint.y - position.y >= 0      &&
@@ -36,17 +36,27 @@ bool Menu::isInside(MPoint checkPoint) {
 }
 
 bool Menu::onMousePressed(MPoint pos, MMouse btn) {
-    if (isInside(pos) && btn == LEFT && !Widget::onMousePressed(pos, btn)) {
+    if (isInsideBar(pos) && btn == LEFT) {
         isClicked = true;
         prevPos = pos;
     }
 
-    return isClicked;
+    bool retValue = isClicked;
+
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
+        Widget* widget = (*subWindows)[i];
+        if (widget->getVisible()) {
+            retValue |= widget->onMousePressed(pos, btn);
+        }
+    }
+
+    return retValue;
 }
 
 bool Menu::onMouseReleased(MPoint pos, MMouse btn) {
     isClicked = false;
-    return isInside(pos);
+    return isInsideBar(pos);
 }
 
 bool Menu::onMouseMove(MPoint pos, MMouse btn) {
@@ -57,6 +67,19 @@ bool Menu::onMouseMove(MPoint pos, MMouse btn) {
         }
     }
     return true;
+}
+
+bool Menu::isInside(MPoint point) {
+    size_t childrenCnt = subWindows->getSize();
+
+    for (size_t i = 0; i < childrenCnt; i++) {
+        Widget* child = (*subWindows)[i];
+        if (child && child->getVisible()) {
+            if (child->isInside(point)) return true;
+        }
+    }
+
+    return Widget::isInside(point);
 }
 
 void Menu::render(RenderTarget* renderTarget) {

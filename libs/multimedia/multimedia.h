@@ -177,6 +177,8 @@ public:
     MPoint getPosition();
     MPoint getSize    ();
 
+    void move(MPoint delta);
+
     bool isYInside(double yPoint);
     bool isXInside(double xPoint);
     bool isPointInside(MPoint point);
