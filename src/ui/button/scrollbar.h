@@ -23,12 +23,28 @@ protected:
 public:
     explicit ScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func = nullptr, void* _args = nullptr, MPoint _delta = MPoint());
 
+    ScrollFunc getFunc();
+    void*      getArgs();
+
+    void updateSlider(MPoint shift);
+
     bool onMousePressed (MPoint pos, MMouse btn)     override;
     bool onMouseMove    (MPoint pos, MMouse btn)     override;
     bool onMouseReleased(MPoint pos, MMouse btn)     override;
     void render         (RenderTarget* renderTarget) override;
     void move           (MPoint shift)               override;
 };
+
+struct ScrollBtnArgs {
+    ScrollBar* scrollBar = nullptr;
+    MPoint     shift     = MPoint();
+
+    explicit ScrollBtnArgs(ScrollBar* _scrollBar, MPoint _shift) :
+                scrollBar(_scrollBar),
+                shift    (_shift)          {}
+};
+
+void onBtnScrollClick(void* args);
 
 class VerticalScrollBar : public ScrollBar {
 private:

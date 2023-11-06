@@ -10,12 +10,13 @@ protected:
 
     void*      onClickArgs = nullptr;
     ButtonFunc onClick     = nullptr;
+    bool       needFree    = false;
 
     bool isInside(MPoint checkPoint);
 
 public:
-    explicit Button(MPoint _position, MPoint _size, MColor _color, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr);
-    ~Button();
+    explicit Button(MPoint _position, MPoint _size, MColor _color, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr, bool _needFree = false);
+    virtual ~Button();
 
     void render(RenderTarget* renderTarget)     override;
     bool onMousePressed(MPoint pos, MMouse btn) override;
@@ -27,7 +28,7 @@ private:
     const char* text = nullptr;
 
 public:
-    explicit TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr);
+    explicit TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr, bool _needFree = false);
     ~TextButton();
 
     void render(RenderTarget* renderTarget) override;
@@ -38,7 +39,7 @@ private:
     MImage* image = nullptr;
 
 public:
-    explicit ImageButton(MPoint _position, MPoint _size, MImage* _img, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr);
+    explicit ImageButton(MPoint _position, MPoint _size, MImage* _img, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr, bool _needFree = false);
     ~ImageButton();
 
     void render(RenderTarget* renderTarget) override;
