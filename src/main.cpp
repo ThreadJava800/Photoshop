@@ -117,6 +117,17 @@ void changeBrightConst(void* arg) {
     modalWinArgs->subMenu->changeActivity();
 }
 
+void monochromeFilter(void* arg) {
+    if (!arg) return;
+
+    ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
+
+    modalWinArgs->filtManager->setLast  (new MonochromeFilter());
+    modalWinArgs->filtManager->setActive(true);
+
+    modalWinArgs->subMenu->changeActivity();
+}
+
 void chooseTool(void* arg) {
     if (!arg) return;
     SubMenuArgs* menu = (SubMenuArgs*) arg;
@@ -271,13 +282,15 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     SubMenu* filtMenu           = new SubMenu(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
     ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager);
 
-    TextButton* constBlurBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (default)", filtMenu, changeBrightConst, modWinArgs);
-    TextButton* customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)", filtMenu,  openBlurPicker,    modWinArgs);
+    TextButton* constBlurBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (default)", filtMenu,  changeBrightConst, modWinArgs);
+    TextButton* customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)",  filtMenu,  openBlurPicker,    modWinArgs);
+    TextButton* monochromeBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Monochrome",     filtMenu,  monochromeFilter,  modWinArgs);
 
     modArgs.pushBack(modWinArgs);
 
     filtMenu->registerObject(constBlurBtn);
     filtMenu->registerObject(customBlurBtn);
+    filtMenu->registerObject(monochromeBtn);
 
     return filtMenu;
 }
@@ -400,7 +413,7 @@ void runMainCycle() {
                     eventBoy.onKeyPressed(MKeyboard(0, UP_KEY));
                 break;
             case sf::Event::TextEntered:
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
 
                 eventBoy.onKeyPressed(MKeyboard(event.text.unicode, DEFAULT_KEY));
                 // std::cout << (int) event.text.unicode << '\n';
@@ -413,7 +426,7 @@ void runMainCycle() {
                 break;
 
             case sf::Event::MouseButtonPressed: {
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
                 if (event.mouseButton.button == sf::Mouse::Left) 
                     eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
                 if (event.mouseButton.button == sf::Mouse::Right)
@@ -425,7 +438,7 @@ void runMainCycle() {
                 break;
             }
             case sf::Event::MouseButtonReleased: {
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
                 if (event.mouseButton.button == sf::Mouse::Left)
                     eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
                 if (event.mouseButton.button == sf::Mouse::Right)
@@ -437,7 +450,7 @@ void runMainCycle() {
                 break;
             }
             case sf::Event::MouseMoved: {
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
                 eventBoy.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 
                 drawWidget.render(&renderTarget);

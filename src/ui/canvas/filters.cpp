@@ -22,8 +22,6 @@ void BrightnessFilter::apply(RenderTarget* rt) {
     MPoint textureSize = rt->getSize();
     for (int i = 0; i < textureSize.x; i++) {
         for (int j = 0; j < textureSize.y; j++) {
-            MPoint curPos = MPoint(i, j);
-
             MColor newPixel = (*(*pixelArr)[i])[j];
             newPixel       += changeValue;
 
@@ -54,6 +52,54 @@ void BrightnessFilter::setParams(List<double>& params) {
 List<const char*>* BrightnessFilter::getParamNames() {
     return paramNames;
 }
+
+MonochromeFilter::MonochromeFilter() : Filter() {
+    paramNames = new List<const char*>();
+    paramNames->pushBack("Monochrome");
+}
+
+MonochromeFilter::~MonochromeFilter() {
+    delete paramNames;
+}
+
+void MonochromeFilter::apply(RenderTarget* rt) {
+    if (!rt) return;
+
+    MImage* pixelData = rt->getImage();
+    if (!pixelData) return;
+
+    List<List<MColor>*>* pixelArr = pixelData->getPixels();
+
+    MPoint textureSize = rt->getSize();
+    for (int i = 0; i < textureSize.x; i++) {
+        for (int j = 0; j < textureSize.y; j++) {
+            MColor newPixel = (*(*pixelArr)[i])[j];
+
+            int sum = newPixel.r + newPixel.g + newPixel.b;
+            newPixel = MColor(sum / 3, sum / 3, sum / 3, newPixel.a);
+
+            (*(*pixelArr)[i])[j] =  newPixel;
+        }
+    }
+
+    pixelData->imgFromPixel(pixelArr);
+    rt->drawSprite(MPoint(0, 0), textureSize, pixelData);
+
+    for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
+    delete pixelArr;
+
+    delete pixelData;
+}
+
+List<double>* MonochromeFilter::getParams() {
+    return new List<double>();
+}
+
+void MonochromeFilter::setParams(List<double>& params) {}
+
+List<const char*>* MonochromeFilter::getParamNames() {
+    return paramNames;
+}   
 
 FilterManager::FilterManager() :
     active    (false),

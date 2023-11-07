@@ -29,6 +29,21 @@ public:
     List<const char*>* getParamNames()                     override;
 };
 
+class MonochromeFilter : public Filter {
+private:
+    List<const char*>* paramNames  = nullptr;
+
+public:
+    explicit MonochromeFilter();
+
+    ~MonochromeFilter();
+
+    void               apply        (RenderTarget* rt)     override;
+    List<double>*      getParams    ()                     override;
+    void               setParams    (List<double>& params) override;
+    List<const char*>* getParamNames()                     override;    
+};
+
 class FilterManager {
 private:
     bool          active     = false;
