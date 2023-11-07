@@ -16,8 +16,15 @@ void* ScrollBar::getArgs() {
     return scrollArgs;
 }
 
-void ScrollBar::updateSlider(MPoint shift) {
+bool ScrollBar::updateSlider(MPoint shift) {
     sliderPos += shift;
+
+    if (!moveSlider()) {
+        sliderPos -= shift;
+        return false;
+    }
+
+    return true;
 }
 
 bool ScrollBar::moveSlider() {
@@ -106,10 +113,10 @@ VerticalScrollBar::VerticalScrollBar(MPoint _position, MPoint _size, MPoint _sli
     }
 
 void VerticalScrollBar::addButtons() {
-    ScrollBtnArgs* upArgs = new ScrollBtnArgs(this, MPoint(0, -CANV_SHIFT * delta.y));
+    ScrollBtnArgs* upArgs = new ScrollBtnArgs(this, MPoint(0, -CANV_SHIFT * delta.y), MPoint(0, -CANV_SHIFT));
     ImageButton*   upBtn  = new ImageButton(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y), MPoint(TOP_PANE_SIZE, SCROLLBAR_BTN_H), new MImage(UP_ARROW), this, onBtnScrollClick, upArgs, true);
     
-    ScrollBtnArgs* doArgs = new ScrollBtnArgs(this, MPoint(0, CANV_SHIFT * delta.y));
+    ScrollBtnArgs* doArgs = new ScrollBtnArgs(this, MPoint(0, CANV_SHIFT * delta.y), MPoint(0, CANV_SHIFT));
     ImageButton*   doBtn  = new ImageButton(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + size.y - SCROLLBAR_BTN_H), MPoint(TOP_PANE_SIZE, SCROLLBAR_BTN_H), new MImage(DOWN_ARROW), this, onBtnScrollClick, doArgs, true);
     
     registerObject(upBtn);
@@ -131,10 +138,10 @@ HorizontalScrollBar::HorizontalScrollBar(MPoint _position, MPoint _size, MPoint 
     }
 
 void HorizontalScrollBar::addButtons() {
-    ScrollBtnArgs* rightArgs = new ScrollBtnArgs(this, MPoint(CANV_SHIFT * delta.x, 0));
+    ScrollBtnArgs* rightArgs = new ScrollBtnArgs(this, MPoint(-CANV_SHIFT * delta.x, 0), MPoint(-CANV_SHIFT, 0));
     ImageButton*   rightBtn  = new ImageButton(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_H, TOP_PANE_SIZE), new MImage(LEFT_ARROW), this, onBtnScrollClick, rightArgs, true);
 
-    ScrollBtnArgs* leftArgs = new ScrollBtnArgs(this, MPoint(-CANV_SHIFT * delta.x, 0));
+    ScrollBtnArgs* leftArgs = new ScrollBtnArgs(this, MPoint(CANV_SHIFT * delta.x, 0), MPoint(CANV_SHIFT, 0));
     ImageButton*   leftBtn  = new ImageButton(MPoint(position.x + size.x - SCROLLBAR_BTN_H, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_H, TOP_PANE_SIZE), new MImage(RIGHT_ARROW), this, onBtnScrollClick, leftArgs, true);
     
     registerObject(rightBtn);
@@ -153,10 +160,9 @@ bool HorizontalScrollBar::moveSlider() {
 void onBtnScrollClick(void* args) {
     ScrollBtnArgs* scrollBtnArgs = (ScrollBtnArgs*) args;
 
+    bool needScroll = scrollBtnArgs->scrollBar->updateSlider(scrollBtnArgs->sliderShift);
+    if (!needScroll) return;
+
     void* scrollArgs = scrollBtnArgs->scrollBar->getArgs();
     scrollBtnArgs->scrollBar->getFunc()(scrollArgs, scrollBtnArgs->shift);
-
-    // std::cout << "TES\n";
-
-    scrollBtnArgs->scrollBar->updateSlider(scrollBtnArgs->shift);
 }

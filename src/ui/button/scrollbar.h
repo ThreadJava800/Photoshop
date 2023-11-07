@@ -26,7 +26,7 @@ public:
     ScrollFunc getFunc();
     void*      getArgs();
 
-    void updateSlider(MPoint shift);
+    bool updateSlider(MPoint shift);
 
     bool onMousePressed (MPoint pos, MMouse btn)     override;
     bool onMouseMove    (MPoint pos, MMouse btn)     override;
@@ -36,12 +36,14 @@ public:
 };
 
 struct ScrollBtnArgs {
-    ScrollBar* scrollBar = nullptr;
-    MPoint     shift     = MPoint();
+    ScrollBar* scrollBar   = nullptr;
+    MPoint     shift       = MPoint();
+    MPoint     sliderShift = MPoint();
 
-    explicit ScrollBtnArgs(ScrollBar* _scrollBar, MPoint _shift) :
-                scrollBar(_scrollBar),
-                shift    (_shift)          {}
+    explicit ScrollBtnArgs(ScrollBar* _scrollBar, MPoint _shift, MPoint _sliderShift) :
+                scrollBar  (_scrollBar),
+                shift      (_shift),
+                sliderShift(_sliderShift)          {}
 };
 
 void onBtnScrollClick(void* args);

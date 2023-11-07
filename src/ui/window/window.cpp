@@ -48,12 +48,12 @@ void onButtonScroll(void* args) {
 }
 
 void Window::createCanvas() {
-    MathRectangle parentRect = MathRectangle(position + MPoint(0, TOP_PANE_SIZE), size - MPoint(0, TOP_PANE_SIZE));
+    MathRectangle parentRect = MathRectangle(position + MPoint(0, TOP_PANE_SIZE), size - MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE));
     Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this, parentRect);
     registerObject(canvas);
 
     double deltaY = canvas->getSize().y / (size.y + 2 * TOP_PANE_SIZE);
-    double deltaX = canvas->getSize().x / (size.x + 2 * TOP_PANE_SIZE);
+    double deltaX = canvas->getSize().x / (size.x + 4 * TOP_PANE_SIZE);
 
     VerticalScrollBar* verticalBar = new VerticalScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - 2 * TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE + SCROLLBAR_BTN_H), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, deltaY));
     registerObject(verticalBar);
