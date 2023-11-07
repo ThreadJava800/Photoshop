@@ -44,6 +44,21 @@ public:
     List<const char*>* getParamNames()                     override;    
 };
 
+class ColorfulnessFilter : public Filter {
+private:
+    List<const char*>* paramNames  = nullptr;
+
+public:
+    explicit ColorfulnessFilter();
+
+    ~ColorfulnessFilter();
+
+    void               apply        (RenderTarget* rt)     override;
+    List<double>*      getParams    ()                     override;
+    void               setParams    (List<double>& params) override;
+    List<const char*>* getParamNames()                     override;
+};
+
 class FilterManager {
 private:
     bool          active     = false;

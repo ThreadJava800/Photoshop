@@ -91,6 +91,48 @@ double operator| (const MPoint& a, const MPoint& b) {
     return a.x * b.x + a.y * b.y;
 }
 
+MColorHSL::MColorHSL() :
+    h(0), s(0), l(0)    {}
+
+MColorHSL::MColorHSL(double _h, double _s, double _l) :
+    h(_h), s(_s), l(_l) {}
+
+double MColorHSL::hueToRgb(MColorHSL hue) {
+    double p = hue.h;
+    double q = hue.l;
+    double t = hue.s;
+
+    if (t < 0)   t++;
+    if (t > 1)   t--;
+
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+
+    return p;
+}
+
+MColor MColorHSL::toRGB() {
+    MColor result;
+
+    if (s == 0) {
+        result.r = result.g = result.b = l * 255;
+        return result;
+    }
+
+    double q = 0;
+    if (l < 0.5) q = l * (1 + s);
+    else         q = l + s - l * s;
+
+    double p = 2 * l - q;
+
+    result.r = hueToRgb(MColorHSL(p, q, h + 1/3)) * 255;
+    result.g = hueToRgb(MColorHSL(p, q, h))       * 255;
+    result.b = hueToRgb(MColorHSL(p, q, h - 1/3)) * 255;
+
+    return result;
+}
+
 MColor::MColor() :
     r(0),
     g(0),
@@ -114,6 +156,40 @@ MColor::~MColor() {
     g = 0;
     b = 0;
     a = 0;
+}
+
+MColorHSL MColor::toHSL() {
+    MColorHSL result = MColorHSL();
+
+    double rCpy = r / 255;
+    double gCpy = g / 255;
+    double bCpy = b / 255;
+
+    double maxCoord = std::max(std::max(rCpy, gCpy), bCpy);
+    double minCoord = std::min(std::min(rCpy, gCpy), bCpy);
+
+    result.h = result.s = result.l = (maxCoord + minCoord) / 2; 
+
+    if (maxCoord == minCoord) {
+        result.h = result.s = 0;
+
+        return result;
+    }
+
+    double delta = maxCoord - minCoord;
+    if (result.l > 0.5) result.s = delta / (2 - maxCoord - minCoord);
+    else                result.s = delta / (maxCoord + minCoord);
+
+    if (maxCoord == rCpy) {
+        if (gCpy < bCpy) result.h = (gCpy - bCpy) / delta + 6;
+        else             result.h = (gCpy - bCpy) / delta;
+    } 
+    else if (maxCoord == gCpy) result.h = (bCpy - rCpy) / delta + 2;
+    else if (maxCoord == bCpy) result.h = (rCpy - gCpy) / delta + 4;
+
+    result.h /= 6;
+
+    return result;
 }
 
 sf::Color MColor::toSfColor() {

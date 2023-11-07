@@ -27,6 +27,7 @@ static const int       BTN_TXT_PT         = 23;
 
 static const int       CANVAS_SIZE        = 1000;
 static const int       CANV_SHIFT         = 5;
+static const double    SATURATION_SHIFT   = 0.05;
 
 static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 100;

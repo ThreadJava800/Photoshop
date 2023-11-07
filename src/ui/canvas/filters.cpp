@@ -99,7 +99,58 @@ void MonochromeFilter::setParams(List<double>& params) {}
 
 List<const char*>* MonochromeFilter::getParamNames() {
     return paramNames;
-}   
+}
+
+ColorfulnessFilter::ColorfulnessFilter() : Filter() {
+    paramNames = new List<const char*>();
+    paramNames->pushBack("Colorfulness");
+}
+
+ColorfulnessFilter::~ColorfulnessFilter() {
+    delete paramNames;
+}
+
+void ColorfulnessFilter::apply(RenderTarget* rt) {
+    if (!rt) return;
+
+    MImage* pixelData = rt->getImage();
+    if (!pixelData) return;
+
+    List<List<MColor>*>* pixelArr = pixelData->getPixels();
+
+    MPoint textureSize = rt->getSize();
+    for (int i = 0; i < textureSize.x; i++) {
+        for (int j = 0; j < textureSize.y; j++) {
+            MColor newPixel = (*(*pixelArr)[i])[j];
+
+            MColorHSL hslColor = newPixel.toHSL();
+            hslColor.s -= SATURATION_SHIFT;
+            newPixel = hslColor.toRGB();
+
+            (*(*pixelArr)[i])[j] =  newPixel;
+        }
+    }
+
+    pixelData->imgFromPixel(pixelArr);
+    rt->drawSprite(MPoint(0, 0), textureSize, pixelData);
+
+    for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
+    delete pixelArr;
+
+    delete pixelData;
+}
+
+List<double>* ColorfulnessFilter::getParams() {
+
+}
+
+void ColorfulnessFilter::setParams(List<double>& params) {
+
+}
+
+List<const char*>* ColorfulnessFilter::getParamNames() {
+    return paramNames;
+}
 
 FilterManager::FilterManager() :
     active    (false),

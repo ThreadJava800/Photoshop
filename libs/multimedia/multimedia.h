@@ -37,6 +37,22 @@ struct MPoint {
     friend double operator| (const MPoint& a, const MPoint& b); // dot product
 };
 
+struct MColor;
+struct MColorHSL {
+private:
+    double hueToRgb(MColorHSL hue);
+
+public:
+    double h = 0;
+    double s = 0;
+    double l = 0;
+
+    explicit MColorHSL();
+    explicit MColorHSL(double _h, double _s, double _l);
+
+    MColor toRGB();
+};
+
 struct MColor {
     unsigned char r = 0;
     unsigned char g = 0;
@@ -48,6 +64,8 @@ struct MColor {
     explicit MColor(sf::Color _color);
 
     ~MColor();
+
+    MColorHSL toHSL();
 
     sf::Color toSfColor();
     friend bool operator==(const MColor& a, const MColor& b);

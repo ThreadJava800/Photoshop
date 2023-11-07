@@ -128,6 +128,17 @@ void monochromeFilter(void* arg) {
     modalWinArgs->subMenu->changeActivity();
 }
 
+void saturationFilter(void* arg) {
+    if (!arg) return;
+
+    ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
+
+    modalWinArgs->filtManager->setLast  (new ColorfulnessFilter());
+    modalWinArgs->filtManager->setActive(true);
+
+    modalWinArgs->subMenu->changeActivity();
+}
+
 void chooseTool(void* arg) {
     if (!arg) return;
     SubMenuArgs* menu = (SubMenuArgs*) arg;
@@ -285,12 +296,14 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     TextButton* constBlurBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (default)", filtMenu,  changeBrightConst, modWinArgs);
     TextButton* customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)",  filtMenu,  openBlurPicker,    modWinArgs);
     TextButton* monochromeBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Monochrome",     filtMenu,  monochromeFilter,  modWinArgs);
+    TextButton* saturationBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Colorfulness",   filtMenu,  saturationFilter,  modWinArgs);
 
     modArgs.pushBack(modWinArgs);
 
     filtMenu->registerObject(constBlurBtn);
     filtMenu->registerObject(customBlurBtn);
     filtMenu->registerObject(monochromeBtn);
+    filtMenu->registerObject(saturationBtn);
 
     return filtMenu;
 }
