@@ -58,7 +58,7 @@ void Window::createCanvas() {
     VerticalScrollBar* verticalBar = new VerticalScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - 2 * TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE + SCROLLBAR_BTN_H), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, deltaY));
     registerObject(verticalBar);
 
-    HorizontalScrollBar* horizontalBar = new HorizontalScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x - TOP_PANE_SIZE, TOP_PANE_SIZE), MPoint(position.x, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(deltaX, 0));
+    HorizontalScrollBar* horizontalBar = new HorizontalScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x - TOP_PANE_SIZE, TOP_PANE_SIZE), MPoint(position.x + SCROLLBAR_BTN_H, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(deltaX, 0));
     registerObject(horizontalBar);
 }
 

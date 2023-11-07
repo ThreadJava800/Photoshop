@@ -196,8 +196,8 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
     List<List<MColor>*>* pixelListPtr = textureImage->getPixels();
     if (!pixelListPtr) return false;
 
-    size_t xSize =   pixelListPtr    ->getSize();
-    size_t ySize = (*pixelListPtr)[0]->getSize();
+    size_t xSize = CANVAS_SIZE;
+    size_t ySize = CANVAS_SIZE;
 
     List<MPoint>  bfsList = List<MPoint>();
     List<bool>    was     = List<bool>(xSize * ySize);
@@ -213,6 +213,9 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
 
     while (bfsList.getSize()) {
         MPoint bfs = bfsList.pop();
+
+        bfs.x = int(bfs.x);
+        bfs.y = int(bfs.y);
 
         if (was[bfs.y * xSize + bfs.x]) continue;
         was[bfs.y * xSize + bfs.x] = true;
