@@ -99,8 +99,8 @@ MColorHSL::MColorHSL(double _h, double _s, double _l) :
 
 double MColorHSL::hueToRgb(MColorHSL hue) {
     double p = hue.h;
-    double q = hue.l;
-    double t = hue.s;
+    double q = hue.s;
+    double t = hue.l;
 
     if (t < 0)   t++;
     if (t > 1)   t--;
@@ -113,7 +113,7 @@ double MColorHSL::hueToRgb(MColorHSL hue) {
 }
 
 MColor MColorHSL::toRGB() {
-    MColor result;
+    MColor result = MColor();
 
     if (s == 0) {
         result.r = result.g = result.b = l * 255;
@@ -126,9 +126,14 @@ MColor MColorHSL::toRGB() {
 
     double p = 2 * l - q;
 
-    result.r = hueToRgb(MColorHSL(p, q, h + 1/3)) * 255;
-    result.g = hueToRgb(MColorHSL(p, q, h))       * 255;
-    result.b = hueToRgb(MColorHSL(p, q, h - 1/3)) * 255;
+    // std::cout << p << ' ' << q << ' ' << h << '\n';
+
+    result.r = std::round(hueToRgb(MColorHSL(p, q, h + 1/3)) * 255);
+    result.g = std::round(hueToRgb(MColorHSL(p, q, h))       * 255);
+    result.b = std::round(hueToRgb(MColorHSL(p, q, h - 1/3)) * 255);
+    result.a = 255;
+
+    // std::cout << tr << ' ' << tg << ' ' << tb << '\n';
 
     return result;
 }
@@ -151,24 +156,17 @@ MColor::MColor(sf::Color _color) :
     b(_color.b),
     a(_color.a)   {}
 
-MColor::~MColor() {
-    r = 0;
-    g = 0;
-    b = 0;
-    a = 0;
-}
-
 MColorHSL MColor::toHSL() {
     MColorHSL result = MColorHSL();
 
-    double rCpy = r / 255;
-    double gCpy = g / 255;
-    double bCpy = b / 255;
+    double rCpy = double(r) / 255.0;
+    double gCpy = double(g) / 255.0;
+    double bCpy = double(b) / 255.0;
 
     double maxCoord = std::max(std::max(rCpy, gCpy), bCpy);
     double minCoord = std::min(std::min(rCpy, gCpy), bCpy);
 
-    result.h = result.s = result.l = (maxCoord + minCoord) / 2; 
+    result.l = (maxCoord + minCoord) / 2; 
 
     if (maxCoord == minCoord) {
         result.h = result.s = 0;
@@ -180,14 +178,12 @@ MColorHSL MColor::toHSL() {
     if (result.l > 0.5) result.s = delta / (2 - maxCoord - minCoord);
     else                result.s = delta / (maxCoord + minCoord);
 
-    if (maxCoord == rCpy) {
-        if (gCpy < bCpy) result.h = (gCpy - bCpy) / delta + 6;
-        else             result.h = (gCpy - bCpy) / delta;
-    } 
-    else if (maxCoord == gCpy) result.h = (bCpy - rCpy) / delta + 2;
-    else if (maxCoord == bCpy) result.h = (rCpy - gCpy) / delta + 4;
+    if      (maxCoord == rCpy) result.h = ((gCpy - bCpy) / 6) / delta;
+    else if (maxCoord == gCpy) result.h = ((bCpy - rCpy) / 6) / delta + 1/3;
+    else                       result.h = ((rCpy - gCpy) / 6) / delta + 2/3;
 
-    result.h /= 6;
+    if (result.h < 0) result.h++;
+    if (result.h > 1) result.h--;
 
     return result;
 }

@@ -63,8 +63,6 @@ struct MColor {
     explicit MColor(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a);
     explicit MColor(sf::Color _color);
 
-    ~MColor();
-
     MColorHSL toHSL();
 
     sf::Color toSfColor();
