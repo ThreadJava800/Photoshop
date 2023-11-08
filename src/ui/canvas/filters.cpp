@@ -118,26 +118,26 @@ void ColorfulnessFilter::apply(RenderTarget* rt) {
 
     List<List<MColor>*>* pixelArr = pixelData->getPixels();
 
-    // MColorHSL test = MColorHSL(0.923868, 1, 0.4);
-    // MColor test2 = test.toRGB();
-    // printf("%d %d %d\n", test2.r, test2.g, test2.b);
-    // std::cout << test2.r << ' ' << test2.g << ' ' << test2.b << '\n';
-
     MPoint textureSize = rt->getSize();
-    std::cout << textureSize.x << ' ' << textureSize.y << '\n';
     for (int i = 0; i < textureSize.x; i++) {
         for (int j = 0; j < textureSize.y; j++) {
             MColor newPixel = (*(*pixelArr)[i])[j];
 
-            MColorHSL hslColor = newPixel.toHSL();
-            hslColor.s -= SATURATION_SHIFT;
-            newPixel = hslColor.toRGB();
+            double p = std::sqrt(newPixel.r * newPixel.r * RCOEFF + 
+                                 newPixel.g * newPixel.g * GCOEFF + 
+                                 newPixel.b * newPixel.b * BCOEFF);
+
+            int r = std::round(p + (newPixel.r - p) * saturCoeff);
+            int g = std::round(p + (newPixel.g - p) * saturCoeff);
+            int b = std::round(p + (newPixel.b - p) * saturCoeff);
+
+            if (r > 255 || g > 255 || b > 255 || r < 0 || g < 0 || b < 0) continue;
+
+            newPixel = MColor(r, g, b, 255);
 
             (*(*pixelArr)[i])[j] = newPixel;
         }
     }
-
-    std::cout << "OUT\n";
 
     pixelData->imgFromPixel(pixelArr);
     rt->drawSprite(MPoint(0, 0), textureSize, pixelData);
@@ -148,12 +148,12 @@ void ColorfulnessFilter::apply(RenderTarget* rt) {
     delete pixelData;
 }
 
-List<double>* ColorfulnessFilter::getParams() {
-
-}
+List<double>* ColorfulnessFilter::getParams() {}
 
 void ColorfulnessFilter::setParams(List<double>& params) {
+    if (params.getSize() == 0) return;
 
+    saturCoeff = params[0];
 }
 
 List<const char*>* ColorfulnessFilter::getParamNames() {

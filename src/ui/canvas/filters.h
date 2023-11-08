@@ -46,9 +46,17 @@ public:
 
 class ColorfulnessFilter : public Filter {
 private:
+    double             saturCoeff  = 1.0;
     List<const char*>* paramNames  = nullptr;
 
+    static constexpr double RCOEFF = 0.299;
+    static constexpr double GCOEFF = 0.587;
+    static constexpr double BCOEFF = 0.114;
+
 public:
+    static constexpr double SATUR_UP   = 2.0;
+    static constexpr double SATUR_DOWN = 0.5;
+
     explicit ColorfulnessFilter();
 
     ~ColorfulnessFilter();

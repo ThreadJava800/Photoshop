@@ -45,12 +45,14 @@ struct ModalWindowArgs {
     SubMenu*       subMenu;
     EventManager*  evManager;
     FilterManager* filtManager;
+    double         saturCoeff;
 
-    ModalWindowArgs(Widget* _drawZone, SubMenu* _subMenu, EventManager* _evManager, FilterManager* _filtManager) :
+    ModalWindowArgs(Widget* _drawZone, SubMenu* _subMenu, EventManager* _evManager, FilterManager* _filtManager, double _saturCoeff = 1.0) :
         drawZone   (_drawZone),
         subMenu    (_subMenu),
         evManager  (_evManager),
-        filtManager(_filtManager)   {} 
+        filtManager(_filtManager),
+        saturCoeff (_saturCoeff)   {} 
 };
 
 void testFunc(void*) {
@@ -135,6 +137,10 @@ void saturationFilter(void* arg) {
 
     modalWinArgs->filtManager->setLast  (new ColorfulnessFilter());
     modalWinArgs->filtManager->setActive(true);
+
+    List<double> params = List<double>();
+    params.pushBack(modalWinArgs->saturCoeff);
+    modalWinArgs->filtManager->getLast()->setParams(params);
 
     modalWinArgs->subMenu->changeActivity();
 }
@@ -300,21 +306,26 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     MColor color = MColor(DEFAULT_BACK_COL);
 
     SubMenu* filtMenu           = new SubMenu(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
-    ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager);
+    ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager, ColorfulnessFilter::SATUR_UP);
 
     TextButton* lastBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Last used",      filtMenu,  lastFilter,        modWinArgs);
     TextButton* constBlurBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (default)", filtMenu,  changeBrightConst, modWinArgs);
     TextButton* customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)",  filtMenu,  openBlurPicker,    modWinArgs);
     TextButton* monochromeBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Monochrome",     filtMenu,  monochromeFilter,  modWinArgs);
-    TextButton* saturationBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Colorfulness",   filtMenu,  saturationFilter,  modWinArgs);
+    TextButton* satUpBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Saturation (up)",   filtMenu,  saturationFilter,  modWinArgs);
+    
+    ModalWindowArgs* satDownArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager, ColorfulnessFilter::SATUR_DOWN);
+    TextButton* satDownBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Saturation (down)",   filtMenu,  saturationFilter,  satDownArgs);
 
     modArgs.pushBack(modWinArgs);
+    modArgs.pushBack(satDownArgs);
 
     filtMenu->registerObject(lastBtn);
     filtMenu->registerObject(constBlurBtn);
     filtMenu->registerObject(customBlurBtn);
     filtMenu->registerObject(monochromeBtn);
-    filtMenu->registerObject(saturationBtn);
+    filtMenu->registerObject(satUpBtn);
+    filtMenu->registerObject(satDownBtn);
 
     return filtMenu;
 }
