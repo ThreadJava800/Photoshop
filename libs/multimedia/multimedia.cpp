@@ -163,7 +163,8 @@ MImage::MImage(const char* _imgPath) :
         img = new sf::Texture();
         ON_ERROR(!img, "Unable to alloc memory",);
 
-        ON_ERROR(!img->loadFromFile(_imgPath), "No such file!",);
+        bool hasLoaded = img->loadFromFile(_imgPath);
+        ON_ERROR(!hasLoaded, "No such file!",);
     }
 
 MImage::MImage(sf::Texture* _imgText) :

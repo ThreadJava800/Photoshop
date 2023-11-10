@@ -55,12 +55,20 @@ static const sf::Color DEB_COLS[] = {
 };
 
 #ifndef ON_ERROR
-#define ON_ERROR(expr, errStr, retVal) {                                                   \
-    if (expr) {                                                                             \
-        fprintf(stderr, "Error(%s) occured in " __FILE__ " in line %d", errStr, __LINE__);   \
-        return retVal;                                                                        \
-    }                                                                                          \
-}                                                                                               \
+
+#ifdef _DEBUG
+    #define ON_ERROR(expr, errStr, retVal) {                                                   \
+        if (expr) {                                                                             \
+            fprintf(stderr, "Error(%s) occured in " __FILE__ " in line %d", errStr, __LINE__);   \
+            return retVal;                                                                        \
+        }                                                                                          \
+    }                                                                                               \
+
+#else
+
+    #define ON_ERROR(expr, errStr, retVal) {}
+
+#endif
 
 #endif
 
