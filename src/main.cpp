@@ -406,6 +406,7 @@ void runMainCycle() {
 
     window.clear();
     drawWidget.render(&renderTarget);
+    window.draw(*renderTarget.getSprite());
     window.display();
 
     auto timerStart = std::chrono::system_clock::now(); 
@@ -454,6 +455,7 @@ void runMainCycle() {
                 // std::cout << (int) event.text.unicode << '\n';
 
                 drawWidget.render(&renderTarget);
+                window.draw(*renderTarget.getSprite());
                 window.display();
                 break;
             case sf::Event::KeyReleased:
@@ -468,6 +470,7 @@ void runMainCycle() {
                     eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), RIGHT);
 
                 drawWidget.render(&renderTarget);
+                window.draw(*renderTarget.getSprite());
                 window.display();
 
                 break;
@@ -480,6 +483,7 @@ void runMainCycle() {
                     eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), RIGHT);
 
                 drawWidget.render(&renderTarget);
+                window.draw(*renderTarget.getSprite());
                 window.display();
 
                 break;
@@ -489,6 +493,7 @@ void runMainCycle() {
                 eventBoy.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 
                 drawWidget.render(&renderTarget);
+                window.draw(*renderTarget.getSprite());
                 window.display();
 
                 break;

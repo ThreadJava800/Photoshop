@@ -131,6 +131,7 @@ public:
     MPoint getSize    ();
     sf::RenderTexture* getRenderTexture();
     sf::RenderWindow * getRenderWindow ();
+    sf::Sprite       * getSprite       ();
 
     void    setTexture(MImage* mImage);
     void    clear(MColor col = MColor(TRANSPARENT));

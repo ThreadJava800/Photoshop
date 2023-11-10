@@ -260,6 +260,10 @@ sf::RenderWindow* RenderTarget::getRenderWindow() {
     return window;
 }
 
+sf::Sprite* RenderTarget::getSprite() {
+    return sprite;
+}
+
 RenderTarget::~RenderTarget() {
     window = nullptr;
 
@@ -313,7 +317,7 @@ void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
 
     texture->draw(line);
     texture->display();
-    if (sprite) window ->draw(*sprite);
+    // if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawLine(MPoint start, MPoint end, MColor color, RegionSet* regions) {
@@ -346,7 +350,7 @@ void RenderTarget::_drawRect(MPoint start, MPoint size, MColor fillColor, MColor
 
     texture->draw(rect);
     texture->display();
-    if (sprite) window ->draw(*sprite);
+    // if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawRect(MPoint start, MPoint size, MColor fillColor, MColor outColor, RegionSet* regions) {
@@ -381,7 +385,7 @@ void RenderTarget::_drawCircle(MPoint lu, double radius, MColor color, MColor fi
 
     texture->draw(circle);
     texture->display();
-    if (sprite) window ->draw(*sprite);
+    // if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawCircle(MPoint lu, double radius, MColor color, RegionSet* regions, MColor fillColor) {
@@ -457,7 +461,7 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
 
     texture->draw(drawText);
     texture->display();
-    window ->draw(*sprite);
+    // window ->draw(*sprite);
 }
 
 void RenderTarget::drawFrame(MPoint start,  MPoint size,   MColor outColor, RegionSet* regions) {
@@ -484,7 +488,7 @@ void RenderTarget::setPixel(MPoint pos, MColor color, RegionSet* regions) {
 
     texture->draw(point);
     texture->display();
-    if (sprite) window ->draw(*sprite);
+    // if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawEllipse(MPoint pos, double scaleX, double scaleY, double maxRad, MColor color) {
@@ -500,7 +504,7 @@ void RenderTarget::drawEllipse(MPoint pos, double scaleX, double scaleY, double 
 
     texture->draw(ellipse);
     texture->display();
-    if (sprite) window ->draw(*sprite);
+    // if (sprite) window ->draw(*sprite);
 }
 
 MathRectangle::MathRectangle(MPoint _pos, MPoint _size) :
