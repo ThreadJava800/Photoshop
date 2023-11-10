@@ -17,7 +17,7 @@ Button::~Button() {
 void Button::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT));
+    renderTarget->drawRect(position, size, color, MColor::TRANSPARENT);
 }
 
 bool Button::onMousePressed(MPoint pos, MMouse btn) {
@@ -50,8 +50,8 @@ TextButton::~TextButton() {
 void TextButton::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect(position, size, color, MColor(TRANSPARENT), regSet);
-    renderTarget->drawText(position, text, MColor(BLACK), font, BTN_TXT_PT, regSet);
+    renderTarget->drawRect(position, size, color, MColor::TRANSPARENT, regSet);
+    renderTarget->drawText(position, text, MColor::BLACK, font, BTN_TXT_PT, regSet);
 
     Widget::render(renderTarget);
 }

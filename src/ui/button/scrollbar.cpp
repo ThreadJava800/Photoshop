@@ -1,7 +1,7 @@
 #include "scrollbar.h"
 
 ScrollBar::ScrollBar(MPoint _position, MPoint _size, MPoint _sliderPos, MPoint _sliderSize, Widget* _parent, ScrollFunc _func, void* _args, MPoint _delta) :
-    Button    (_position, _size, MColor(TRANSPARENT), _parent),
+    Button    (_position, _size, MColor::TRANSPARENT, _parent),
     sliderPos (_sliderPos),
     sliderSize(_sliderSize),
     isMoving  (false),
@@ -95,9 +95,9 @@ bool ScrollBar::onMouseReleased(MPoint pos, MMouse btn) {
 
 void ScrollBar::render(RenderTarget* renderTarget) {
     // drawing area
-    renderTarget->drawRect(position, size, MColor(GRAY), MColor(BLACK), regSet);
+    renderTarget->drawRect(position, size, MColor::GRAY, MColor::BLACK, regSet);
     // drawing slider
-    renderTarget->drawRect(sliderPos, sliderSize, MColor(BLACK), MColor(BLACK), regSet);
+    renderTarget->drawRect(sliderPos, sliderSize, MColor::BLACK, MColor::BLACK, regSet);
 
     Widget::render(renderTarget);
 }

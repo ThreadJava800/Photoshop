@@ -67,7 +67,7 @@ void Window::createCanvas() {
 
 void Window::createTopPanel() {
     Menu* topPanel = new Menu(position, MPoint(size.x, TOP_PANE_SIZE), this, this, onMove);
-    Rectangle*   topRect = new Rectangle(position, MPoint(size.x, TOP_PANE_SIZE), MColor(sf::Color(161, 200, 241)), MColor(BLACK), topPanel);
+    Rectangle*   topRect = new Rectangle(position, MPoint(size.x, TOP_PANE_SIZE), MColor::LIGHT_BLUE, MColor::BLACK, topPanel);
 
     MImage* closeImg    = new MImage(CLOSE_BTN);
     MImage* minimizeImg = new MImage(MINIMIZE_BTN);
@@ -109,11 +109,11 @@ void Window::setActions(Menu* _actions) {
 void Window::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
+    renderTarget->drawRect(position, size, DEFAULT_BACK_COL, MColor::TRANSPARENT, regSet);
 
     Widget::render(renderTarget);
 
-    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
+    renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
 }
 
 void ModalWindow::makeEventPrivate() {
@@ -149,8 +149,8 @@ ModalWindow::~ModalWindow() {
 void ModalWindow::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect (position, size, MColor(sf::Color::White), MColor(TRANSPARENT), regSet);
-    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
+    renderTarget->drawRect (position, size, MColor::WHITE, MColor::TRANSPARENT, regSet);
+    renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
 
     Widget::render(renderTarget);
 }
@@ -191,8 +191,9 @@ void EditBoxModal::addEditBox(EditBox* _editBox) {
 void EditBoxModal::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    renderTarget->drawRect (position, size, MColor(sf::Color::White), MColor(TRANSPARENT));
-    renderTarget->drawFrame(position, size, MColor(GRAY), regSet);
+    std::cout << (int) MColor::WHITE.r << ' ' << (int) MColor::WHITE.g << '\n';
+    renderTarget->drawRect (position, size, MColor::WHITE, MColor::TRANSPARENT);
+    renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
 
     Filter* filter           = filtManager->getLast();
     List<const char*>* names = filter->getParamNames();
@@ -206,7 +207,7 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
         for (size_t i = 0; i < nameCnt; i++) {
             EditBox* editBox = (*editBoxes)[i];
 
-            renderTarget->drawText(editBox->getPosition() - MPoint(0, 2 * BTN_TXT_PT), (*names)[i], MColor(GRAY), textFont, BTN_TXT_PT);
+            renderTarget->drawText(editBox->getPosition() - MPoint(0, 2 * BTN_TXT_PT), (*names)[i], MColor::GRAY, textFont, BTN_TXT_PT);
             editBox->render(renderTarget);
         }
     }

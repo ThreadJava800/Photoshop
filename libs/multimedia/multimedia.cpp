@@ -91,6 +91,18 @@ double operator| (const MPoint& a, const MPoint& b) {
     return a.x * b.x + a.y * b.y;
 }
 
+const MColor MColor::WHITE      (sf::Color::White);
+const MColor MColor::TRANSPARENT(sf::Color::Transparent);
+const MColor MColor::BLACK      (sf::Color::Black);
+const MColor MColor::GRAY       (sf::Color(128, 128, 128));
+const MColor MColor::YELLOW     (sf::Color::Yellow);
+const MColor MColor::RED        (sf::Color::Red);
+const MColor MColor::MAGENTA    (sf::Color::Magenta);
+const MColor MColor::GREEN      (sf::Color::Green);
+const MColor MColor::BLUE       (sf::Color::Blue);
+const MColor MColor::CYAN       (sf::Color::Cyan);
+const MColor MColor::LIGHT_BLUE (sf::Color(161, 200, 241));
+
 MColor::MColor() :
     r(0),
     g(0),
@@ -782,7 +794,7 @@ void RegionSet::visualize(RenderTarget* renderTarget, MColor debCol) {
         MathRectangle rect = (*rectangles)[i];
 
         debCol.a = 255 / 2;
-        renderTarget->drawRect(rect.getPosition(), rect.getSize(), debCol, MColor(BLACK));
+        renderTarget->drawRect(rect.getPosition(), rect.getSize(), debCol, MColor::BLACK);
     }
 }
 

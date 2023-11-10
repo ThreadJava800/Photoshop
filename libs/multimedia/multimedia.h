@@ -1,6 +1,8 @@
 #ifndef _SUPPORT_h_
 #define _SUPPORT_h_
 
+#include <SFML/Graphics.hpp>
+
 #include "../../src/includes.h"
 
 static const double EPSILON = 1e-12;
@@ -43,6 +45,18 @@ struct MColor {
     unsigned char b = 0;
     unsigned char a = 0;
 
+    static const MColor WHITE;
+    static const MColor TRANSPARENT;
+    static const MColor BLACK;
+    static const MColor GRAY;
+    static const MColor YELLOW;
+    static const MColor RED;
+    static const MColor MAGENTA;
+    static const MColor GREEN;
+    static const MColor BLUE;
+    static const MColor CYAN;
+    static const MColor LIGHT_BLUE;
+
     explicit MColor();
     explicit MColor(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a);
     explicit MColor(sf::Color _color);
@@ -50,7 +64,21 @@ struct MColor {
     sf::Color toSfColor();
     friend bool operator==(const MColor& a, const MColor& b);
     friend void operator+=(      MColor& a, const int     b);
-}; 
+};
+
+static const MColor    DEFAULT_BACK_COL = MColor::WHITE;
+static const MColor    DEFAULT_COLOR    = MColor::TRANSPARENT;
+
+static const int DEB_COLS_CNT = 7;
+static const MColor DEB_COLS[] = {
+    MColor(sf::Color::Red),
+    MColor(sf::Color::Yellow),
+    MColor(sf::Color::Green),
+    MColor(sf::Color::Blue),
+    MColor(sf::Color::Cyan),
+    MColor(sf::Color::Magenta),
+    MColor(sf::Color::White)
+};
 
 struct MFont {
 private:
@@ -134,15 +162,15 @@ public:
     sf::Sprite       * getSprite       ();
 
     void    setTexture(MImage* mImage);
-    void    clear(MColor col = MColor(TRANSPARENT));
+    void    clear(MColor col = MColor::TRANSPARENT);
     MImage* getImage();
 
     void _drawLine  (MPoint start,  MPoint end,    MColor color);
     void drawLine   (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);
     void _drawRect  (MPoint start,  MPoint size,   MColor fillColor, MColor outColor);
     void drawRect   (MPoint start,  MPoint size,   MColor fillColor, MColor outColor, RegionSet* regions = nullptr);
-    void _drawCircle(MPoint lu,     double radius, MColor color, MColor fillColor = MColor(TRANSPARENT));
-    void drawCircle (MPoint lu,     double radius, MColor color, RegionSet* regions = nullptr, MColor fillColor = MColor(TRANSPARENT));
+    void _drawCircle(MPoint lu,     double radius, MColor color, MColor fillColor = MColor::TRANSPARENT);
+    void drawCircle (MPoint lu,     double radius, MColor color, RegionSet* regions = nullptr, MColor fillColor = MColor::TRANSPARENT);
     void _drawSprite(MPoint start,  MPoint size,   MImage* img); 
     void drawSprite (MPoint start,  MPoint size,   MImage* img, RegionSet* regions = nullptr); 
     void _drawText  (MPoint start,  MPoint size,   MImage* img); 

@@ -1,8 +1,7 @@
 #ifndef _CONSTANTS_h_
 #define _CONSTANTS_h_
 
-#include <SFML/Graphics.hpp>
-
+// struct MColor;
 typedef void (*ButtonFunc)(void*);
 
 static const char*     DEFAULT_FONT       = "assets/DraftingMono-Bold.ttf";
@@ -31,28 +30,11 @@ static const double    SATURATION_SHIFT   = 0.05;
 
 static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 100;
-static const sf::Color DEFAULT_BACK_COL   = sf::Color::White;
 static const int       TOP_PANE_SIZE      = 30;
 static const int       SCROLLBAR_BTN_H    = 10;
-static const sf::Color DEFAULT_COLOR      = sf::Color::Transparent;
-static const sf::Color BLACK              = sf::Color::Black;
-static const sf::Color GRAY               = sf::Color(128, 128, 128);
-static const sf::Color TRANSPARENT        = sf::Color::Transparent;
-static const sf::Color YELLOW             = sf::Color::Yellow;
 
 static const double    CATMULL_ALPHA      = 0.5;
 static const int       BRIGHTNESS_SHIFT   = 10;
-
-static const int DEB_COLS_CNT = 7;
-static const sf::Color DEB_COLS[] = {
-    sf::Color::Red,
-    sf::Color::Yellow,
-    sf::Color::Green,
-    sf::Color::Blue,
-    sf::Color::Cyan,
-    sf::Color::Magenta,
-    sf::Color::White
-};
 
 #ifndef ON_ERROR
 

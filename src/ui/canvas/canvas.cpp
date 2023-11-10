@@ -329,7 +329,7 @@ void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, RenderTarget *d
     double yMin   = std::min(cur.y, lu.y);
     MPoint rectLU = MPoint(xMin, yMin);
 
-    drawTarget->drawRect(rectLU, size, MColor(TRANSPARENT), color);
+    drawTarget->drawRect(rectLU, size, MColor::TRANSPARENT, color);
 }
 
 bool SquareTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
@@ -609,7 +609,7 @@ void Canvas::render(RenderTarget* renderTarget) {
     MathRectangle canvasRect = MathRectangle(position, size);
     regSet->addRegion(getIntersection(canvasRect, parentRect));
     
-    renderTarget->drawRect(position, size, MColor(DEFAULT_BACK_COL), MColor(TRANSPARENT), regSet);
+    renderTarget->drawRect(position, size, DEFAULT_BACK_COL, MColor::TRANSPARENT, regSet);
 
     drawTexture(rendTarget, renderTarget);
     drawTexture(tempTarget, renderTarget);
