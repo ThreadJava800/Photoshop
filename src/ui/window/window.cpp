@@ -2,26 +2,36 @@
 
 bool isCreated = false;
 
-Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, uint8_t _priority) :
+Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority) :
     Widget     (_position, _size, _parent, _priority),
     manager    (_manager),
     filtManager(_filtManager),
-    actions    (nullptr)   {
+    actions    (nullptr),
+    windowName (_windowName)   {
         createTopPanel();
         if (!isCreated) createTestWindow();
+
+        if (isCanv && _winManager) _winManager->getCanvasWindows()->pushBack(this);
+        textFont = new MFont(DEFAULT_FONT);
     }
 
-Window::Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions, uint8_t _priority) :
+Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority) :
     Widget     (_position, _size, _parent, _priority),
     manager    (_manager),
     filtManager(_filtManager),
-    actions    (_actions)  {
+    actions    (_actions),
+    windowName (_windowName)  {
         createTopPanel();
         registerObject(actions);
         if (!isCreated) createTestWindow();
+
+        if (isCanv && _winManager) _winManager->getCanvasWindows()->pushBack(this);
+        textFont = new MFont(DEFAULT_FONT);
     }
 
-Window::~Window() {}
+Window::~Window() {
+    delete textFont;
+}
 
 bool Window::onMousePressed (MPoint pos, MMouse btn) {
     if (isInside(pos)) {
@@ -88,17 +98,17 @@ void Window::createTopPanel() {
 void Window::createTestWindow() {
     isCreated = true;
 
-    Window* subWin = new Window(position + MPoint(400, 100), MPoint(400, 400), manager, filtManager, this);
-    subWin->createCanvas();
-    registerObject(subWin);
-
-    Window* subWin2 = new Window(position + MPoint(600, 200), MPoint(400, 400), manager, filtManager, this);
+    Window* subWin2 = new Window(position + MPoint(300, 200), MPoint(400, 400), "Canvas 1", manager, filtManager, winManager, true, this);
     subWin2->createCanvas();
     registerObject(subWin2);
 
-    Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, filtManager, this);
-    subWin3->createCanvas();
-    registerObject(subWin3);
+    Window* subWin = new Window(position + MPoint(400, 100), MPoint(1200, 800), "Canvas 2", manager, filtManager, winManager, true, this);
+    subWin->createCanvas();
+    registerObject(subWin);
+
+    // Window* subWin3 = new Window(position + MPoint(300, 215), MPoint(300, 600), manager, filtManager, this);
+    // subWin3->createCanvas();
+    // registerObject(subWin3);
 }
 
 void Window::setActions(Menu* _actions) {
@@ -114,6 +124,7 @@ void Window::render(RenderTarget* renderTarget) {
     Widget::render(renderTarget);
 
     renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
+    renderTarget->drawText(position + MPoint(2 * TOP_PANE_SIZE, 0), windowName, MColor::BLACK, textFont, BTN_TXT_PT, regSet);
 }
 
 void ModalWindow::makeEventPrivate() {
@@ -129,14 +140,14 @@ void ModalWindow::makeEventPrivate() {
     }
 }
 
-ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
-    Window  (_position, _size, _manager, _filtManager, _parent, 1),
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
+    Window  (_position, _size, _windowName, _manager, _filtManager, nullptr, false, _parent, 1),
     eventMan(_eventMan) {
         makeEventPrivate();
     }
 
-ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
-    Window  (_position, _size, _manager, _filtManager, _parent, _actions, 1),
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
+    Window  (_position, _size, _windowName, _manager, _filtManager, nullptr, false, _parent, _actions, 1),
     eventMan(_eventMan) {
         makeEventPrivate();
     }
@@ -146,22 +157,13 @@ ModalWindow::~ModalWindow() {
     eventMan->unregisterObject(this);
 }
 
-void ModalWindow::render(RenderTarget* renderTarget) {
-    ON_ERROR(!renderTarget, "Render target pointer was null!",);
-
-    renderTarget->drawRect (position, size, MColor::WHITE, MColor::TRANSPARENT, regSet);
-    renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
-
-    Widget::render(renderTarget);
-}
-
-EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
-    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent)           {
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
+    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent)           {
         editBoxes = new List<EditBox*>();
     }
 
-EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
-    ModalWindow  (_eventMan, _position, _size, _manager, _filtManager, _parent, _actions) {
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
+    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent, _actions) {
         editBoxes = new List<EditBox*>();
     }
 
@@ -199,8 +201,6 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
 
     size_t nameCnt    = names    ->getSize();
     size_t editBoxCnt = editBoxes->getSize();
-
-    MFont* textFont = new MFont(DEFAULT_FONT);
     
     if (nameCnt == editBoxCnt) {
         for (size_t i = 0; i < nameCnt; i++) {
@@ -211,9 +211,9 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
         }
     }
 
-    delete textFont;
-
     Widget::render(renderTarget);
+
+    renderTarget->drawText(position + MPoint(2 * TOP_PANE_SIZE, 0), windowName, MColor::BLACK, textFont, BTN_TXT_PT, regSet);
 }
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {
@@ -227,4 +227,16 @@ void closeFunc(void* window) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     ((Window*)window)->setExists(false);
+}
+
+WindowManager::WindowManager() {
+    canvasWindows = new List<Window*>();
+}
+
+WindowManager::~WindowManager() {
+    delete canvasWindows;
+}
+
+List<Window*>* WindowManager::getCanvasWindows() {
+    return canvasWindows;
 }

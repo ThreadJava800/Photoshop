@@ -24,12 +24,12 @@ static const int       LINE_DIAM          = 1;
 static const int       SUB_MENU_LEN       = 300;
 static const int       BTN_TXT_PT         = 23;
 
-static const int       CANVAS_SIZE        = 1000;
+static const int       CANVAS_SIZE        = 3000;
 static const int       CANV_SHIFT         = 5;
 static const double    SATURATION_SHIFT   = 0.05;
 
 static const int       OUTLINE_THICKNESS  = 2;
-static const int       MAIN_WIN_BRD_SHIFT = 100;
+static const int       MAIN_WIN_BRD_SHIFT = 10;
 static const int       TOP_PANE_SIZE      = 30;
 static const int       SCROLLBAR_BTN_H    = 10;
 

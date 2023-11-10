@@ -6,6 +6,7 @@
 #include "events/events.h"
 #include "ui/editbox/editbox.h"
 #include "../libs/multimedia/eventInterlayer.h"
+#include "ui/shapes/shapes.h"
 
 enum Tools {
     BRUSH,
@@ -92,7 +93,7 @@ void openBlurPicker(void* arg) {
     if (!arg) return;
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
-    EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
+    EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
     modalWindow->setOnDestroy(closeModal);
     modalWindow->setDestrArgs(modalWindow);
 
@@ -201,6 +202,25 @@ void chooseColor(void* arg) {
 
     menu->manager->setColor(menu->color);
     menu->subMenu->changeActivity();
+}
+
+void saveCanvas(void* arg) {}
+
+void saveBtn(void* arg) {
+    if (!arg) return;
+    ModalWindowArgs* modArgs = (ModalWindowArgs*) arg;
+
+    ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
+    EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Save file", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
+    modalWindow->setOnDestroy(saveCanvas);
+    modalWindow->setDestrArgs(modalWindow);
+
+    modalWinArgs->filtManager->setLast(new BrightnessFilter());
+
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT));
+
+    modalWindow->addEditBox(editBox);
+    modalWinArgs->drawZone->registerObject(modalWindow);
 }
 
 SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
@@ -331,17 +351,32 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     return filtMenu;
 }
 
+SubMenu* createFileMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<ModalWindowArgs*>& modArgs) {
+    MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
+    MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
+    MColor color = MColor(DEFAULT_BACK_COL);
+
+    SubMenu* fileMenu   = new SubMenu(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 3 * TOP_PANE_SIZE), _winPtr);
+
+    ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, fileMenu, _evManager, _filtManager);
+
+    TextButton* saveBtn = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Save", fileMenu, lastFilter, modWinArgs);
+
+    modArgs.pushBack(modWinArgs);
+}
+
 Menu* createActionMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs, List<ModalWindowArgs*>& modArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(4 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
+    // SubMenu* fileMenu   = createFileMenu   (_drawZone, actionMenu);
     SubMenu* toolMenu   = createToolPicker (actionMenu, _filtManager, _manager, toolArgs);
     SubMenu* colMenu    = createColorPicker(actionMenu, _manager, colArgs);
     SubMenu* filtMenu   = createFilterMenu (_drawZone, actionMenu, _manager, _filtManager, _evManager, modArgs);
 
-    TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "New",    actionMenu, testFunc);
+    TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "File",   actionMenu, testFunc);
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);
     TextButton* colBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Color",  actionMenu, openToolMenu, colMenu);
     TextButton* filterBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Filter", actionMenu, openToolMenu, filtMenu);
@@ -365,7 +400,7 @@ Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager
 
     MPoint btnSize = MPoint(PICKER_BTN_SIZE, PICKER_BTN_SIZE);
 
-    Window* window = new Window(start, size, _toolMan, _filtManager, _parent);
+    Window* window = new Window(start, size, "Choose tool", _toolMan, _filtManager, nullptr, false, _parent);
 
     MImage     * brLogo   = new MImage(BRUSH_BTN); 
     ImageButton* brush    = new ImageButton(start + MPoint(10, 40), btnSize, brLogo, window);
@@ -385,14 +420,16 @@ void runMainCycle() {
     Brush* defaultTool        = new Brush();
     ToolManager manager       = ToolManager(defaultTool, MColor::RED);
     FilterManager filtManager = FilterManager();
+    WindowManager winManager  = WindowManager();
 
     Widget drawWidget  = Widget(MPoint(0, 0), MPoint(1920, 1080), nullptr);
-    Window* mainWindow = new Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1720, 880), &manager, &filtManager, &drawWidget);
+    Window* mainWindow = new Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1900, 1060), MAIN_WINDOW_NAME, &manager, &filtManager, &winManager, false, &drawWidget);
+    drawWidget.registerObject(new Rectangle(MPoint(0, 0), MPoint(1920, 1080), MColor::BLACK, MColor::TRANSPARENT, &drawWidget));
     drawWidget.registerObject(mainWindow);
 
     //create graphics picker of tools and colors
-    Window* pickerWindow = createPickerWindow(mainWindow, &manager, &filtManager);
-    mainWindow->registerObject(pickerWindow);
+    // Window* pickerWindow = createPickerWindow(mainWindow, &manager, &filtManager);
+    // mainWindow->registerObject(pickerWindow);
 
     // create event manager
     EventManager eventBoy = EventManager();

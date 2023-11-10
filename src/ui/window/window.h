@@ -9,19 +9,24 @@
 #include "../editbox/editbox.h"
 #include "../button/scrollbar.h"
 
+class WindowManager;
 class Window : public Widget {
 protected:
     Menu*          actions     = nullptr;
     ToolManager*   manager     = nullptr; 
     FilterManager* filtManager = nullptr;
+    WindowManager* winManager  = nullptr;
+
+    const char* windowName = nullptr;
+    MFont     * textFont   = nullptr;
     
     void createCanvas    ();
     void createTopPanel  ();
     void createTestWindow();
     
 public:
-    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, uint8_t _priority = 0);
-    explicit Window(MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
+    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority = 0);
+    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
     ~Window();
 
     bool onMousePressed (MPoint pos, MMouse btn) override;
@@ -41,11 +46,9 @@ protected:
     void makeEventPrivate();
 
 public:
-    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
-    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
+    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
+    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
     ~ModalWindow();
-
-    void render (RenderTarget* renderTarget) override;
 };
 
 class EditBoxModal : public ModalWindow {
@@ -55,8 +58,8 @@ private:
     void*           onDestroyArgs = nullptr;
 
 public:
-    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
-    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
 
     ~EditBoxModal();
 
@@ -67,6 +70,18 @@ public:
     void addEditBox(EditBox* _editBox);
 
     void render (RenderTarget* renderTarget) override;
+};
+
+class WindowManager {
+private:
+    List<Window*>* canvasWindows = nullptr;
+
+public:
+    explicit WindowManager();
+
+    ~WindowManager();
+
+    List<Window*>* getCanvasWindows();
 };
 
 void onVertScroll(void* args, MPoint delta);
