@@ -52,13 +52,16 @@ void Window::createCanvas() {
     Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this, parentRect);
     registerObject(canvas);
 
-    double deltaY = canvas->getSize().y / (size.y + 2 * TOP_PANE_SIZE);
-    double deltaX = canvas->getSize().x / (size.x + 4 * TOP_PANE_SIZE);
+    MathRectangle sliderX = MathRectangle(MPoint(position.x + SCROLLBAR_BTN_H, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE));
+    MathRectangle sliderY = MathRectangle(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE + SCROLLBAR_BTN_H), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE));
 
-    VerticalScrollBar* verticalBar = new VerticalScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - 2 * TOP_PANE_SIZE), MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE + SCROLLBAR_BTN_H), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(0, deltaY));
+    double deltaY = (canvas->getSize().y - parentRect.getSize().y) / (size.y - sliderY.getSize().y);
+    double deltaX = (canvas->getSize().x - parentRect.getSize().x) / (size.x - sliderX.getSize().x);
+
+    VerticalScrollBar* verticalBar = new VerticalScrollBar(MPoint(position.x + size.x - TOP_PANE_SIZE, position.y + TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, size.y - 2 * TOP_PANE_SIZE), sliderY.getPosition(), sliderY.getSize(), this, onVertScroll, canvas, MPoint(0, deltaY));
     registerObject(verticalBar);
 
-    HorizontalScrollBar* horizontalBar = new HorizontalScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x - TOP_PANE_SIZE, TOP_PANE_SIZE), MPoint(position.x + SCROLLBAR_BTN_H, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), this, onVertScroll, canvas, MPoint(deltaX, 0));
+    HorizontalScrollBar* horizontalBar = new HorizontalScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x - TOP_PANE_SIZE, TOP_PANE_SIZE), sliderX.getPosition(), sliderX.getSize(), this, onVertScroll, canvas, MPoint(deltaX, 0));
     registerObject(horizontalBar);
 }
 
