@@ -403,7 +403,7 @@ void RenderTarget::_drawSprite(MPoint start,  MPoint size,  MImage* img) {
 
     texture->draw(rect);
     texture->display();
-    if (sprite) window ->draw(*sprite);
+    // if (sprite) window ->draw(*sprite);
 }
 
 void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet* regions) {
@@ -441,7 +441,7 @@ void RenderTarget::drawSprite(MPoint start, MPoint size, MImage* img, RegionSet*
     }
 
     texture->display();
-    window ->draw(*sprite);
+    // window ->draw(*sprite);
 }
 
 void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont* font, unsigned pt, RegionSet* regions) {

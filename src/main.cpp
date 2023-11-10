@@ -485,7 +485,7 @@ void runMainCycle() {
                 break;
             }
             case sf::Event::MouseMoved: {
-                renderTarget.getRenderTexture()->clear();
+                // renderTarget.getRenderTexture()->clear();
                 eventBoy.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
 
                 drawWidget.render(&renderTarget);
