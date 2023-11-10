@@ -45,6 +45,14 @@ struct MColor {
     unsigned char b = 0;
     unsigned char a = 0;
 
+    explicit MColor();
+    explicit MColor(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a);
+    explicit MColor(sf::Color _color);
+
+    sf::Color toSfColor();
+    friend bool operator==(const MColor& a, const MColor& b);
+    friend void operator+=(      MColor& a, const int     b);
+
     static const MColor WHITE;
     static const MColor TRANSPARENT;
     static const MColor BLACK;
@@ -56,14 +64,6 @@ struct MColor {
     static const MColor BLUE;
     static const MColor CYAN;
     static const MColor LIGHT_BLUE;
-
-    explicit MColor();
-    explicit MColor(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a);
-    explicit MColor(sf::Color _color);
-
-    sf::Color toSfColor();
-    friend bool operator==(const MColor& a, const MColor& b);
-    friend void operator+=(      MColor& a, const int     b);
 };
 
 static const MColor    DEFAULT_BACK_COL = MColor::WHITE;
