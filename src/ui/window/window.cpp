@@ -191,7 +191,6 @@ void EditBoxModal::addEditBox(EditBox* _editBox) {
 void EditBoxModal::render(RenderTarget* renderTarget) {
     ON_ERROR(!renderTarget, "Render target pointer was null!",);
 
-    std::cout << (int) MColor::WHITE.r << ' ' << (int) MColor::WHITE.g << '\n';
     renderTarget->drawRect (position, size, MColor::WHITE, MColor::TRANSPARENT);
     renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
 
