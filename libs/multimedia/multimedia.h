@@ -142,6 +142,11 @@ enum MMouse {
     RIGHT = sf::Mouse::Right
 };
 
+enum WindowType {
+    FULLSCREEN = sf::Style::Fullscreen,
+    DEFAULT    = sf::Style::Default
+};
+
 class RenderTarget {
 private:
     MPoint             position = MPoint();
@@ -150,8 +155,7 @@ private:
     sf::RenderWindow*  window   = nullptr;
 
 public:
-    explicit RenderTarget(MPoint _position, MPoint _size);
-    explicit RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window);
+    explicit RenderTarget(MPoint _position, MPoint _size, bool needWindow = false, int winX = 1920, int winY = 1080, int posX = 0, int posY = 0, WindowType winType = FULLSCREEN);
     ~RenderTarget();
 
     MPoint getPosition();
@@ -164,6 +168,9 @@ public:
     void    setTexture(MImage* mImage);
     void    clear(MColor col = MColor::TRANSPARENT);
     MImage* getImage();
+
+    void clearAll  ();
+    void displayAll();
 
     void _drawLine  (MPoint start,  MPoint end,    MColor color);
     void drawLine   (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);

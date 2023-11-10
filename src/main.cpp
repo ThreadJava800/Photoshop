@@ -5,6 +5,7 @@
 #include "ui/submenu/submenu.h"
 #include "events/events.h"
 #include "ui/editbox/editbox.h"
+#include "../libs/multimedia/eventInterlayer.h"
 
 enum Tools {
     BRUSH,
@@ -260,26 +261,26 @@ SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ColPicke
 
     SubMenu* colMenu  = new SubMenu(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
 
-    ColPickerArgs* redArgs     = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Red));
-    TextButton* redBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), size, MColor(sf::Color::Red), new MFont (DEFAULT_FONT), "Red", colMenu, chooseColor, redArgs);
+    ColPickerArgs* redArgs     = new ColPickerArgs(_manager, colMenu, MColor::RED);
+    TextButton* redBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), size, MColor::RED, new MFont (DEFAULT_FONT), "Red", colMenu, chooseColor, redArgs);
     
-    ColPickerArgs* greenArgs   = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Green));
-    TextButton* greenBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 3 * TOP_PANE_SIZE), size, MColor(sf::Color::Green), new MFont (DEFAULT_FONT), "Green", colMenu, chooseColor, greenArgs);
+    ColPickerArgs* greenArgs   = new ColPickerArgs(_manager, colMenu, MColor::GREEN);
+    TextButton* greenBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 3 * TOP_PANE_SIZE), size, MColor::GREEN, new MFont (DEFAULT_FONT), "Green", colMenu, chooseColor, greenArgs);
     
-    ColPickerArgs* yellowArgs  = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Yellow));
-    TextButton* yellowBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 4 * TOP_PANE_SIZE), size, MColor(sf::Color::Yellow), new MFont (DEFAULT_FONT), "Yellow", colMenu, chooseColor, yellowArgs);
+    ColPickerArgs* yellowArgs  = new ColPickerArgs(_manager, colMenu, MColor::YELLOW);
+    TextButton* yellowBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 4 * TOP_PANE_SIZE), size, MColor::YELLOW, new MFont (DEFAULT_FONT), "Yellow", colMenu, chooseColor, yellowArgs);
     
-    ColPickerArgs* blueArgs    = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Blue));
-    TextButton* blueBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 5 * TOP_PANE_SIZE), size, MColor(sf::Color::Blue), new MFont (DEFAULT_FONT), "Blue", colMenu, chooseColor, blueArgs);
+    ColPickerArgs* blueArgs    = new ColPickerArgs(_manager, colMenu, MColor::BLUE);
+    TextButton* blueBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 5 * TOP_PANE_SIZE), size, MColor::BLUE, new MFont (DEFAULT_FONT), "Blue", colMenu, chooseColor, blueArgs);
     
-    ColPickerArgs* blackArgs   = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Black));
-    TextButton* blackBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 6 * TOP_PANE_SIZE), size, MColor(sf::Color::Black), new MFont (DEFAULT_FONT), "Black", colMenu, chooseColor, blackArgs);
+    ColPickerArgs* blackArgs   = new ColPickerArgs(_manager, colMenu, MColor::BLACK);
+    TextButton* blackBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 6 * TOP_PANE_SIZE), size, MColor::BLACK, new MFont (DEFAULT_FONT), "Black", colMenu, chooseColor, blackArgs);
     
-    ColPickerArgs* cyanArgs    = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Cyan));
-    TextButton* cyanBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), size, MColor(sf::Color::Cyan), new MFont (DEFAULT_FONT), "Cyan", colMenu, chooseColor, cyanArgs);
+    ColPickerArgs* cyanArgs    = new ColPickerArgs(_manager, colMenu, MColor::CYAN);
+    TextButton* cyanBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), size, MColor::CYAN, new MFont (DEFAULT_FONT), "Cyan", colMenu, chooseColor, cyanArgs);
     
-    ColPickerArgs* magentaArgs = new ColPickerArgs(_manager, colMenu, MColor(sf::Color::Magenta));    
-    TextButton*    magentaBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 8 * TOP_PANE_SIZE), size, MColor(sf::Color::Magenta), new MFont (DEFAULT_FONT), "Magenta", colMenu, chooseColor, magentaArgs);
+    ColPickerArgs* magentaArgs = new ColPickerArgs(_manager, colMenu, MColor::MAGENTA);    
+    TextButton*    magentaBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 8 * TOP_PANE_SIZE), size, MColor::MAGENTA, new MFont (DEFAULT_FONT), "Magenta", colMenu, chooseColor, magentaArgs);
 
     colArgs.pushBack(redArgs);
     colArgs.pushBack(greenArgs);
@@ -379,12 +380,10 @@ Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager
 }
 
 void runMainCycle() {
-    sf::RenderWindow window(sf::VideoMode(), "Photoshop", sf::Style::Fullscreen);
-    window.setPosition(sf::Vector2i(0, 0));
-    RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), &window);
+    RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), true);
 
     Brush* defaultTool        = new Brush();
-    ToolManager manager       = ToolManager(defaultTool, MColor(sf::Color::Red));
+    ToolManager manager       = ToolManager(defaultTool, MColor::RED);
     FilterManager filtManager = FilterManager();
 
     Widget drawWidget  = Widget(MPoint(0, 0), MPoint(1920, 1080), nullptr);
@@ -404,103 +403,11 @@ void runMainCycle() {
     Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, toolArgs, colArgs, modArgs);
     mainWindow->setActions(actions);
 
-    window.clear();
+    renderTarget.clearAll();
     drawWidget.render(&renderTarget);
-    window.draw(*renderTarget.getSprite());
-    window.display();
+    renderTarget.displayAll();
 
-    auto timerStart = std::chrono::system_clock::now(); 
-
-    while (window.isOpen())
-    {
-        auto timerEnd = std::chrono::system_clock::now();
-        auto passed   = std::chrono::duration_cast<std::chrono::seconds>(timerEnd - timerStart);
-
-        if (passed.count() >= 1) {
-            // renderTarget.getRenderTexture()->clear();
-
-            eventBoy.onTimerTick(passed.count());
-
-            // drawWidget.render(&renderTarget);
-            // window.display();
-
-            timerStart = timerEnd;
-        }
-
-        // event switch
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            switch (event.type)
-            {
-            case sf::Event::Closed:
-                window.close();
-                break;
-            case sf::Event::KeyPressed:
-                if (event.key.code == sf::Keyboard::Escape)
-                    window.close();
-                if (event.key.code == sf::Keyboard::Left)
-                    eventBoy.onKeyPressed(MKeyboard(0, LEFT_KEY));
-                if (event.key.code == sf::Keyboard::Right)
-                    eventBoy.onKeyPressed(MKeyboard(0, RIGHT_KEY));
-                if (event.key.code == sf::Keyboard::Down)
-                    eventBoy.onKeyPressed(MKeyboard(0, DOWN_KEY));
-                if (event.key.code == sf::Keyboard::Up)
-                    eventBoy.onKeyPressed(MKeyboard(0, UP_KEY));
-                break;
-            case sf::Event::TextEntered:
-                // renderTarget.getRenderTexture()->clear();
-
-                eventBoy.onKeyPressed(MKeyboard(event.text.unicode, DEFAULT_KEY));
-                // std::cout << (int) event.text.unicode << '\n';
-
-                drawWidget.render(&renderTarget);
-                window.draw(*renderTarget.getSprite());
-                window.display();
-                break;
-            case sf::Event::KeyReleased:
-                eventBoy.onKeyReleased(MKeyboard(event.text.unicode, DEFAULT_KEY));
-                break;
-
-            case sf::Event::MouseButtonPressed: {
-                // renderTarget.getRenderTexture()->clear();
-                if (event.mouseButton.button == sf::Mouse::Left) 
-                    eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
-                if (event.mouseButton.button == sf::Mouse::Right)
-                    eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), RIGHT);
-
-                drawWidget.render(&renderTarget);
-                window.draw(*renderTarget.getSprite());
-                window.display();
-
-                break;
-            }
-            case sf::Event::MouseButtonReleased: {
-                // renderTarget.getRenderTexture()->clear();
-                if (event.mouseButton.button == sf::Mouse::Left)
-                    eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
-                if (event.mouseButton.button == sf::Mouse::Right)
-                    eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), RIGHT);
-
-                drawWidget.render(&renderTarget);
-                window.draw(*renderTarget.getSprite());
-                window.display();
-
-                break;
-            }
-            case sf::Event::MouseMoved: {
-                // renderTarget.getRenderTexture()->clear();
-                eventBoy.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
-
-                drawWidget.render(&renderTarget);
-                window.draw(*renderTarget.getSprite());
-                window.display();
-
-                break;
-            }
-            }
-        }
-    }
+    runEventCycle(renderTarget, eventBoy, drawWidget);
 
     for (size_t i = 0; i < toolArgs.getSize(); i++) delete toolArgs[i];
     for (size_t i = 0; i < colArgs .getSize(); i++) delete colArgs [i];

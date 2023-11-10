@@ -243,26 +243,22 @@ sf::Texture* MImage::getSfTexture() {
     return img;
 }
 
-RenderTarget::RenderTarget(MPoint _position, MPoint _size) :
-    position(_position),
-    window  (nullptr),
-    sprite  (nullptr)    {
-        texture = new sf::RenderTexture();
-        ON_ERROR(!texture, "Cannot allocate memory!",);
-        texture->create(_size.x, _size.y);
-    }
-
-RenderTarget::RenderTarget(MPoint _position, MPoint _size, sf::RenderWindow* _window) :
-    position(_position),
-    window  (_window)    {
+RenderTarget::RenderTarget(MPoint _position, MPoint _size, bool needWindow, int winX, int winY, int posX, int posY, WindowType winType) :
+    position(_position)    {
         texture = new sf::RenderTexture();
         ON_ERROR(!texture, "Cannot allocate memory!",);
         texture->create(_size.x, _size.y);
 
-        sprite = new sf::Sprite();
-        ON_ERROR(!sprite, "Cannot allocate memory!",);
-        sprite->setPosition(_position.x, _position.y);
-        sprite->setTexture(texture->getTexture());
+        if (needWindow) {
+            window = new sf::RenderWindow(sf::VideoMode(winX, winY), MAIN_WINDOW_NAME, winType);
+            ON_ERROR(!window, "Cannot create main window!",);
+            window->setPosition(sf::Vector2i(posX, posY));
+
+            sprite = new sf::Sprite();
+            ON_ERROR(!sprite, "Cannot allocate memory!",);
+            sprite->setPosition(_position.x, _position.y);
+            sprite->setTexture(texture->getTexture());
+        }
     }
 
 sf::RenderTexture* RenderTarget::getRenderTexture() {
@@ -278,6 +274,7 @@ sf::Sprite* RenderTarget::getSprite() {
 }
 
 RenderTarget::~RenderTarget() {
+    if (window) delete window;
     window = nullptr;
 
     if (texture) delete texture;
@@ -316,6 +313,17 @@ void RenderTarget::clear(MColor col) {
 MImage* RenderTarget::getImage() {
     sf::Texture *imgTexture = new sf::Texture(texture->getTexture());
     return new MImage(imgTexture);
+}
+
+void RenderTarget::clearAll() {
+    if (window) window->clear();
+}
+
+void RenderTarget::displayAll() {
+    if (!sprite) return;
+
+    window->draw(*sprite);
+    window->display();
 }
 
 void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
