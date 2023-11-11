@@ -101,7 +101,7 @@ void openBlurPicker(void* arg) {
 
     modalWinArgs->filtManager->setLast(new BrightnessFilter());
 
-    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT));
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), NUMBERS_ONLY);
 
     modalWindow->addEditBox(editBox);
     modalWinArgs->drawZone->registerObject(modalWindow);
@@ -212,21 +212,7 @@ void saveBtnFunc(void* arg) {
     if (!arg) return;
     ModalWindowArgs* modArgs = (ModalWindowArgs*) arg;
 
-    WindowManager* winManager = modArgs->winManager;
-    SubMenu      * fileMenu   = modArgs->subMenu;
-    size_t         winCnt     = winManager->getCanvasWindows()->getSize();
 
-    MPoint chooseMenuPos = fileMenu->getPosition() + MPoint(2 * fileMenu->getSize().x, 0);
-    SubMenu* chooseMenu = new SubMenu(chooseMenuPos, MPoint(fileMenu->getSize().x, TOP_PANE_SIZE * winCnt), fileMenu);
-    
-    for (size_t i = 0; i < winCnt; i++) {
-        const char* winName = (*winManager->getCanvasWindows())[i]->getName();
-        TextButton* fileBtn = new TextButton(chooseMenuPos + MPoint(0, (i + 1) * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), MColor::BLACK, new MFont(DEFAULT_FONT), winName, fileMenu);
-        fileMenu->registerObject(fileBtn);
-    }
-
-    fileMenu->registerObject(chooseMenu);
-    fileMenu->changeActivity();
 }
 
 SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
@@ -366,16 +352,16 @@ SubMenu* createFileMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manage
     size_t   winCnt     = _winManager->getCanvasWindows()->getSize();
     ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, fileMenu, _evManager, _filtManager, _winManager);
 
-    TextButton* saveBtn = new TextButton(start + MPoint(0, 2 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Save", fileMenu, saveBtnFunc, modWinArgs);
-
-    MPoint chooseMenuPos = fileMenu->getPosition() + MPoint(2 * fileMenu->getSize().x, 0);
+    MPoint chooseMenuPos = fileMenu->getPosition() + MPoint(fileMenu->getSize().x, 0);
     SubMenu* chooseMenu  = new SubMenu(chooseMenuPos, MPoint(fileMenu->getSize().x, TOP_PANE_SIZE * winCnt), fileMenu);
     
     for (size_t i = 0; i < winCnt; i++) {
         const char* winName = (*_winManager->getCanvasWindows())[i]->getName();
-        TextButton* fileBtn = new TextButton(chooseMenuPos + MPoint(0, (i + 1) * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), MColor::BLACK, new MFont(DEFAULT_FONT), winName, chooseMenu);
-        fileMenu->registerObject(fileBtn);
+        TextButton* fileBtn = new TextButton(chooseMenuPos + MPoint(0, i * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), winName, chooseMenu);
+        chooseMenu->registerObject(fileBtn);
     }
+
+    TextButton* saveBtn = new TextButton(start + MPoint(0, 2 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Save", fileMenu, openToolMenu, chooseMenu);
 
     fileMenu->registerObject(saveBtn);
     fileMenu->registerObject(chooseMenu);

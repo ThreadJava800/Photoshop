@@ -6,6 +6,7 @@ Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolMana
     Widget     (_position, _size, _parent, _priority),
     manager    (_manager),
     filtManager(_filtManager),
+    winManager (_winManager),
     actions    (nullptr),
     windowName (_windowName)   {
         createTopPanel();
@@ -19,6 +20,7 @@ Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolMana
     Widget     (_position, _size, _parent, _priority),
     manager    (_manager),
     filtManager(_filtManager),
+    winManager (_winManager),
     actions    (_actions),
     windowName (_windowName)  {
         createTopPanel();
@@ -31,6 +33,13 @@ Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolMana
 
 Window::~Window() {
     delete textFont;
+
+    if (!winManager) return;
+
+    size_t winCnt = winManager->getCanvasWindows()->getSize();
+    for (size_t i = 0; i < winCnt; i++) {
+        if ((*winManager->getCanvasWindows())[i] == this) winManager->getCanvasWindows()->remove(i);
+    }
 }
 
 const char* Window::getName() {
@@ -57,12 +66,6 @@ void onVertScroll(void* args, MPoint delta) {
     Canvas* canvas = (Canvas*) args;
 
     canvas->onScroll(delta * -1);
-}
-
-void onButtonScroll(void* args) {
-    ScrollBar* scrollBar = (ScrollBar*) args;
-
-    
 }
 
 void Window::createCanvas() {
@@ -166,7 +169,7 @@ ModalWindow::~ModalWindow() {
 }
 
 EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
-    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent)           {
+    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent) {
         editBoxes = new List<EditBox*>();
     }
 

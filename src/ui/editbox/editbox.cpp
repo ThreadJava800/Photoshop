@@ -1,5 +1,15 @@
 #include "editbox.h"
 
+const CheckInput EditBox::checkerFuncs[] = {chNumbersOnly, chAllInput};
+
+bool chNumbersOnly(MKeyboard key) {
+    return key.symbol >= '0' && key.symbol <= '9' || key.symbol == BACKSPACE || key.keyId == LEFT_KEY || key.keyId == RIGHT_KEY;
+}
+
+bool chAllInput(MKeyboard key) {
+    return true;
+}
+
 double EditBox::getCursorX(MFont* font, int pt) {
     size_t charCnt = text->getSize();
     if (charCnt == 0) return position.x;
@@ -14,11 +24,12 @@ double EditBox::getCursorX(MFont* font, int pt) {
     return posX;
 }
 
-EditBox::EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, int _pt) :
+EditBox::EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, INPUT_TYPE _type, int _pt) :
     Widget     (_position, _size, _parent),
     font       (_font),
     curPos     (0),
     cursorState(false),
+    inputType  (_type),
     pt         (_pt)       {
         text = new List<char>();
     }
@@ -69,7 +80,7 @@ bool EditBox::onMousePressed(MPoint pos, MMouse btn) {
 bool EditBox::onKeyPressed(MKeyboard key) {
     ON_ERROR(!text, "Text pointer was null!", false);
 
-    if (!(key.symbol >= '0' && key.symbol <= '9' || key.symbol == BACKSPACE || key.keyId == LEFT_KEY || key.keyId == RIGHT_KEY)) return false;
+    if (!checkerFuncs[inputType](key)) return false;
 
     if (key.keyId == LEFT_KEY) {
         curPos--;
