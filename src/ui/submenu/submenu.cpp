@@ -1,7 +1,7 @@
 #include "submenu.h"
 
 SubMenu::SubMenu(MPoint _position, MPoint _size, Widget* _parent) :
-    Widget(_position, _size, _parent)    {
+    Menu(_position, _size, _parent)    {
         visible = false;
     }
 

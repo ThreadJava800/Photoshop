@@ -6,7 +6,7 @@
 
 enum INPUT_TYPE {
     NUMBERS_ONLY,
-    ALL
+    ALL_CHARACTER,
 };
 
 typedef bool (*CheckInput)(MKeyboard);
@@ -23,7 +23,7 @@ private:
     u_int       curPos      = 0;
     int       * letterWidth = nullptr;
     bool        cursorState = false;
-    INPUT_TYPE  inputType   = ALL;
+    INPUT_TYPE  inputType   = ALL_CHARACTER;
 
     double getCursorX(MFont* font, int pt);
 

@@ -210,9 +210,18 @@ void saveCanvas(void* arg) {}
 
 void saveBtnFunc(void* arg) {
     if (!arg) return;
-    ModalWindowArgs* modArgs = (ModalWindowArgs*) arg;
 
+    std::cout << "Clicked\n";
 
+    ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
+    EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, nullptr, modalWinArgs->drawZone);
+    modalWindow->setOnDestroy(closeModal);
+    modalWindow->setDestrArgs(modalWindow);
+
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), ALL_CHARACTER);
+
+    modalWindow->addEditBox(editBox);
+    modalWinArgs->drawZone->registerObject(modalWindow);
 }
 
 SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
@@ -357,7 +366,7 @@ SubMenu* createFileMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manage
     
     for (size_t i = 0; i < winCnt; i++) {
         const char* winName = (*_winManager->getCanvasWindows())[i]->getName();
-        TextButton* fileBtn = new TextButton(chooseMenuPos + MPoint(0, i * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), winName, chooseMenu);
+        TextButton* fileBtn = new TextButton(chooseMenuPos + MPoint(0, i * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), winName, chooseMenu, saveBtnFunc, modWinArgs);
         chooseMenu->registerObject(fileBtn);
     }
 
