@@ -94,12 +94,14 @@ void closeModal(void* arg) {
 void openBlurPicker(void* arg) {
     if (!arg) return;
 
-    ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
-    EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone);
-    modalWindow->setOnDestroy(closeModal);
-    modalWindow->setDestrArgs(modalWindow);
+    ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
 
     modalWinArgs->filtManager->setLast(new BrightnessFilter());
+
+    List<const char*>* paramNames   = modalWinArgs->filtManager->getLast()->getParamNames()->createCopy();
+    EditBoxModal*      modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
+    modalWindow->setOnDestroy(closeModal);
+    modalWindow->setDestrArgs(modalWindow);
 
     EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), NUMBERS_ONLY);
 
@@ -211,10 +213,10 @@ void saveCanvas(void* arg) {}
 void saveBtnFunc(void* arg) {
     if (!arg) return;
 
-    std::cout << "Clicked\n";
-
-    ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
-    EditBoxModal*    modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, nullptr, modalWinArgs->drawZone);
+    ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
+    List<const char*>* paramNames   = new List<const char*>();
+    paramNames->pushBack("Enter filename");
+    EditBoxModal*     modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
     modalWindow->setOnDestroy(closeModal);
     modalWindow->setDestrArgs(modalWindow);
 

@@ -203,6 +203,13 @@ public:
         }
         std::cout << '\n';
     }
+
+    List<T>* createCopy() {
+        List<T>* copyList = new List<T>();
+        for (size_t i = 0; i < size; i++) copyList->pushBack(values[i]);
+
+        return copyList;
+    }
 };
 
 #endif
