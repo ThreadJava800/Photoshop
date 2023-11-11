@@ -123,6 +123,8 @@ void ColorfulnessFilter::apply(RenderTarget* rt) {
         for (int j = 0; j < textureSize.y; j++) {
             MColor newPixel = (*(*pixelArr)[i])[j];
 
+            if (newPixel == MColor::BLACK || newPixel == MColor::WHITE) continue;
+
             double p = std::sqrt(newPixel.r * newPixel.r * RCOEFF + 
                                  newPixel.g * newPixel.g * GCOEFF + 
                                  newPixel.b * newPixel.b * BCOEFF);

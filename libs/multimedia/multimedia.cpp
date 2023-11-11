@@ -126,7 +126,7 @@ sf::Color MColor::toSfColor() {
 }
 
 bool operator==(const MColor& a, const MColor& b) {
-    return a.a == b.a && a.r == b.r && a.g == b.g && a.b == b.b;
+    return a.r == b.r && a.g == b.g && a.b == b.b;
 }
 
 MPoint getSymbolSize(char symbol, MFont* font, int pt) {

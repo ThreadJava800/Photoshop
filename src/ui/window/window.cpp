@@ -33,6 +33,14 @@ Window::~Window() {
     delete textFont;
 }
 
+const char* Window::getName() {
+    return windowName;
+}
+
+void Window::setName(const char* _windowName) {
+    windowName = _windowName;
+}
+
 bool Window::onMousePressed (MPoint pos, MMouse btn) {
     if (isInside(pos)) {
         prioritizeWindow();
