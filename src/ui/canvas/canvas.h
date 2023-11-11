@@ -169,6 +169,8 @@ public:
 
     ~Canvas();
 
+    MImage* getTexture();
+
     void onScroll(MPoint shift);
 
     bool onMousePressed (MPoint pos, MMouse btn) override;

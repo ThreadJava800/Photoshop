@@ -16,6 +16,7 @@ protected:
     ToolManager*   manager     = nullptr; 
     FilterManager* filtManager = nullptr;
     WindowManager* winManager  = nullptr;
+    Canvas       * canvas      = nullptr;
 
     const char* windowName = nullptr;
     MFont     * textFont   = nullptr;
@@ -29,8 +30,9 @@ public:
     explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
     ~Window();
 
-    const char* getName();
-    void        setName(const char* _windowName);
+    const char* getName  ();
+    void        setName  (const char* _windowName);
+    Canvas    * getCanvas();
 
     bool onMousePressed (MPoint pos, MMouse btn) override;
 

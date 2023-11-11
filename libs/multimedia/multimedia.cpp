@@ -210,6 +210,13 @@ void MImage::imgFromPixel(List<List<MColor>*>* pixels) {
     img->loadFromImage(sfImg);
 }
 
+void MImage::saveToFile(const char* fileName) {
+    ON_ERROR(!fileName, "FILENAME was null!",);
+
+    sf::Image sfImg = img->copyToImage();
+    sfImg.saveToFile(fileName);
+}
+
 MColor MImage::getPixel(MPoint pos) {
     sf::Image sfPixels = img->copyToImage();
 

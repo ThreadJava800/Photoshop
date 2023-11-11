@@ -50,6 +50,10 @@ void Window::setName(const char* _windowName) {
     windowName = _windowName;
 }
 
+Canvas* Window::getCanvas() {
+    return canvas;
+}
+
 bool Window::onMousePressed (MPoint pos, MMouse btn) {
     if (isInside(pos)) {
         prioritizeWindow();
@@ -84,6 +88,8 @@ void Window::createCanvas() {
 
     HorizontalScrollBar* horizontalBar = new HorizontalScrollBar(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(size.x - TOP_PANE_SIZE, TOP_PANE_SIZE), sliderX.getPosition(), sliderX.getSize(), this, onVertScroll, canvas, MPoint(deltaX, 0));
     registerObject(horizontalBar);
+
+    this->canvas = canvas;
 }
 
 void Window::createTopPanel() {
@@ -181,7 +187,7 @@ EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _si
     }
 
 EditBoxModal::~EditBoxModal() {
-    if (onDestroyFunc) onDestroyFunc(this);
+    if (onDestroyFunc) onDestroyFunc(onDestroyArgs);
 
     delete editBoxes;
     delete paramNames;
@@ -196,7 +202,7 @@ void EditBoxModal::setOnDestroy(ButtonFunc _editBoxes) {
 }
 
 void EditBoxModal::setDestrArgs (void* _args) {
-    args = _args;
+    onDestroyArgs = _args;
 }
 
 void EditBoxModal::addEditBox(EditBox* _editBox) {

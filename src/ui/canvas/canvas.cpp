@@ -549,6 +549,10 @@ void Canvas::onScroll(MPoint shift) {
     Widget::move(shift);
 }
 
+MImage* Canvas::getTexture() {
+    return rendTarget->getImage();
+}
+
 bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
     if (!rendTarget) return false;
 

@@ -112,6 +112,7 @@ public:
     ~MImage();
 
     void imgFromPixel(List<List<MColor>*>* pixels);
+    void saveToFile  (const char* fileName);
 
     MColor                getPixel    (MPoint pos);
     List<List<MColor>*>*  getPixels   ();
