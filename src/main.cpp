@@ -45,6 +45,7 @@ struct ColPickerArgs {
 struct ModalWindowArgs {
     Widget*        drawZone;
     SubMenu*       subMenu;
+    SubMenu*       subMenuChild;
     EventManager*  evManager;
     FilterManager* filtManager;
     WindowManager* winManager;
@@ -109,6 +110,8 @@ void openBlurPicker(void* arg) {
 
     modalWindow->addEditBox(editBox);
     modalWinArgs->drawZone->registerObject(modalWindow);
+
+    modalWinArgs->subMenu->changeActivity();
 }
 
 void changeBrightConst(void* arg) {
@@ -217,10 +220,22 @@ void saveCanvas(void* arg) {
     EditBoxModal   * modWindow  = modWinArgs->editBoxModal;
 
     List<EditBox*>* editBoxes = modWindow->getEditBoxes();
-    const char*     fileName  = (*editBoxes)[0]->getText();
+    char*     fileName  = (*editBoxes)[0]->getText();
 
     MImage* texture = modWinArgs->curWindow->getCanvas()->getTexture();
-    texture->saveToFile(fileName);
+    bool res = texture->saveToFile(fileName);
+    if (!res) return;
+
+    modWinArgs->curWindow->setName(fileName);
+
+    WindowManager* _winManager  = modWinArgs->winManager;
+    size_t          winCnt      = modWinArgs->subMenuChild->getWindows()->getSize();
+    List<Widget *>* subMenuBtns = modWinArgs->subMenuChild->getWindows();
+
+    for (size_t i = 0; i < winCnt; i++) {
+        const char* winName = (*_winManager->getCanvasWindows())[i]->getName();
+        ((TextButton*)(*subMenuBtns)[i])->setText(winName);
+    }
 
     delete texture;
 }
@@ -242,6 +257,9 @@ void saveBtnFunc(void* arg) {
 
     modalWindow->addEditBox(editBox);
     modalWinArgs->drawZone->registerObject(modalWindow);
+
+    modalWinArgs->subMenuChild->changeActivity();
+    modalWinArgs->subMenu     ->changeActivity();
 }
 
 SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
@@ -388,7 +406,8 @@ SubMenu* createFileMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manage
         const char* winName = (*_winManager->getCanvasWindows())[i]->getName();
 
         ModalWindowArgs* fileBtnArgs = new ModalWindowArgs(_drawZone, fileMenu, _evManager, _filtManager, _winManager);
-        fileBtnArgs->curWindow = (*_winManager->getCanvasWindows())[i];
+        fileBtnArgs->curWindow    = (*_winManager->getCanvasWindows())[i];
+        fileBtnArgs->subMenuChild = chooseMenu;
         modArgs.pushBack(fileBtnArgs);
         
         TextButton* fileBtn = new TextButton(chooseMenuPos + MPoint(0, i * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), winName, chooseMenu, saveBtnFunc, fileBtnArgs);

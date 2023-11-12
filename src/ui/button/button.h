@@ -25,11 +25,13 @@ public:
 class TextButton : public Button {
 private:
     MFont* font      = nullptr;
-    const char* text = nullptr;
+    char* text = nullptr;
 
 public:
     explicit TextButton(MPoint _position, MPoint _size, MColor _color, MFont* _font, const char* _text, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr, bool _needFree = false);
     ~TextButton();
+
+    void setText(const char* _text);
 
     void render(RenderTarget* renderTarget) override;
 };

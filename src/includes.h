@@ -4,8 +4,8 @@
 #include <iostream>
 #include <cmath>
 #include <float.h>
-#include <string>
 #include <stdint.h>
+#include <string.h>
 
 #include "../libs/list.h"
 #include "constants.h"

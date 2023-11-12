@@ -18,7 +18,7 @@ protected:
     WindowManager* winManager  = nullptr;
     Canvas       * canvas      = nullptr;
 
-    const char* windowName = nullptr;
+    char* windowName = nullptr;
     MFont     * textFont   = nullptr;
     
     void createCanvas    ();

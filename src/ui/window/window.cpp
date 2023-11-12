@@ -8,7 +8,7 @@ Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolMana
     filtManager(_filtManager),
     winManager (_winManager),
     actions    (nullptr),
-    windowName (_windowName)   {
+    windowName (strdup(_windowName))   {
         createTopPanel();
         if (!isCreated) createTestWindow();
 
@@ -22,7 +22,7 @@ Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolMana
     filtManager(_filtManager),
     winManager (_winManager),
     actions    (_actions),
-    windowName (_windowName)  {
+    windowName (strdup(_windowName))  {
         createTopPanel();
         registerObject(actions);
         if (!isCreated) createTestWindow();
@@ -33,6 +33,7 @@ Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolMana
 
 Window::~Window() {
     delete textFont;
+    free(windowName);
 
     if (!winManager) return;
 
@@ -47,7 +48,8 @@ const char* Window::getName() {
 }
 
 void Window::setName(const char* _windowName) {
-    windowName = _windowName;
+    free(windowName);
+    windowName = strdup(_windowName);
 }
 
 Canvas* Window::getCanvas() {
