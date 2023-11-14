@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "../../src/includes.h"
+#include "../../src/plugin.h"
 
 static const double EPSILON = 1e-12;
 
@@ -21,6 +22,7 @@ struct MPoint {
     explicit MPoint(sf::Vector2f _point);
     explicit MPoint(sf::Vector2i _point);
     explicit MPoint(sf::Vector2u _point);
+    explicit MPoint(plugin::Vec2 _point);
 
     ~MPoint();
 
@@ -48,6 +50,7 @@ struct MColor {
     explicit MColor();
     explicit MColor(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a);
     explicit MColor(sf::Color _color);
+    explicit MColor(plugin::Color _color);
 
     sf::Color toSfColor();
     friend bool operator==(const MColor& a, const MColor& b);
@@ -108,8 +111,12 @@ public:
     explicit MImage();
     explicit MImage(const char* _imgPath);
     explicit MImage(sf::Texture* _imgText);
+    explicit MImage(const plugin::Texture* _texture);
 
     ~MImage();
+
+    void             buildFromPluginTexture(const plugin::Texture* _texture);
+    plugin::Texture* toPluginTexture();
 
     void imgFromPixel(List<List<MColor>*>* pixels);
     bool saveToFile  (const char* fileName);
@@ -148,7 +155,7 @@ enum WindowType {
     DEFAULT    = sf::Style::Default
 };
 
-class RenderTarget {
+class RenderTarget : plugin::RenderTargetI {
 private:
     MPoint             position = MPoint();
     sf::RenderTexture* texture  = nullptr;
@@ -166,12 +173,26 @@ public:
     sf::RenderWindow * getRenderWindow ();
     sf::Sprite       * getSprite       ();
 
-    void    setTexture(MImage* mImage);
-    void    clear(MColor col = MColor::TRANSPARENT);
+    void    setTexture  (MImage* mImage);
+    void    clearTexture(MColor col = MColor::TRANSPARENT);
     MImage* getImage();
 
     void clearAll  ();
     void displayAll();
+
+    // plugin support funcs
+
+    void setPixel   (plugin::Vec2 pos, plugin::Color color)                                          override;
+    void drawLine   (plugin::Vec2 pos, plugin::Vec2 point1, plugin::Color color)                     override;
+    void drawRect   (plugin::Vec2 pos, plugin::Vec2 size,   plugin::Color color)                     override;
+    void drawEllipse(plugin::Vec2 pos, plugin::Vec2 size,   plugin::Color color)                     override;
+    void drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture)            override;
+    void drawText   (plugin::Vec2 pos, const char *content, uint16_t char_size, plugin::Color color) override;
+    plugin::Texture *getTexture() override;
+    void display()                override;
+    void clear()                  override;
+
+    //
 
     void _drawLine  (MPoint start,  MPoint end,    MColor color);
     void drawLine   (MPoint start,  MPoint end,    MColor color, RegionSet* regions = nullptr);

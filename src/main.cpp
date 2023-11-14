@@ -106,11 +106,16 @@ void openBlurPicker(void* arg) {
     modalWindow->setOnDestroy(closeModal);
     modalWindow->setDestrArgs(modalWindow);
 
+    // add edit box
     EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), NUMBERS_ONLY);
-
     modalWindow->addEditBox(editBox);
+
+    // TextButton* okBtn = new TextButton(MPoint(300, 500), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), color, new MFont (DEFAULT_FONT), "OK", modalWindow, closeModal, lineArgs);
+
+    // add modalWindow 
     modalWinArgs->drawZone->registerObject(modalWindow);
 
+    // close subMenu
     modalWinArgs->subMenu->changeActivity();
 }
 

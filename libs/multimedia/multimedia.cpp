@@ -24,6 +24,10 @@ MPoint::MPoint(sf::Vector2u _point) :
     x(_point.x),
     y(_point.y)   {}
 
+MPoint::MPoint(plugin::Vec2 _point) :
+    x(_point.x),
+    y(_point.y)   {}
+
 MPoint::~MPoint() {
     x = NAN;
     y = NAN;
@@ -121,6 +125,12 @@ MColor::MColor(sf::Color _color) :
     b(_color.b),
     a(_color.a)   {}
 
+MColor::MColor(plugin::Color _color) :
+    r(_color.r),
+    g(_color.g),
+    b(_color.b),
+    a(_color.a)   {}
+
 sf::Color MColor::toSfColor() {
     return sf::Color(r, g, b, a);
 }
@@ -181,6 +191,59 @@ MImage::MImage(const char* _imgPath) :
 
 MImage::MImage(sf::Texture* _imgText) :
     img(_imgText)   {}
+
+MImage::MImage(const plugin::Texture* _texture) {
+    ON_ERROR(!_texture, "Texture was nullptr!",);
+
+    buildFromPluginTexture(_texture);
+}
+
+void MImage::buildFromPluginTexture(const plugin::Texture* _texture) {
+    img = new sf::Texture();
+    
+    plugin::Color* pl_pixel_array = _texture->pixels;
+    uint64_t height = _texture->height;
+    uint64_t width  = _texture->width;
+
+    sf::Image sf_pixel_array;
+    sf_pixel_array.create(width, height);
+
+    for (uint64_t i = 0; i < width; i++) {
+        for (uint64_t j = 0; j < height; j++) {
+            sf_pixel_array.setPixel(i, j, MColor(pl_pixel_array[i * height + j]).toSfColor());
+        }
+    }
+
+    img->loadFromImage(sf_pixel_array);
+}
+
+plugin::Texture* MImage::toPluginTexture() {
+    ON_ERROR(!img, "Texture was null!", nullptr);
+
+    sf::Image sf_pixel_array = img->copyToImage();
+    uint64_t height = sf_pixel_array.getSize().y;
+    uint64_t width  = sf_pixel_array.getSize().x;
+
+    plugin::Color* pl_pixel_array = new plugin::Color[height * width];
+
+    for (uint64_t i = 0; i < width; i++) {
+        for (uint64_t j = 0; j < height; j++) {
+            sf::Color     sf_pixel = sf_pixel_array.getPixel(i, j);
+
+            pl_pixel_array[i * height + j] = {.r = sf_pixel.r, 
+                                              .g = sf_pixel.g, 
+                                              .b = sf_pixel.b, 
+                                              .a = sf_pixel.a};
+        }
+    }
+
+    plugin::Texture* pl_texture = new plugin::Texture;
+    pl_texture->height = height;
+    pl_texture->width  = width;
+    pl_texture->pixels = pl_pixel_array;
+
+    return pl_texture;
+}
 
 MImage::~MImage() {
     if (img) delete img;
@@ -313,7 +376,7 @@ void RenderTarget::setTexture(MImage* const mImage) {
 
 }
 
-void RenderTarget::clear(MColor col) {
+void RenderTarget::clearTexture(MColor col) {
     if (texture) texture->clear(col.toSfColor());
 }
 
@@ -331,6 +394,53 @@ void RenderTarget::displayAll() {
 
     window->draw(*sprite);
     window->display();
+}
+
+void RenderTarget::setPixel(plugin::Vec2 pos, plugin::Color color) {
+    setPixel(MPoint(pos), MColor(color));
+}
+
+void RenderTarget::drawLine(plugin::Vec2 pos, plugin::Vec2 point1, plugin::Color color) {
+    drawLine(MPoint(pos), MPoint(point1), MColor(color));
+}
+
+void RenderTarget::drawRect(plugin::Vec2 pos, plugin::Vec2 size, plugin::Color color) {
+    drawRect(MPoint(pos), MPoint(size), MColor(color), MColor::TRANSPARENT);
+}
+
+void RenderTarget::drawEllipse(plugin::Vec2 pos, plugin::Vec2 size, plugin::Color color) {
+    double height = size.y / 2;
+    double length = size.x / 2;
+
+    if (height < EPSILON || length < EPSILON) return;
+
+    double scaleX = 1, scaleY = 1;
+    if (length < height) scaleX = length / height;
+    else                 scaleY = height / length;
+
+    drawEllipse(MPoint(pos), scaleX, scaleY, std::max(height, length), MColor(color));
+}
+
+void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture) {
+    MImage sf_texture = MImage(texture);
+    drawSprite(MPoint(pos), MPoint(size), &sf_texture);
+}
+
+void RenderTarget::drawText(plugin::Vec2 pos, const char *content, uint16_t char_size, plugin::Color color) {
+    MFont defaultFont = MFont(DEFAULT_FONT);
+    drawText(MPoint(pos), content, MColor(color), &defaultFont, char_size);
+}
+
+plugin::Texture* RenderTarget::getTexture() {
+
+}
+
+void RenderTarget::display() {
+    displayAll();
+}
+
+void RenderTarget::clear() {
+    clearAll();
 }
 
 void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
