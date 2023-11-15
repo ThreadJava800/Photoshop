@@ -29,7 +29,7 @@ compile_debug:
 	@${CC} ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
 
 compile_release:
-	@${CC} -g $(SOURCES) -O2 -o $(EXECUTABLE) $(SFML_EXEC)
+	@${CC} $(SOURCES) -O2 -o $(EXECUTABLE) $(SFML_EXEC)
 
 run:
 	@./${EXECUTABLE}

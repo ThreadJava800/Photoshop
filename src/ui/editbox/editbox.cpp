@@ -130,14 +130,6 @@ bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
 }
 
 bool EditBox::onClock(uint64_t delta) {
-
-}
-
-bool EditBox::onKeyPressed(MKeyboard key) {
-
-}
-
-bool EditBox::onTimerTick(double delta) {
     cursorState = !cursorState;
 
     return true;

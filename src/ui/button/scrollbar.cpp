@@ -36,10 +36,12 @@ bool ScrollBar::moveSlider() {
     return intersection == slider;
 }
 
-bool ScrollBar::onMousePressed(MPoint pos, MMouse btn) {
+bool ScrollBar::onMousePress(plugin::MouseContext context) {
+    MPoint pos = MPoint(context.position);
+
     if (!isInside(pos)) return false;
 
-    if (Widget::onMousePressed(pos, btn)) return true;
+    if (Widget::onMousePress(context)) return true;
 
     MathRectangle sliderRect = MathRectangle(sliderPos, sliderSize);
     if (sliderRect.isPointInside(pos)) {
@@ -71,7 +73,14 @@ bool ScrollBar::onMousePressed(MPoint pos, MMouse btn) {
     return true;
 }
 
-bool ScrollBar::onMouseMove(MPoint pos, MMouse btn) {
+bool ScrollBar::onMouseRelease(plugin::MouseContext context) {
+    isMoving = false;
+    return true;
+}
+
+bool ScrollBar::onMouseMove(plugin::MouseContext context) {
+    MPoint pos = MPoint(context.position);
+
     if (isMoving) {
         if (onScroll) onScroll(scrollArgs, MPoint((pos.x - prevPos.x) * delta.x, (pos.y - prevPos.y) * delta.y));
         
@@ -86,11 +95,6 @@ bool ScrollBar::onMouseMove(MPoint pos, MMouse btn) {
     }
 
     return false;
-}
-
-bool ScrollBar::onMouseReleased(MPoint pos, MMouse btn) {
-    isMoving = false;
-    return true;
 }
 
 void ScrollBar::render(RenderTarget* renderTarget) {

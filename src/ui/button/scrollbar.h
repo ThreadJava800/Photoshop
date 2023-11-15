@@ -28,11 +28,11 @@ public:
 
     bool updateSlider(MPoint shift);
 
-    bool onMousePressed (MPoint pos, MMouse btn)     override;
-    bool onMouseMove    (MPoint pos, MMouse btn)     override;
-    bool onMouseReleased(MPoint pos, MMouse btn)     override;
-    void render         (RenderTarget* renderTarget) override;
-    void move           (MPoint shift)               override;
+    bool onMousePress  (plugin::MouseContext context) override;
+    bool onMouseRelease(plugin::MouseContext context) override;
+    bool onMouseMove   (plugin::MouseContext context) override;
+    void render        (RenderTarget* renderTarget)   override;
+    void move          (MPoint shift)                 override;
 };
 
 struct ScrollBtnArgs {

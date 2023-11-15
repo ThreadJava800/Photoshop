@@ -18,8 +18,8 @@ public:
     explicit Button(MPoint _position, MPoint _size, MColor _color, Widget* _parent, ButtonFunc _func = nullptr, void* _args = nullptr, bool _needFree = false);
     virtual ~Button();
 
-    void render(RenderTarget* renderTarget)     override;
-    bool onMousePressed(MPoint pos, MMouse btn) override;
+    void render      (RenderTarget* renderTarget)   override;
+    bool onMousePress(plugin::MouseContext context) override;
 };
 
 class TextButton : public Button {

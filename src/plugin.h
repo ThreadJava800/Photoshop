@@ -1,3 +1,7 @@
+#ifndef _PLUGINS_h_
+#define _PLUGINS_h_
+
+
 #include <cinttypes>
 
 namespace plugin {
@@ -226,7 +230,7 @@ namespace plugin {
         virtual bool onClock(uint64_t delta) = 0;
 
 
-	    virtual uint8_t getPriority();
+	    virtual uint8_t getPriority() = 0;
     };
 
     struct EventManagerI {
@@ -334,3 +338,5 @@ namespace plugin {
 }
 
 extern "C" plugin::Plugin* getInstance(plugin::App *app);
+
+#endif

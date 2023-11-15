@@ -542,10 +542,12 @@ MImage* Canvas::getTexture() {
     return rendTarget->getImage();
 }
 
-bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
+bool Canvas::onMousePress(plugin::MouseContext context) {
     if (!rendTarget) return false;
 
-    if (parentRect.isPointInside(pos)) {
+    MPoint pos = MPoint(context.position);
+
+    if (parentRect.isPointInside(MPoint(pos))) {
         if (filtManager && filtManager->getActive()) {
             filtManager->setRT(rendTarget);
             filtManager->applyFilter();
@@ -553,7 +555,7 @@ bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
             return true;
         }
 
-        drawing = manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, btn);
+        drawing = manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, (MMouse)(context.button));
     
         return drawing;
     }
@@ -561,16 +563,20 @@ bool Canvas::onMousePressed(MPoint pos, MMouse btn) {
     return false;
 }
 
-bool Canvas::onMouseReleased(MPoint pos, MMouse btn) {
+bool Canvas::onMouseRelease(plugin::MouseContext context) {
     if (!rendTarget) return false;
 
-    if (drawing) drawing = manager->paintOnReleased(rendTarget, tempTarget, pos - this->position, btn);
+    MPoint pos = MPoint(context.position);
+
+    if (drawing) drawing = manager->paintOnReleased(rendTarget, tempTarget, pos - this->position, (MMouse)(context.button));
 
     return drawing;
 }
 
-bool Canvas::onMouseMove(MPoint pos, MMouse btn) {
+bool Canvas::onMouseMove(plugin::MouseContext context) {
     if (!rendTarget) return false;
+
+    MPoint pos = MPoint(context.position);
 
     if (!isInside(pos) && drawing) {
         drawing = manager->paintOnDeactivate(rendTarget, tempTarget);

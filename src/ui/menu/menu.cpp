@@ -36,7 +36,7 @@ bool Menu::isInsideBar(MPoint checkPoint) {
 }
 
 bool Menu::onMousePress(plugin::MouseContext context) {
-    if (isInsideBar(MPoint(context.position)) && context.button == plugin::Key::Left) {
+    if (isInsideBar(MPoint(context.position)) && context.button == plugin::MouseButton::Left) {
         isClicked = true;
         prevPos = MPoint(context.position);
     }

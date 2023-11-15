@@ -20,7 +20,9 @@ void Button::render(RenderTarget* renderTarget) {
     renderTarget->drawRect(position, size, color, MColor::TRANSPARENT);
 }
 
-bool Button::onMousePressed(MPoint pos, MMouse btn) {
+bool Button::onMousePress(plugin::MouseContext context) {
+    MPoint pos = MPoint(context.position);
+
     if (isInside(pos) && onClick) {
         onClick(onClickArgs);
         return true;

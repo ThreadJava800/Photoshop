@@ -440,7 +440,7 @@ void RenderTarget::display() {
 }
 
 void RenderTarget::clear() {
-    clearAll();
+    texture->clear(sf::Color::Transparent);
 }
 
 void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
