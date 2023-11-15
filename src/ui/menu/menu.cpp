@@ -35,10 +35,10 @@ bool Menu::isInsideBar(MPoint checkPoint) {
            checkPoint.y - position.y <= size.y;
 }
 
-bool Menu::onMousePressed(MPoint pos, MMouse btn) {
-    if (isInsideBar(pos) && btn == LEFT) {
+bool Menu::onMousePress(plugin::MouseContext context) {
+    if (isInsideBar(MPoint(context.position)) && context.button == plugin::Key::Left) {
         isClicked = true;
-        prevPos = pos;
+        prevPos = MPoint(context.position);
     }
 
     bool retValue = isClicked;
@@ -47,23 +47,23 @@ bool Menu::onMousePressed(MPoint pos, MMouse btn) {
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
         if (widget->getVisible()) {
-            retValue |= widget->onMousePressed(pos, btn);
+            retValue |= widget->onMousePress(context);
         }
     }
 
     return retValue;
 }
 
-bool Menu::onMouseReleased(MPoint pos, MMouse btn) {
+bool Menu::onMouseRelease(plugin::MouseContext context) {
     isClicked = false;
-    return isInsideBar(pos);
+    return isInsideBar(MPoint(context.position));
 }
 
-bool Menu::onMouseMove(MPoint pos, MMouse btn) {
+bool Menu::onMouseMove(plugin::MouseContext context) {
     if (isClicked) {
         if (window && onMove) {
-            onMove(window, pos, prevPos);
-            prevPos = pos;
+            onMove(window, MPoint(context.position), prevPos);
+            prevPos = MPoint(context.position);
         }
     }
     return true;

@@ -34,7 +34,7 @@ public:
     void        setName  (const char* _windowName);
     Canvas    * getCanvas();
 
-    bool onMousePressed (MPoint pos, MMouse btn) override;
+    bool onMousePress(plugin::MouseContext context) override;
 
     FilterManager* getFiltManager();
 

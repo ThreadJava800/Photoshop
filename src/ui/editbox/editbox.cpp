@@ -2,12 +2,18 @@
 
 const CheckInput EditBox::checkerFuncs[] = {chNumbersOnly, chAllInput};
 
-bool chNumbersOnly(MKeyboard key) {
-    return key.symbol >= '0' && key.symbol <= '9' || key.symbol == BACKSPACE || key.keyId == LEFT_KEY || key.keyId == RIGHT_KEY;
+bool chNumbersOnly(plugin::Key key) {
+    return key >= plugin::Key::Num0 && key <= plugin::Key::Num9 || key == plugin::Key::Backspace || key == plugin::Key::Left || key == plugin::Key::Right;
 }
 
-bool chAllInput(MKeyboard key) {
+bool chAllInput(plugin::Key key) {
     return true;
+}
+
+inline char EditBox::getRealChar(plugin::Key key) {
+    if (key <= plugin::Key::Z)    return (char)(key) + 'a';
+    if (key <= plugin::Key::Num9) return (char)(key) - (char)(plugin::Key::Num0) + '0';
+    return (char)(key);
 }
 
 double EditBox::getCursorX(MFont* font, int pt) {
@@ -59,8 +65,10 @@ void EditBox::render(RenderTarget* renderTarget) {
     if (cursorState) renderTarget->drawLine(MPoint(xCursorPos, position.y), MPoint(xCursorPos, position.y + size.y), MColor::BLACK, regSet);
 }
 
-bool EditBox::onMousePressed(MPoint pos, MMouse btn) {
+bool EditBox::onMousePress(plugin::MouseContext context) {
     ON_ERROR(!text, "Text pointer was null!", false);
+
+    MPoint pos = MPoint(context.position);
 
     size_t charCnt    = text->getSize();
     double shiftConst = getTextSize(text->getCArray(), font, pt).x / (charCnt - 1);
@@ -77,22 +85,22 @@ bool EditBox::onMousePressed(MPoint pos, MMouse btn) {
     return true;
 }
 
-bool EditBox::onKeyPressed(MKeyboard key) {
+bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
     ON_ERROR(!text, "Text pointer was null!", false);
 
-    if (!checkerFuncs[inputType](key)) return false;
+    if (!checkerFuncs[inputType](context.key)) return false;
 
-    if (key.keyId == LEFT_KEY) {
+    if (context.key == plugin::Key::Left) {
         curPos--;
         return true;
     }
 
-    if (key.keyId == RIGHT_KEY) {
+    if (context.key == plugin::Key::Right) {
         curPos++;
         return true;
     }
 
-    if (key.symbol == BACKSPACE) {
+    if (context.key == plugin::Key::Backspace) {
         size_t charCnt = text->getSize();
         if (charCnt >= 2 && curPos > 0) {
             text->remove(curPos - 1);
@@ -111,14 +119,22 @@ bool EditBox::onKeyPressed(MKeyboard key) {
 
     if (charCnt > 0) {
         text->pop();
-        text->insert  (key.symbol, curPos);
+        text->insert  (getRealChar(context.key), curPos);
     }
-    else             text->pushBack(key.symbol);
+    else             text->pushBack(getRealChar(context.key));
 
     text->pushBack('\0');
     curPos++;
 
     return true;
+}
+
+bool EditBox::onClock(uint64_t delta) {
+
+}
+
+bool EditBox::onKeyPressed(MKeyboard key) {
+
 }
 
 bool EditBox::onTimerTick(double delta) {

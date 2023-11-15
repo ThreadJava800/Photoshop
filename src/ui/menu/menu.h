@@ -25,9 +25,9 @@ public:
 
     bool isInsideBar(MPoint checkPoint);
 
-    bool onMousePressed (MPoint pos, MMouse btn) override;
-    bool onMouseReleased(MPoint pos, MMouse btn) override;
-    bool onMouseMove    (MPoint pos, MMouse btn) override;
+    bool onMousePress  (plugin::MouseContext context) override;
+    bool onMouseRelease(plugin::MouseContext context) override;
+    bool onMouseMove   (plugin::MouseContext context) override;
 
     bool       isInside        (MPoint point)               override;
     void       render          (RenderTarget* renderTarget) override;

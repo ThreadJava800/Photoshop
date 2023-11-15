@@ -56,12 +56,12 @@ Canvas* Window::getCanvas() {
     return canvas;
 }
 
-bool Window::onMousePressed (MPoint pos, MMouse btn) {
-    if (isInside(pos)) {
+bool Window::onMousePress(plugin::MouseContext context) {
+    if (isInside(MPoint(context.position))) {
         prioritizeWindow();
     }
 
-    return Widget::onMousePressed(pos, btn);
+    return Widget::onMousePress(context);
 }
 
 FilterManager* Window::getFiltManager() {
@@ -151,9 +151,9 @@ void ModalWindow::makeEventPrivate() {
             eventMan->registerObject(this);
 
             List<EventType> privateEvents = List<EventType>();
-            privateEvents.pushBack(MOUSE_MOVE);
-            privateEvents.pushBack(MOUSE_PRESSED);
-            privateEvents.pushBack(MOUSE_RELEASED);
+            privateEvents.pushBack(plugin::EventType::MouseMove);
+            privateEvents.pushBack(plugin::EventType::MousePress);
+            privateEvents.pushBack(plugin::EventType::MouseRelease);
 
             eventMan->privatizeEvents(privateEvents, 1);
     }

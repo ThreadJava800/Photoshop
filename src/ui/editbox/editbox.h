@@ -9,10 +9,10 @@ enum INPUT_TYPE {
     ALL_CHARACTER,
 };
 
-typedef bool (*CheckInput)(MKeyboard);
+typedef bool (*CheckInput)(plugin::Key);
 
-bool chNumbersOnly(MKeyboard key);
-bool chAllInput   (MKeyboard key);
+bool chNumbersOnly(plugin::Key key);
+bool chAllInput   (plugin::Key key);
 
 
 class EditBox : public Widget {
@@ -29,6 +29,8 @@ private:
 
     static const CheckInput checkerFuncs[];
 
+    inline char getRealChar(plugin::Key key);
+
 public:
     explicit EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, INPUT_TYPE _type, int _pt = BTN_TXT_PT);
 
@@ -36,10 +38,10 @@ public:
 
     char* getText();
 
-    void render        (RenderTarget* renderTarget) override;
-    bool onMousePressed(MPoint pos, MMouse btn)     override;
-    bool onKeyPressed  (MKeyboard key)              override;
-    bool onTimerTick   (double delta)               override;
+    void render         (RenderTarget* renderTarget)      override;
+    bool onMousePress   (plugin::MouseContext context)    override;
+    bool onKeyboardPress(plugin::KeyboardContext context) override;
+    bool onClock        (uint64_t delta)                  override;
 };
 
 #endif
