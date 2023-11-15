@@ -42,14 +42,14 @@ public:
     void setParent (Widget* _parent);
     void setVisible(bool _visible);
 
-    bool onKeyPressed (MKeyboard key) override;
-    bool onKeyReleased(MKeyboard key) override;
+    bool onKeyboardPress  (plugin::KeyboardContext context) override;
+    bool onKeyboardRelease(plugin::KeyboardContext context) override;
 
-    bool onTimerTick(double delta) override;
+    bool onClock(uint64_t delta) override;
 
-    bool onMousePressed (MPoint pos, MMouse btn) override;
-    bool onMouseReleased(MPoint pos, MMouse btn) override;
-    bool onMouseMove    (MPoint pos, MMouse btn) override;
+    bool onMousePress   (plugin::MouseContext context) override;
+    bool onMouseRelease (plugin::MouseContext context) override;
+    bool onMouseMove    (plugin::MouseContext context) override;
 
     virtual void       move            (MPoint shift);
     virtual void       registerObject  (Widget* widget);

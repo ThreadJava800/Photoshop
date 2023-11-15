@@ -6,6 +6,7 @@ namespace plugin {
         Filter
     };
 
+/// @warning Array не владеющая структура => он не должен аллоцировать память. Даже в случае getPramas() надо возвращать указатель на какой-то внутренний массив даблов, а не аллоцировать, так как будет memory leak
     template<class T>
     struct Array {
         uint64_t size;
@@ -202,7 +203,9 @@ namespace plugin {
         MouseRelease,
         MouseMove,
         KeyPress,
-        KeyRelease
+        KeyRelease,
+	    Clock,
+	    NumOfEvents
     };
 
     struct EventProcessableI {
@@ -211,8 +214,7 @@ namespace plugin {
         // строго говоря, плагин не знает где в реальном мире находится RT (его могли перетаскивать и проч)
         // и не может пересчитать их в локальные.
         
-        /// @warning aka proposal: тогда вызов этих функций без предварительного вызова getRenderTarget UB.
-
+	// true = перехватил, false = надо продолжать
         virtual bool onMouseMove(MouseContext context) = 0;
         virtual bool onMouseRelease(MouseContext context) = 0;
         virtual bool onMousePress(MouseContext context) = 0;
@@ -222,6 +224,9 @@ namespace plugin {
         /// @brief clock event
         /// @param context microseconds
         virtual bool onClock(uint64_t delta) = 0;
+
+
+	    virtual uint8_t getPriority();
     };
 
     struct EventManagerI {

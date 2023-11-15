@@ -11,7 +11,7 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
         if (passed.count() >= 1) {
             // renderTarget.getRenderTexture()->clear();
 
-            eventBoy.onTimerTick(passed.count());
+            eventBoy.onClock(passed.count());
 
             // drawWidget.render(&renderTarget);
             // window.display();
@@ -32,32 +32,31 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
                 if (event.key.code == sf::Keyboard::Escape)
                     renderTarget.getRenderWindow()->close();
                 if (event.key.code == sf::Keyboard::Left)
-                    eventBoy.onKeyPressed(MKeyboard(0, LEFT_KEY));
+                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Left});
                 if (event.key.code == sf::Keyboard::Right)
-                    eventBoy.onKeyPressed(MKeyboard(0, RIGHT_KEY));
+                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Right});
                 if (event.key.code == sf::Keyboard::Down)
-                    eventBoy.onKeyPressed(MKeyboard(0, DOWN_KEY));
+                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Down});
                 if (event.key.code == sf::Keyboard::Up)
-                    eventBoy.onKeyPressed(MKeyboard(0, UP_KEY));
+                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Up});
                 break;
             case sf::Event::TextEntered:
                 // renderTarget.getRenderTexture()->clear();
 
-                eventBoy.onKeyPressed(MKeyboard(event.text.unicode, DEFAULT_KEY));
+                eventBoy.onKeyboardPress({false, false, false, (plugin::Key)(event.key.code)});
 
                 drawWidget.render(&renderTarget);
                 renderTarget.displayAll();
                 break;
             case sf::Event::KeyReleased:
-                eventBoy.onKeyReleased(MKeyboard(event.text.unicode, DEFAULT_KEY));
+                eventBoy.onKeyboardRelease({false, false, false, (plugin::Key)(event.key.code)});
                 break;
 
             case sf::Event::MouseButtonPressed: {
                 // renderTarget.getRenderTexture()->clear();
-                if (event.mouseButton.button == sf::Mouse::Left) 
-                    eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), LEFT);
-                if (event.mouseButton.button == sf::Mouse::Right)
-                    eventBoy.onMousePressed(MPoint(sf::Mouse::getPosition()), RIGHT);
+
+                sf::Vector2i mouse_pos = sf::Mouse::getPosition();
+                eventBoy.onMousePress({{(double)(mouse_pos.x), (double)(mouse_pos.y)}, (plugin::MouseButton)(event.mouseButton.button)});
 
                 drawWidget.render(&renderTarget);
                 renderTarget.displayAll();
@@ -66,10 +65,9 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
             }
             case sf::Event::MouseButtonReleased: {
                 // renderTarget.getRenderTexture()->clear();
-                if (event.mouseButton.button == sf::Mouse::Left)
-                    eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), LEFT);
-                if (event.mouseButton.button == sf::Mouse::Right)
-                    eventBoy.onMouseReleased(MPoint(sf::Mouse::getPosition()), RIGHT);
+
+                sf::Vector2i mouse_pos = sf::Mouse::getPosition();
+                eventBoy.onMouseRelease({{(double)(mouse_pos.x), (double)(mouse_pos.y)}, (plugin::MouseButton)(event.mouseButton.button)});
 
                 drawWidget.render(&renderTarget);
                 renderTarget.displayAll();
@@ -78,7 +76,9 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
             }
             case sf::Event::MouseMoved: {
                 // renderTarget.getRenderTexture()->clear();
-                eventBoy.onMouseMove(MPoint(sf::Mouse::getPosition()), LEFT);
+
+                sf::Vector2i mouse_pos = sf::Mouse::getPosition();
+                eventBoy.onMouseMove({{(double)(mouse_pos.x), (double)(mouse_pos.y)}, (plugin::MouseButton)(event.mouseButton.button)});
 
                 drawWidget.render(&renderTarget);
                 renderTarget.displayAll();

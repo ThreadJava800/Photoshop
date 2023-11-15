@@ -2,21 +2,13 @@
 #define _EVENTS_h_
 
 #include "../../libs/multimedia/multimedia.h"
+#include "../../src/plugin.h"
 
-enum EventType {
-    KEY_PRESSED,
-    KEY_RELEASED,
-    
-    TIMER,
+using EventType = plugin::EventType;
 
-    MOUSE_PRESSED,
-    MOUSE_MOVE,
-    MOUSE_RELEASED
-};
+static const int EVENT_TYPES_NUM = (int)(plugin::EventType::NumOfEvents);
 
-static const int EVENT_TYPES_NUM = MOUSE_RELEASED - KEY_PRESSED + 1;
-
-class EventProcessable {
+class EventProcessable : public plugin::EventProcessableI {
 private:
     uint8_t priority = 0;
 
@@ -24,21 +16,12 @@ public:
     EventProcessable();
     EventProcessable(uint8_t _priority);
 
-    uint8_t getPriority();
-
-    virtual bool onKeyPressed (MKeyboard key) = 0;
-    virtual bool onKeyReleased(MKeyboard key) = 0;
-
-    virtual bool onTimerTick  (double delta)  = 0;
-
-    virtual bool onMousePressed (MPoint pos, MMouse btn) = 0;
-    virtual bool onMouseReleased(MPoint pos, MMouse btn) = 0;
-    virtual bool onMouseMove    (MPoint pos, MMouse btn) = 0;
+    uint8_t getPriority() override;
 };
 
-class EventManager : public EventProcessable {
+class EventManager : public EventProcessable, public plugin::EventManagerI {
 private:
-    List<EventProcessable*>* children = nullptr;
+    List<plugin::EventProcessableI*>* children = nullptr;
     int priorities[EVENT_TYPES_NUM];
 
 public:
@@ -46,19 +29,19 @@ public:
 
     ~EventManager();
 
-    void registerObject  (EventProcessable* eventProc);
-    void unregisterObject(EventProcessable* eventProc);
-    void privatizeEvents (List<EventType>& events, int priority);
-    void resetPriorities ();
+    void registerObject  (plugin::EventProcessableI *object)   override;
+    void setPriority     (plugin::EventType, uint8_t priority) override;
+    void unregisterObject(plugin::EventProcessableI *object)   override;
 
-    bool onKeyPressed (MKeyboard key) override;
-    bool onKeyReleased(MKeyboard key) override;
+    void privatizeEvents(List<EventType>& events, int priority);
+    void resetPriorities();
 
-    bool onTimerTick(double delta) override;
-
-    bool onMousePressed (MPoint pos, MMouse btn) override;
-    bool onMouseReleased(MPoint pos, MMouse btn) override;
-    bool onMouseMove    (MPoint pos, MMouse btn) override;
+    bool onMouseMove      (plugin::MouseContext context)    override;
+    bool onMouseRelease   (plugin::MouseContext context)    override;
+    bool onMousePress     (plugin::MouseContext context)    override;
+    bool onKeyboardPress  (plugin::KeyboardContext context) override;
+    bool onKeyboardRelease(plugin::KeyboardContext context) override;
+    bool onClock          (uint64_t delta)                  override;
 };
 
 #endif

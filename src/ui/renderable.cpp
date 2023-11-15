@@ -87,7 +87,7 @@ void Widget::setVisible(bool _visible) {
     visible = _visible;
 }
 
-bool Widget::onKeyPressed(MKeyboard key) {
+bool Widget::onKeyboardPress(plugin::KeyboardContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
     bool wasClick = false;
@@ -97,7 +97,7 @@ bool Widget::onKeyPressed(MKeyboard key) {
         Widget* widget = (*subWindows)[i];
 
         if (widget && widget->getExists() && widget->visible) {
-            wasClick = widget->onKeyPressed(key);
+            wasClick = widget->onKeyboardPress(context);
             if (wasClick) return wasClick;
         }
     }
@@ -105,33 +105,33 @@ bool Widget::onKeyPressed(MKeyboard key) {
     return wasClick;
 }
 
-bool Widget::onTimerTick(double delta) {
+bool Widget::onKeyboardRelease(plugin::KeyboardContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onTimerTick(delta);
+        if (widget && widget->getExists()) widget->onKeyboardRelease(context);
     }
 
     return true;
 }
 
-bool Widget::onKeyReleased(MKeyboard key) {
+bool Widget::onClock(uint64_t delta) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onKeyReleased(key);
+        if (widget && widget->getExists()) widget->onClock(delta);
     }
 
     return true;
 }
 
-bool Widget::onMousePressed(MPoint pos, MMouse btn) {
+bool Widget::onMousePress(plugin::MouseContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
     bool wasClick = false;
@@ -140,8 +140,8 @@ bool Widget::onMousePressed(MPoint pos, MMouse btn) {
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget && widget->getExists() && widget->visible && widget->isInside(pos)) {
-            wasClick = widget->onMousePressed(pos, btn);
+        if (widget && widget->getExists() && widget->visible && widget->isInside(MPoint(context.position))) {
+            wasClick = widget->onMousePress(context);
             if (wasClick) return wasClick;
         }
     }
@@ -149,27 +149,27 @@ bool Widget::onMousePressed(MPoint pos, MMouse btn) {
     return wasClick;
 }
 
-bool Widget::onMouseReleased(MPoint pos, MMouse btn) {
+bool Widget::onMouseRelease(plugin::MouseContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onMouseReleased(pos, btn);
+        if (widget && widget->getExists()) widget->onMouseRelease(context);
     }
 
     return true;
 }
 
-bool Widget::onMouseMove(MPoint pos, MMouse btn) {
+bool Widget::onMouseMove(plugin::MouseContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onMouseMove(pos, btn);
+        if (widget && widget->getExists()) widget->onMouseMove(context);
     }
 
     return true;

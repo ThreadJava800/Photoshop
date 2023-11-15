@@ -13,35 +13,17 @@ uint8_t EventProcessable::getPriority() {
 EventManager::EventManager() :
     EventProcessable()  {
         resetPriorities();
-        children = new List<EventProcessable*>();
+        children = new List<EventProcessableI*>();
     }
 
 EventManager::~EventManager() {
     delete children;
 }
 
-void EventManager::registerObject(EventProcessable* eventProc) {
-    ON_ERROR(!eventProc, "EventProcessable was nullptr!",);
-
-    children->pushBack(eventProc);
-}
-
-void EventManager::unregisterObject(EventProcessable* eventProc) {
-    ON_ERROR(!eventProc, "EventProcessable was nullptr!",);
-
-    size_t childCnt = children->getSize();
-    for (size_t i = 0; i < childCnt; i++) {
-        if ((*children)[i] == eventProc) {
-            children->remove(i);
-            return;
-        }
-    }
-}
-
 void EventManager::privatizeEvents(List<EventType>& events, int priority) {
     size_t eventCnt = events.getSize();
     for (size_t i = 0; i < eventCnt; i++) {
-        priorities[events[i]] = priority;
+        priorities[(int)(events[i])] = priority;
     }
 }
 
@@ -50,66 +32,88 @@ void EventManager::resetPriorities() {
         priorities[i] = 0;
 }
 
-bool EventManager::onKeyPressed(MKeyboard key) {
+void EventManager::registerObject (plugin::EventProcessableI *object) {
+    ON_ERROR(!object, "EventProcessable was nullptr!",);
+
+    children->pushBack(object);
+}
+
+void EventManager::setPriority(plugin::EventType event_type, uint8_t priority) {
+    priorities[(int)(event_type)] = priority;
+}
+
+void EventManager::unregisterObject(plugin::EventProcessableI *object) {
+    ON_ERROR(!object, "EventProcessable was nullptr!",);
+
     size_t childCnt = children->getSize();
     for (size_t i = 0; i < childCnt; i++) {
-        if ((*children)[i]->getPriority() >= priorities[KEY_PRESSED]) {
-            (*children)[i]->onKeyPressed(key);
+        if ((*children)[i] == object) {
+            children->remove(i);
+            return;
+        }
+    }
+}
+
+bool EventManager::onMouseMove(plugin::MouseContext context)   {
+    size_t childCnt = children->getSize();
+    for (size_t i = 0; i < childCnt; i++) {
+        if ((*children)[i]->getPriority() >= priorities[(int)(plugin::EventType::MouseMove)]) {
+            (*children)[i]->onMouseMove(context);
         }
     }
 
     return true;
 }
 
-bool EventManager::onKeyReleased(MKeyboard key) {
+bool EventManager::onMouseRelease(plugin::MouseContext context)    {
     size_t childCnt = children->getSize();
     for (size_t i = 0; i < childCnt; i++) {
-        if ((*children)[i]->getPriority() >= priorities[KEY_RELEASED]) {
-            (*children)[i]->onKeyReleased(key);
+        if ((*children)[i]->getPriority() >= priorities[(int)(plugin::EventType::MouseRelease)]) {
+            (*children)[i]->onMouseRelease(context);
         }
     }
 
     return true;
 }
 
-bool EventManager::onTimerTick(double delta) {
+bool EventManager::onMousePress(plugin::MouseContext context)    {
     size_t childCnt = children->getSize();
     for (size_t i = 0; i < childCnt; i++) {
-        if ((*children)[i]->getPriority() >= priorities[TIMER]) {
-            (*children)[i]->onTimerTick(delta);
+        if ((*children)[i]->getPriority() >= priorities[(int)(plugin::EventType::MousePress)]) {
+            (*children)[i]->onMousePress(context);
         }
     }
 
     return true;
 }
 
-bool EventManager::onMousePressed(MPoint pos, MMouse btn) {
+bool EventManager::onKeyboardPress(plugin::KeyboardContext context) {
     size_t childCnt = children->getSize();
     for (size_t i = 0; i < childCnt; i++) {
-        if ((*children)[i]->getPriority() >= priorities[MOUSE_PRESSED]) {
-            (*children)[i]->onMousePressed(pos, btn);
+        if ((*children)[i]->getPriority() >= priorities[(int)(plugin::EventType::KeyPress)]) {
+            (*children)[i]->onKeyboardPress(context);
         }
     }
 
     return true;
 }
 
-bool EventManager::onMouseReleased(MPoint pos, MMouse btn) {
+bool EventManager::onKeyboardRelease(plugin::KeyboardContext context) {
     size_t childCnt = children->getSize();
     for (size_t i = 0; i < childCnt; i++) {
-        if ((*children)[i]->getPriority() >= priorities[MOUSE_RELEASED]) {
-            (*children)[i]->onMouseReleased(pos, btn);
+        if ((*children)[i]->getPriority() >= priorities[(int)(plugin::EventType::KeyRelease)]) {
+            (*children)[i]->onKeyboardRelease(context);
         }
     }
 
     return true;
 }
 
-bool EventManager::onMouseMove(MPoint pos, MMouse btn) {
+bool EventManager::onClock(uint64_t delta) {
     size_t childCnt = children->getSize();
     for (size_t i = 0; i < childCnt; i++) {
-        if ((*children)[i]->getPriority() >= priorities[MOUSE_MOVE]) {
-            (*children)[i]->onMouseMove(pos, btn);
+        if ((*children)[i]->getPriority() >= priorities[(int)(plugin::EventType::Clock)]) {
+            (*children)[i]->onClock(delta);
         }
     }
 
