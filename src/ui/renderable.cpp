@@ -269,10 +269,6 @@ void Widget::fillRegionSetsRoot() {
 
     regSet = getDefaultRegSet();
 
-    // if (!parent) {
-    //     std::cout << size.x << ' ' << size.y << '\n';
-    // }
-
     if (parent) {
         RegionSet* oldRegSet = regSet;
         regSet = regSet->cross(parent->regSet);
