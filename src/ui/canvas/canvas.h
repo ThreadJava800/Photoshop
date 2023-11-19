@@ -11,6 +11,8 @@ protected:
     MPoint start = MPoint();
     MPoint last  = MPoint();
 
+    bool is_drawing = false;
+
 public:
     explicit Tool();
     explicit Tool(MPoint _start, MPoint _end);
@@ -198,6 +200,8 @@ public:
 
 class Canvas : public Widget {
 private:
+    bool is_drawing = false;
+
     RenderTarget * rendTarget  = nullptr;
     RenderTarget * tempTarget  = nullptr;
     plugin::ToolManagerI * manager     = nullptr;

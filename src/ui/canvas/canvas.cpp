@@ -115,6 +115,8 @@ const plugin::Texture *Brush::getIcon() {
 void Brush::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
+    is_drawing = true;
+
     if (points->getSize() > 4) points->popFront();
 
     points->pushBack(MPoint(context.position));
@@ -123,10 +125,13 @@ void Brush::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp
 
 void Brush::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     points->clear();
+    is_drawing = false;
 }
 
 void Brush::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+
+    if (!is_drawing) return;
 
     if (points->getSize() > 4) points->popFront();
 
@@ -136,6 +141,7 @@ void Brush::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp,
 
 void Brush::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     points->clear();
+    is_drawing = false;
 }
 
 Spline::Spline() :
@@ -162,6 +168,8 @@ const plugin::Texture *Spline::getIcon() {
 
 void Spline::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+
+    is_drawing = true;
 
     if (context.button == plugin::MouseButton::Left) {
         points->pushBack(MPoint(context.position));
@@ -190,6 +198,7 @@ void Spline::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, pl
     drawCatmull(data, MColor(color));
 
     points->clear();
+    is_drawing = false;
 }
 
 FillTool::FillTool() :
@@ -330,6 +339,7 @@ const plugin::Texture *StraightTool::getIcon() {
 void StraightTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
+    is_drawing = true;
     if (context.button == plugin::MouseButton::Left) rectStart = MPoint(context.position);
 }
 
@@ -384,10 +394,13 @@ void SquareTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTarge
 
     tmp->clear();
     drawSquare(rectStart, MPoint(context.position), MColor(color), data);
+    is_drawing = false;
 }
 
 void SquareTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!perm || !temp, "Drawable area was null!", false);
+
+    if (!is_drawing) return;
 
     tmp->clear();
     drawSquare(rectStart, MPoint(context.position), MColor(color), tmp);
@@ -435,10 +448,13 @@ void EllipseTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTarg
 
     tmp->clear();
     drawEllipse(rectStart, MPoint(context.position), MColor(color), data);
+    is_drawing = false;
 }
 
 void EllipseTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!data || !tmp, "Drawable area was null!", false);
+
+    if (!is_drawing) return;
 
     tmp->clear();
     drawEllipse(rectStart, MPoint(context.position), MColor(color), tmp);
@@ -471,10 +487,13 @@ void LineTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI
 
     tmp->clear();
     data->drawLine(rectStart.toVec2(), context.position, color);
+    is_drawing = false;
 }
 
 void LineTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!data || !tmp, "Drawable area was null!", false);
+
+    if (!is_drawing) return;
 
     tmp->clear();
     tmp->drawLine(rectStart.toVec2(), context.position, color);
@@ -534,7 +553,7 @@ void CurveTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI 
         tmp->clear();
         drawCurve(MColor(color), tmp);
 
-        return;
+        is_drawing = true;
     }
 
     if (context.button == plugin::MouseButton::Right) {
@@ -542,6 +561,8 @@ void CurveTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI 
         drawCurve(MColor(color), data);
 
         points->clear();
+
+        is_drawing = false;
     }
 }
 
@@ -555,6 +576,7 @@ void CurveTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp,
     tmp->clear();
     drawCurve(MColor(color), data);
     points->clear();
+    is_drawing = false;
 }
 
 ToolManager::ToolManager() :
@@ -645,6 +667,8 @@ bool Canvas::onMousePress(plugin::MouseContext context) {
         //     return true;
         // }
 
+        is_drawing = true;
+
         plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
         manager->paintOnPress(rendTarget, tempTarget, {draw_pos, context.button});
         return true;
@@ -654,7 +678,7 @@ bool Canvas::onMousePress(plugin::MouseContext context) {
 }
 
 bool Canvas::onMouseRelease(plugin::MouseContext context) {
-    if (!rendTarget) return false;
+    if (!rendTarget || !is_drawing) return false;
 
     MPoint pos = MPoint(context.position);
 
@@ -670,10 +694,13 @@ bool Canvas::onMouseMove(plugin::MouseContext context) {
     MPoint pos = MPoint(context.position);
 
     if (!isInside(pos)) {
-        manager->disableTool(rendTarget, tempTarget, context);
-    
+        if (is_drawing) manager->disableTool(rendTarget, tempTarget, context);
+        is_drawing = false;
+
         return true;
     }
+
+    if (!is_drawing) return false;
 
     plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
     manager->paintOnMove(rendTarget, tempTarget, {draw_pos, context.button});
