@@ -80,14 +80,17 @@ void closeModal(void* arg) {
 
     EditBoxModal* modWindow = (EditBoxModal*) arg;
 
-    Filter*         filter       = modWindow->getFiltManager()->getLast();
-    List<EditBox*>* editBoxes    = modWindow->getEditBoxes();
-    size_t          editBoxesCnt = editBoxes->getSize();
-    List<double>    doubleArgs   = List<double>();
+    plugin::FilterI*      filter       = modWindow->getFiltManager()->getLast();
+    List<EditBox*>*       editBoxes    = modWindow->getEditBoxes();
+    size_t                editBoxesCnt = editBoxes->getSize();
+    plugin::Array<double> doubleArgs;
+
+    doubleArgs.size = editBoxesCnt;
+    doubleArgs.data = new double[editBoxesCnt];
 
     for (size_t i = 0; i < editBoxesCnt; i++) {
         double doubleArg = atof((*editBoxes)[i]->getText());
-        doubleArgs.pushBack(doubleArg);
+        doubleArgs.data[i] = doubleArg;
     }
 
     filter->setParams(doubleArgs);
@@ -99,10 +102,10 @@ void openBlurPicker(void* arg) {
 
     ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
 
-    modalWinArgs->filtManager->setLast(new BrightnessFilter());
+    modalWinArgs->filtManager->setFilter(new BrightnessFilter());
 
-    List<const char*>* paramNames   = modalWinArgs->filtManager->getLast()->getParamNames()->createCopy();
-    EditBoxModal*      modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
+    plugin::Array<const char*> paramNames   = modalWinArgs->filtManager->getLast()->getParamNames();
+    EditBoxModal*              modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
     modalWindow->setOnDestroy(closeModal);
     modalWindow->setDestrArgs(modalWindow);
 
@@ -124,11 +127,13 @@ void changeBrightConst(void* arg) {
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
-    modalWinArgs->filtManager->setLast  (new BrightnessFilter());
+    modalWinArgs->filtManager->setFilter(new BrightnessFilter());
     modalWinArgs->filtManager->setActive(true);
     
-    List<double> arguments = List<double>();
-    arguments.pushBack(BRIGHTNESS_SHIFT);
+    plugin::Array<double> arguments;
+    arguments.size    = 1;
+    arguments.data    = new double[arguments.size];
+    arguments.data[0] = BRIGHTNESS_SHIFT;
 
     modalWinArgs->filtManager->getLast()->setParams(arguments);
 
@@ -140,7 +145,7 @@ void monochromeFilter(void* arg) {
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
-    modalWinArgs->filtManager->setLast  (new MonochromeFilter());
+    modalWinArgs->filtManager->setFilter(new MonochromeFilter());
     modalWinArgs->filtManager->setActive(true);
 
     modalWinArgs->subMenu->changeActivity();
@@ -151,11 +156,14 @@ void saturationFilter(void* arg) {
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
-    modalWinArgs->filtManager->setLast  (new ColorfulnessFilter());
+    modalWinArgs->filtManager->setFilter(new ColorfulnessFilter());
     modalWinArgs->filtManager->setActive(true);
 
-    List<double> params = List<double>();
-    params.pushBack(modalWinArgs->saturCoeff);
+    plugin::Array<double> params;
+    params.size    = 1;
+    params.data    = new double[params.size];
+    params.data[0] = modalWinArgs->saturCoeff;
+
     modalWinArgs->filtManager->getLast()->setParams(params);
 
     modalWinArgs->subMenu->changeActivity();
@@ -247,9 +255,12 @@ void saveBtnFunc(void* arg) {
     if (!arg) return;
 
     ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
-    List<const char*>* paramNames   = new List<const char*>();
-    paramNames->pushBack("Enter filename");
-    EditBoxModal*     modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
+
+    plugin::Array<const char*> paramNames;
+    paramNames.size    = 1;
+    paramNames.data    = new const char*[paramNames.size];
+    paramNames.data[0] = "Enter filename";
+    EditBoxModal* modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
     
     modalWinArgs->editBoxModal = modalWindow;
     

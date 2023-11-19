@@ -58,14 +58,14 @@ public:
 
 class EditBoxModal : public ModalWindow {
 private:
-    List<EditBox*>*    editBoxes     = nullptr;
-    ButtonFunc         onDestroyFunc = nullptr;
-    void*              onDestroyArgs = nullptr;
-    List<const char*>* paramNames    = nullptr;
+    List<EditBox*>*            editBoxes     = nullptr;
+    ButtonFunc                 onDestroyFunc = nullptr;
+    void*                      onDestroyArgs = nullptr;
+    plugin::Array<const char*> paramNames;
 
 public:
-    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, List<const char*>* _paramNames);
-    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, List<const char*>* _paramNames, Menu* _actions);
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames);
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames, Menu* _actions);
 
     ~EditBoxModal();
 

@@ -176,13 +176,13 @@ ModalWindow::~ModalWindow() {
     eventMan->unregisterObject(this);
 }
 
-EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, List<const char*>* _paramNames) :
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames) :
     ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent),
     paramNames   (_paramNames) {
         editBoxes = new List<EditBox*>();
     }
 
-EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, List<const char*>* _paramNames, Menu* _actions) :
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames, Menu* _actions) :
     ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent, _actions),
     paramNames   (_paramNames) {
         editBoxes = new List<EditBox*>();
@@ -191,8 +191,8 @@ EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _si
 EditBoxModal::~EditBoxModal() {
     if (onDestroyFunc) onDestroyFunc(onDestroyArgs);
 
-    delete editBoxes;
-    delete paramNames;
+    delete   editBoxes;
+    delete[] paramNames.data;
 }
 
 List<EditBox*>* EditBoxModal::getEditBoxes() {
@@ -218,14 +218,14 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
     renderTarget->drawRect (position, size, MColor::WHITE, MColor::TRANSPARENT);
     renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
 
-    size_t nameCnt    = paramNames->getSize();
+    size_t nameCnt    = paramNames.size;
     size_t editBoxCnt = editBoxes ->getSize();
     
     if (nameCnt == editBoxCnt) {
         for (size_t i = 0; i < nameCnt; i++) {
             EditBox* editBox = (*editBoxes)[i];
 
-            renderTarget->drawText(editBox->getPosition() - MPoint(0, 2 * BTN_TXT_PT), (*paramNames)[i], MColor::GRAY, textFont, BTN_TXT_PT);
+            renderTarget->drawText(editBox->getPosition() - MPoint(0, 2 * BTN_TXT_PT), paramNames.data[i], MColor::GRAY, textFont, BTN_TXT_PT);
             editBox->render(renderTarget);
         }
     }

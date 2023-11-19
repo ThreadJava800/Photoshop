@@ -1,25 +1,20 @@
 #include "filters.h"
 
 BrightnessFilter::BrightnessFilter() {
-    List<const char*>* _paramNames = new List<const char*>();
-    _paramNames->pushBack("Brightness:");
+    param_names.size = 1;
+    param_names.data = new const char*[param_names.size];
 
-    paramNames = _paramNames;
+    param_names.data[0] = "Brightness:";
 }
 
-BrightnessFilter::~BrightnessFilter() {
-    delete paramNames;
-}
+void BrightnessFilter::apply(plugin::RenderTargetI *data) {
+    if (!data) return;
 
-void BrightnessFilter::apply(RenderTarget* rt) {
-    if (!rt) return;
+    plugin::Texture* plTexture = data->getTexture();
+    MPoint textureSize         = MPoint(plTexture->width, plTexture->height);
+    MImage pixelData           = MImage(plTexture);
 
-    MImage* pixelData = rt->getImage();
-    if (!pixelData) return;
-
-    List<List<MColor>*>* pixelArr = pixelData->getPixels();
-
-    MPoint textureSize = rt->getSize();
+    List<List<MColor>*>* pixelArr = pixelData.getPixels();
     for (int i = 0; i < textureSize.x; i++) {
         for (int j = 0; j < textureSize.y; j++) {
             MColor newPixel = (*(*pixelArr)[i])[j];
@@ -29,48 +24,48 @@ void BrightnessFilter::apply(RenderTarget* rt) {
         }
     }
 
-    pixelData->imgFromPixel(pixelArr);
-    rt->drawSprite(MPoint(0, 0), textureSize, pixelData);
+    pixelData.imgFromPixel(pixelArr);
+    data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
-
-    delete pixelData;
 }
 
-List<double>* BrightnessFilter::getParams()  {
-    List<double>* paramList = new List<double>();
-    paramList->pushBack(changeValue);
-
-    return paramList;
+plugin::Array<const char *> BrightnessFilter::getParamNames() {
+    return param_names;
 }
 
-void BrightnessFilter::setParams(List<double>& params) {
-    changeValue = params[0];
+plugin::Array<double> BrightnessFilter::getParams() {
+    plugin::Array<double> param_arr;
+    param_arr.size = 1;
+    param_arr.data = new double[param_arr.size];
+
+    param_arr.data[0] = changeValue;
+
+    return param_arr;
 }
 
-List<const char*>* BrightnessFilter::getParamNames() {
-    return paramNames;
+void BrightnessFilter::setParams(plugin::Array<double> params) {
+    changeValue = params.data[0];
+
+    delete[] params.data;
 }
 
-MonochromeFilter::MonochromeFilter() : Filter() {
-    paramNames = new List<const char*>();
-    paramNames->pushBack("Monochrome");
+MonochromeFilter::MonochromeFilter() {
+    param_names.size = 1;
+    param_names.data = new const char*[param_names.size];
+
+    param_names.data[0] = "Monochrome";
 }
 
-MonochromeFilter::~MonochromeFilter() {
-    delete paramNames;
-}
+void MonochromeFilter::apply(plugin::RenderTargetI *data) {
+    if (!data) return;
 
-void MonochromeFilter::apply(RenderTarget* rt) {
-    if (!rt) return;
+    plugin::Texture* plTexture = data->getTexture();
+    MPoint textureSize         = MPoint(plTexture->width, plTexture->height);
+    MImage pixelData           = MImage(plTexture);
 
-    MImage* pixelData = rt->getImage();
-    if (!pixelData) return;
-
-    List<List<MColor>*>* pixelArr = pixelData->getPixels();
-
-    MPoint textureSize = rt->getSize();
+    List<List<MColor>*>* pixelArr = pixelData.getPixels();
     for (int i = 0; i < textureSize.x; i++) {
         for (int j = 0; j < textureSize.y; j++) {
             MColor newPixel = (*(*pixelArr)[i])[j];
@@ -82,43 +77,38 @@ void MonochromeFilter::apply(RenderTarget* rt) {
         }
     }
 
-    pixelData->imgFromPixel(pixelArr);
-    rt->drawSprite(MPoint(0, 0), textureSize, pixelData);
+    pixelData.imgFromPixel(pixelArr);
+    data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
-
-    delete pixelData;
 }
 
-List<double>* MonochromeFilter::getParams() {
-    return new List<double>();
+plugin::Array<const char *> MonochromeFilter::getParamNames() {
+    return param_names;
 }
 
-void MonochromeFilter::setParams(List<double>& params) {}
-
-List<const char*>* MonochromeFilter::getParamNames() {
-    return paramNames;
+plugin::Array<double> MonochromeFilter::getParams() {
+    return {};
 }
 
-ColorfulnessFilter::ColorfulnessFilter() : Filter() {
-    paramNames = new List<const char*>();
-    paramNames->pushBack("Colorfulness");
+void MonochromeFilter::setParams(plugin::Array<double> params) {}
+
+ColorfulnessFilter::ColorfulnessFilter() {
+    param_names.size = 1;
+    param_names.data = new const char*[param_names.size];
+
+    param_names.data[0] = "Colorfulness";
 }
 
-ColorfulnessFilter::~ColorfulnessFilter() {
-    delete paramNames;
-}
+void ColorfulnessFilter::apply(plugin::RenderTargetI *data) {
+    if (!data) return;
 
-void ColorfulnessFilter::apply(RenderTarget* rt) {
-    if (!rt) return;
+    plugin::Texture* plTexture = data->getTexture();
+    MPoint textureSize         = MPoint(plTexture->width, plTexture->height);
+    MImage pixelData           = MImage(plTexture);
 
-    MImage* pixelData = rt->getImage();
-    if (!pixelData) return;
-
-    List<List<MColor>*>* pixelArr = pixelData->getPixels();
-
-    MPoint textureSize = rt->getSize();
+    List<List<MColor>*>* pixelArr = pixelData.getPixels();
     for (int i = 0; i < textureSize.x; i++) {
         for (int j = 0; j < textureSize.y; j++) {
             MColor newPixel = (*(*pixelArr)[i])[j];
@@ -141,25 +131,27 @@ void ColorfulnessFilter::apply(RenderTarget* rt) {
         }
     }
 
-    pixelData->imgFromPixel(pixelArr);
-    rt->drawSprite(MPoint(0, 0), textureSize, pixelData);
+    pixelData.imgFromPixel(pixelArr);
+    data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
-
-    delete pixelData;
 }
 
-List<double>* ColorfulnessFilter::getParams() {}
-
-void ColorfulnessFilter::setParams(List<double>& params) {
-    if (params.getSize() == 0) return;
-
-    saturCoeff = params[0];
+plugin::Array<const char *> ColorfulnessFilter::getParamNames() {
+    return param_names;
 }
 
-List<const char*>* ColorfulnessFilter::getParamNames() {
-    return paramNames;
+plugin::Array<double> ColorfulnessFilter::getParams() {
+    return {};
+}
+
+void ColorfulnessFilter::setParams(plugin::Array<double> params) {
+    if (params.size == 0) return;
+
+    saturCoeff = params.data[0];
+
+    delete[] params.data;
 }
 
 FilterManager::FilterManager() :
@@ -175,34 +167,34 @@ FilterManager::~FilterManager() {
     rt         = nullptr;
 }
 
-void FilterManager::setRT(RenderTarget* _rt) {
-    rt = _rt;
+void FilterManager::setRenderTarget(plugin::RenderTargetI *target) {
+    rt = target;
 }
 
-void FilterManager::setLast(Filter* _filter) {
+void FilterManager::setFilter(plugin::FilterI *filter) {
     if (lastFilter) delete lastFilter;
 
-    lastFilter = _filter;
-}
-
-void FilterManager::setActive(bool _active) {
-    active = _active;
-}
-
-RenderTarget* FilterManager::getRT() {
-    return rt;
-}
-
-Filter* FilterManager::getLast() {
-    return lastFilter;
-}
-
-bool FilterManager::getActive() {
-    return active;
+    lastFilter = filter;
 }
 
 void FilterManager::applyFilter() {
     if (!active || !rt || !lastFilter) return;
 
     lastFilter->apply(rt);
+}
+
+void FilterManager::setActive(bool _active) {
+    active = _active;
+}
+
+plugin::RenderTargetI* FilterManager::getRT() {
+    return rt;
+}
+
+plugin::FilterI* FilterManager::getLast() {
+    return lastFilter;
+}
+
+bool FilterManager::getActive() {
+    return active;
 }

@@ -666,12 +666,12 @@ bool Canvas::onMousePress(plugin::MouseContext context) {
     MPoint pos = MPoint(context.position);
 
     if (parentRect.isPointInside(MPoint(pos))) {
-        // if (filtManager && filtManager->getActive()) {
-        //     filtManager->setRT(rendTarget);
-        //     filtManager->applyFilter();
+        if (filtManager && filtManager->getActive()) {
+            filtManager->setRenderTarget(rendTarget);
+            filtManager->applyFilter();
             
-        //     return true;
-        // }
+            return true;
+        }
 
         is_drawing = true;
 

@@ -2,52 +2,40 @@
 #define _FILTERS_h_
 
 #include "../../../libs/multimedia/multimedia.h"
+#include "../../plugin.h"
 
-class Filter {
-public:
-    virtual ~Filter() = default;
-
-    virtual void               apply        (RenderTarget* rt)     = 0;
-    virtual List<double>*      getParams    ()                     = 0;
-    virtual void               setParams    (List<double>& params) = 0;
-    virtual List<const char*>* getParamNames()                     = 0;
-};
-
-class BrightnessFilter : public Filter {
+class BrightnessFilter : public plugin::FilterI {
 private:
-    int                changeValue = 0;
-    List<const char*>* paramNames  = nullptr;
+    int                         changeValue = 0;
+    plugin::Array<const char *> param_names;
 
 public:
     explicit BrightnessFilter();
 
-    ~BrightnessFilter();
-
-    void               apply        (RenderTarget* rt)     override;
-    List<double>*      getParams    ()                     override;
-    void               setParams    (List<double>& params) override;
-    List<const char*>* getParamNames()                     override;
+    void                        apply        (plugin::RenderTargetI *data)  override;
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
 };
 
-class MonochromeFilter : public Filter {
+class MonochromeFilter : public plugin::FilterI {
 private:
-    List<const char*>* paramNames  = nullptr;
+    plugin::Array<const char *> param_names;
 
 public:
     explicit MonochromeFilter();
 
-    ~MonochromeFilter();
-
-    void               apply        (RenderTarget* rt)     override;
-    List<double>*      getParams    ()                     override;
-    void               setParams    (List<double>& params) override;
-    List<const char*>* getParamNames()                     override;    
+    void                        apply        (plugin::RenderTargetI *data)  override;
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;  
 };
 
-class ColorfulnessFilter : public Filter {
+class ColorfulnessFilter : public plugin::FilterI {
 private:
-    double             saturCoeff  = 1.0;
-    List<const char*>* paramNames  = nullptr;
+    plugin::Array<const char *> param_names;
+
+    double saturCoeff  = 1.0;
 
     static constexpr double RCOEFF = 0.299;
     static constexpr double GCOEFF = 0.587;
@@ -59,34 +47,31 @@ public:
 
     explicit ColorfulnessFilter();
 
-    ~ColorfulnessFilter();
-
-    void               apply        (RenderTarget* rt)     override;
-    List<double>*      getParams    ()                     override;
-    void               setParams    (List<double>& params) override;
-    List<const char*>* getParamNames()                     override;
+    void                        apply        (plugin::RenderTargetI *data)  override;
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
 };
 
-class FilterManager {
+class FilterManager : public plugin::FilterManagerI {
 private:
-    bool          active     = false;
-    Filter*       lastFilter = nullptr;
-    RenderTarget* rt         = nullptr;
+    bool                   active     = false;
+    plugin::FilterI*       lastFilter = nullptr;
+    plugin::RenderTargetI* rt         = nullptr;
 
 public:
     explicit FilterManager();
 
     ~FilterManager();
 
-    void setRT    (RenderTarget* _rt);
-    void setLast  (Filter* _filter);
-    void setActive(bool _active);
+    void                   setActive(bool _active);
+    plugin::RenderTargetI* getRT    ();
+    plugin::FilterI*       getLast  ();
+    bool                   getActive();
 
-    RenderTarget* getRT    ();
-    Filter*       getLast  ();
-    bool          getActive();
-
-    void applyFilter();
+    void setRenderTarget(plugin::RenderTargetI *target) override;
+    void setFilter      (plugin::FilterI *filter)       override;
+    void applyFilter    ()                              override;
 };
 
 #endif
