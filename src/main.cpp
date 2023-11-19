@@ -214,7 +214,7 @@ void chooseColor(void* arg) {
     if (!arg) return;
     ColPickerArgs* menu = (ColPickerArgs*) arg;
 
-    menu->manager->setColor(menu->color);
+    menu->manager->setColor(menu->color.toPlColor());
     menu->subMenu->changeActivity();
 }
 
@@ -227,8 +227,8 @@ void saveCanvas(void* arg) {
     List<EditBox*>* editBoxes = modWindow->getEditBoxes();
     char*     fileName  = (*editBoxes)[0]->getText();
 
-    MImage* texture = modWinArgs->curWindow->getCanvas()->getTexture();
-    bool res = texture->saveToFile(fileName);
+    MImage texture = MImage(modWinArgs->curWindow->getCanvas()->getTexture());
+    bool res = texture.saveToFile(fileName);
     if (!res) return;
 
     modWinArgs->curWindow->setName(fileName);
@@ -241,8 +241,6 @@ void saveCanvas(void* arg) {
         const char* winName = (*_winManager->getCanvasWindows())[i]->getName();
         ((TextButton*)(*subMenuBtns)[i])->setText(winName);
     }
-
-    delete texture;
 }
 
 void saveBtnFunc(void* arg) {

@@ -33,6 +33,12 @@ public:
 
     ~Brush();
 
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
+
     void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
@@ -44,6 +50,12 @@ public:
     explicit Spline();
     explicit Spline(MPoint _start, MPoint _end);
 
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
+
     void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
@@ -54,6 +66,12 @@ class FillTool : public Tool {
 public:
     explicit FillTool();
     explicit FillTool(MPoint _start, MPoint _end);
+
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
 
     void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
@@ -69,6 +87,12 @@ public:
     explicit StraightTool();
     explicit StraightTool(MPoint _start, MPoint _end);
 
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
+
     void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
@@ -83,6 +107,12 @@ public:
     explicit EllipseTool();
     explicit EllipseTool(MPoint _start, MPoint _end);
 
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
+
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
@@ -95,6 +125,12 @@ public:
     explicit SquareTool();
     explicit SquareTool(MPoint _start, MPoint _end);
 
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
+
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
@@ -103,6 +139,12 @@ class LineTool : public StraightTool {
 public:
     explicit LineTool();
     explicit LineTool(MPoint _start, MPoint _end);
+
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
 
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
@@ -119,6 +161,12 @@ public:
     explicit CurveTool(MPoint _start, MPoint _end);
 
     ~CurveTool();
+
+    plugin::Array<const char *> getParamNames()                             override;
+    plugin::Array<double>       getParams    ()                             override;
+    void                        setParams    (plugin::Array<double> params) override;
+
+    const plugin::Texture *getIcon() override;
 
     void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
     void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
