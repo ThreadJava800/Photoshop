@@ -61,29 +61,29 @@ List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3
     return coeffs;
 }
 
-void Brush::drawCatmullOf3(RenderTarget* perm, MColor color, MPoint p1, MPoint p2, MPoint p3) {
+void Brush::drawCatmullOf3(plugin::RenderTargetI* perm, MColor color, MPoint p1, MPoint p2, MPoint p3) {
     ON_ERROR(!perm, "RenderTarget was null!",);
 
     List<MPoint>* drawPoints = getCatmullCoeffs(p1, p2, p3, MPoint(), true);
     size_t drawCnt = drawPoints->getSize();
         
     for (long i = 0; i < long(drawCnt); i++) {
-        perm->drawCircle((*drawPoints)[i], LINE_DIAM, color, nullptr, color);
+        perm->drawEllipse((*drawPoints)[i].toVec2(), {LINE_DIAM, LINE_DIAM}, color.toPlColor());
     }
 
     delete drawPoints;
 }
 
-void Brush::drawCatmull(RenderTarget* perm, MColor color) {
+void Brush::drawCatmull(plugin::RenderTargetI* perm, MColor color) {
     ON_ERROR(!perm, "RenderTarget was null!",);
 
     size_t pointCnt = points->getSize();
 
     if (pointCnt == 1) {
-        perm->drawCircle((*points)[0], LINE_DIAM, color, nullptr, color);
+        perm->drawEllipse((*points)[0].toVec2(), {LINE_DIAM, LINE_DIAM}, color.toPlColor());
     }
     if (pointCnt == 2) {
-        perm->drawLine((*points)[0], (*points)[1], color);
+        perm->drawLine((*points)[0].toVec2(), (*points)[1].toVec2(), color.toPlColor());
     }
     if (pointCnt == 3) {
         drawCatmullOf3(perm, color, (*points)[2], (*points)[1], (*points)[0]);
@@ -96,38 +96,30 @@ void Brush::drawCatmull(RenderTarget* perm, MColor color) {
     drawCatmullOf3(perm, color, (*points)[pointCnt - 3], (*points)[pointCnt - 2], (*points)[pointCnt - 1]);
 }
 
-bool Brush::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void Brush::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
     if (points->getSize() > 4) points->popFront();
 
-    points->pushBack(cur);
-    drawCatmull(perm, color);
-
-    return true;
+    points->pushBack(MPoint(context.position));
+    drawCatmull(data, MColor(color));
 }
 
-bool Brush::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void Brush::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    points->clear();
+}
+
+void Brush::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
     if (points->getSize() > 4) points->popFront();
 
-    points->pushBack(cur);
-    drawCatmull(perm, color);
-
-    return true;
+    points->pushBack(MPoint(context.position));
+    drawCatmull(data, MColor(color));
 }
 
-bool Brush::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { 
+void Brush::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     points->clear();
-
-    return false; 
-}
-
-bool Brush::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) { 
-    points->clear();
-
-    return false; 
 }
 
 Spline::Spline() :
@@ -136,39 +128,36 @@ Spline::Spline() :
 Spline::Spline(MPoint _start, MPoint _end) :
     Brush(_start, _end) {}
 
-bool Spline::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void Spline::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
-    if (btn == LEFT) {
-        points->pushBack(cur);
+    if (context.button == plugin::MouseButton::Left) {
+        points->pushBack(MPoint(context.position));
 
-        temp->clear();
-        drawCatmull(temp, color);
+        tmp->clear();
+        drawCatmull(tmp, MColor(color));
 
-        return true;
+        return;
     }
 
-    return paintOnDeactivate(perm, temp, color);
+    disable(data, tmp, context, color);
 }
 
+void Spline::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
 
-bool Spline::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    return true;
 }
 
-bool Spline::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    return true;
+void Spline::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+
 }
 
-bool Spline::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void Spline::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
-    temp->clear();
-    drawCatmull(perm, color);
+    tmp->clear();
+    drawCatmull(data, MColor(color));
 
     points->clear();
-
-    return false;
 }
 
 FillTool::FillTool() :
@@ -177,19 +166,19 @@ FillTool::FillTool() :
 FillTool::FillTool(MPoint _start, MPoint _end) :
     Tool(_start, _end)  {}
 
-bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void FillTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
-    MImage* textureImage              = perm->getImage();
-    List<List<MColor>*>* pixelListPtr = textureImage->getPixels();
-    if (!pixelListPtr) return false;
+    MImage textureImage               = MImage(data->getTexture());
+    List<List<MColor>*>* pixelListPtr = textureImage.getPixels();
+    if (!pixelListPtr) return;
 
     size_t xSize = CANVAS_SIZE;
     size_t ySize = CANVAS_SIZE;
 
     List<MPoint>  bfsList = List<MPoint>();
     List<bool>    was     = List<bool>(xSize * ySize);
-    bfsList.pushBack(cur);
+    bfsList.pushBack(MPoint(context.position));
 
     List<List<MColor>*> resPixels = List<List<MColor>*>(xSize);
     for (size_t i = 0; i < xSize; i++) {
@@ -213,7 +202,7 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
             if ((*((*pixelListPtr)[up.x]))[up.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(up);
 
-                (*(resPixels)[up.x])[up.y] = color;
+                (*(resPixels)[up.x])[up.y] = MColor(color);
             }
         }
 
@@ -222,7 +211,7 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
             if ((*((*pixelListPtr)[lp.x]))[lp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(lp);
 
-                (*(resPixels)[lp.x])[lp.y] = color;
+                (*(resPixels)[lp.x])[lp.y] = MColor(color);
             }
         }
 
@@ -231,7 +220,7 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
             if ((*((*pixelListPtr)[rp.x]))[rp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(rp);
 
-                (*(resPixels)[rp.x])[rp.y] = color;
+                (*(resPixels)[rp.x])[rp.y] = MColor(color);
             }
         }
 
@@ -240,34 +229,30 @@ bool FillTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor col
             if ((*((*pixelListPtr)[bp.x]))[bp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
                 bfsList.pushBack(bp);
 
-                (*(resPixels)[bp.x])[bp.y] = color;
+                (*(resPixels)[bp.x])[bp.y] = MColor(color);
             }
         }
     }
 
-    textureImage->imgFromPixel(&resPixels);
-    perm->drawSprite(MPoint(0, 0), MPoint(xSize, ySize), textureImage);
-
-    delete textureImage;
+    textureImage.imgFromPixel(&resPixels);
+    data->drawTexture({0, 0}, {(double)xSize, (double)ySize}, textureImage.toPluginTexture());
 
     for (size_t i = 0; i < xSize; i++) delete (*pixelListPtr)[i];
     delete pixelListPtr;
 
     for (size_t i = 0; i < xSize; i++) delete resPixels[i];
-
-    return true;
 }
 
-bool FillTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    return false;
+void FillTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+
 }
 
-bool FillTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    return false;
+void FillTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+
 }
 
-bool FillTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) {
-    return false;
+void FillTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+
 }
 
 StraightTool::StraightTool() :
@@ -278,30 +263,23 @@ StraightTool::StraightTool(MPoint _start, MPoint _end) :
     Tool(_start, _end),
     rectStart(MPoint()) {}
 
-bool StraightTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void StraightTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
 
-    if (btn == LEFT) {
-        rectStart = cur;
-        return true;
-    }
-
-    return false;
+    if (context.button == plugin::MouseButton::Left) rectStart = MPoint(context.position);
 }
 
-bool StraightTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void StraightTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
 
-    return true;
 }
 
-bool StraightTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "RenderTarget was null!", false);
+void StraightTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
 
-    return false;
 }
 
-bool StraightTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) { return false; }
+void StraightTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+
+}
 
 SquareTool::SquareTool() :
     StraightTool()             {}
@@ -309,7 +287,7 @@ SquareTool::SquareTool() :
 SquareTool::SquareTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end) {}
 
-void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
+void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, plugin::RenderTargetI *drawTarget) {
     ON_ERROR(!drawTarget, "Drawable area was null!",);
 
     MPoint size = MPoint(fabs(cur.x - lu.x), fabs(cur.y - lu.y));
@@ -318,25 +296,21 @@ void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, RenderTarget *d
     double yMin   = std::min(cur.y, lu.y);
     MPoint rectLU = MPoint(xMin, yMin);
 
-    drawTarget->drawRect(rectLU, size, MColor::TRANSPARENT, color);
+    drawTarget->drawRect(rectLU.toVec2(), size.toVec2(), color.toPlColor());
 }
 
-bool SquareTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
+void SquareTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
 
-    temp->clear();
-    drawSquare(rectStart, cur, color, temp);
-
-    return true;
+    tmp->clear();
+    drawSquare(rectStart, MPoint(context.position), MColor(color), data);
 }
 
-bool SquareTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
+void SquareTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!perm || !temp, "Drawable area was null!", false);
 
-    temp->clear();
-    drawSquare(rectStart, cur, color, perm);
-
-    return false;
+    tmp->clear();
+    drawSquare(rectStart, MPoint(context.position), MColor(color), tmp);
 }
 
 EllipseTool::EllipseTool() :
@@ -345,7 +319,7 @@ EllipseTool::EllipseTool() :
 EllipseTool::EllipseTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
-void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget) {
+void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, plugin::RenderTargetI *drawTarget) {
     ON_ERROR(!drawTarget, "Drawable area was null!",);
 
     double xMin     = std::min(cur.x, lu.x);
@@ -357,29 +331,21 @@ void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, RenderTarget 
 
     if (height < EPSILON || length < EPSILON) return;
 
-    double scaleX = 1, scaleY = 1;
-    if (length < height) scaleX = length / height;
-    else                 scaleY = height / length;
-
-    drawTarget->drawEllipse(circleLU, scaleX, scaleY, std::max(height, length), color);
+    drawTarget->drawEllipse(circleLU.toVec2(), {height, length}, color.toPlColor());
 }
 
-bool EllipseTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
+void EllipseTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
 
-    temp->clear();
-    drawEllipse(rectStart, cur, color, temp);
-
-    return true;
+    tmp->clear();
+    drawEllipse(rectStart, MPoint(context.position), MColor(color), data);
 }
 
-bool EllipseTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
+void EllipseTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
 
-    temp->clear();
-    drawEllipse(rectStart, cur, color, perm);
-
-    return false;
+    tmp->clear();
+    drawEllipse(rectStart, MPoint(context.position), MColor(color), tmp);
 }
 
 LineTool::LineTool() :
@@ -388,22 +354,18 @@ LineTool::LineTool() :
 LineTool::LineTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
-bool LineTool::paintOnMove(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
+void LineTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
 
-    temp->clear();
-    temp->drawLine(rectStart, cur, color);
-
-    return true;
+    tmp->clear();
+    data->drawLine(rectStart.toVec2(), context.position, color);
 }
 
-bool LineTool::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
+void LineTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
 
-    temp->clear();
-    perm->drawLine(rectStart, cur, color);
-
-    return false;
+    tmp->clear();
+    tmp->drawLine(rectStart.toVec2(), context.position, color);
 }
 
 CurveTool::CurveTool() :
@@ -420,62 +382,58 @@ CurveTool::~CurveTool() {
     delete points;
 }
 
-void CurveTool::drawCurve(MColor color, RenderTarget *drawTarget) {
+void CurveTool::drawCurve(MColor color, plugin::RenderTargetI *drawTarget) {
     ON_ERROR(!drawTarget || !points, "Drawable area was null!",);
 
     size_t listSize = points->getSize();
 
     if (listSize == 1) {
-        drawTarget->setPixel((*points)[0], color);
+        drawTarget->setPixel((*points)[0].toVec2(), color.toPlColor());
         return;
     }
 
     for (size_t i = 1; i < listSize; i++) {
-        drawTarget->drawLine((*points)[i - 1], (*points)[i], color);
+        drawTarget->drawLine((*points)[i - 1].toVec2(), (*points)[i].toVec2(), color.toPlColor());
     }
 }
 
-bool CurveTool::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    ON_ERROR(!perm || !temp || !points, "Drawable area was null!", false);
+void CurveTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+    ON_ERROR(!data || !tmp || !points, "Drawable area was null!", false);
 
-    if (btn == LEFT) {
-        points->pushBack(cur);
+    if (context.button == plugin::MouseButton::Left) {
+        points->pushBack(MPoint(context.position));
 
-        temp->clear();
-        drawCurve(color, temp);
+        tmp->clear();
+        drawCurve(MColor(color), tmp);
 
-        return true;
+        return;
     }
 
-    if (btn == RIGHT) {
-        temp->clear();
-        drawCurve(color, perm);
+    if (context.button == plugin::MouseButton::Right) {
+        tmp->clear();
+        drawCurve(MColor(color), data);
 
         points->clear();
     }
-
-    return false;
 }
 
-bool CurveTool::paintOnReleased (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) {
-    return true;
+void CurveTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+
 }
 
-bool CurveTool::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color) {
+void CurveTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!points, "Drawable area was null!", false);
 
-    temp->clear();
-    drawCurve(color, perm);
+    tmp->clear();
+    drawCurve(MColor(color), data);
     points->clear();
-
-    return false;
 }
 
 ToolManager::ToolManager() :
     current(nullptr),
     color  (MColor())   {}
 
-ToolManager::ToolManager(Tool *_current, MColor _color) :
+ToolManager::ToolManager(plugin::ToolI *_current, MColor _color) :
     current(_current),
     color  (_color)     {}
 
@@ -483,32 +441,36 @@ ToolManager::~ToolManager() {
     delete current;
 }
 
-void ToolManager::setTool (Tool* _tool) {
-    current = _tool;
+void ToolManager::setColor(plugin::Color color) {
+    this->color = MColor(color);
 }
 
-void ToolManager::setColor(MColor _color) {
-    color = _color;
+void ToolManager::setTool(plugin::ToolI *tool) {
+    current = tool;
 }
 
-Tool* ToolManager::getTool() {
+plugin::ToolI* ToolManager::getTool() {
     return current;
 }
 
-bool ToolManager::paintOnPressed(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
-    return current->paintOnPressed(perm, temp, color, cur, btn);
+plugin::Color ToolManager::getColor() {
+    return color.toPlColor();
 }
 
-bool ToolManager::paintOnMove(RenderTarget *perm, RenderTarget *temp, MPoint cur) {
-    return current->paintOnMove(perm, temp, color, cur);
+void ToolManager::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) {
+    current->paintOnMove(data, tmp, context, color.toPlColor());
 }
 
-bool ToolManager::paintOnReleased(RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn) {
-    return current->paintOnReleased(perm, temp, color, cur, btn);
+void ToolManager::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) {
+    current->paintOnPress(data, tmp, context, color.toPlColor());
 }
 
-bool ToolManager::paintOnDeactivate(RenderTarget *perm, RenderTarget *temp) {
-    return current->paintOnDeactivate(perm, temp, color);
+void ToolManager::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) {
+    current->paintOnRelease(data, tmp, context, color.toPlColor());
+}
+
+void ToolManager::disableTool(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) {
+    current->disable(data, tmp, context, color.toPlColor());
 }
 
 Canvas::Canvas(MPoint _position, MPoint _size, ToolManager *_manager,  FilterManager *_filtManager, Widget* _parent, MathRectangle _parentRect) :
@@ -538,8 +500,8 @@ void Canvas::onScroll(MPoint shift) {
     Widget::move(shift);
 }
 
-MImage* Canvas::getTexture() {
-    return rendTarget->getImage();
+plugin::Texture* Canvas::getTexture() {
+    return rendTarget->getTexture();
 }
 
 bool Canvas::onMousePress(plugin::MouseContext context) {
@@ -548,16 +510,16 @@ bool Canvas::onMousePress(plugin::MouseContext context) {
     MPoint pos = MPoint(context.position);
 
     if (parentRect.isPointInside(MPoint(pos))) {
-        if (filtManager && filtManager->getActive()) {
-            filtManager->setRT(rendTarget);
-            filtManager->applyFilter();
+        // if (filtManager && filtManager->getActive()) {
+        //     filtManager->setRT(rendTarget);
+        //     filtManager->applyFilter();
             
-            return true;
-        }
+        //     return true;
+        // }
 
-        drawing = manager->paintOnPressed(rendTarget, tempTarget, pos - this->position, (MMouse)(context.button));
-    
-        return drawing;
+        plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
+        manager->paintOnPress(rendTarget, tempTarget, {draw_pos, context.button});
+        return true;
     }
 
     return false;
@@ -568,9 +530,10 @@ bool Canvas::onMouseRelease(plugin::MouseContext context) {
 
     MPoint pos = MPoint(context.position);
 
-    if (drawing) drawing = manager->paintOnReleased(rendTarget, tempTarget, pos - this->position, (MMouse)(context.button));
+    plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
+    manager->paintOnRelease(rendTarget, tempTarget, {draw_pos, context.button});
 
-    return drawing;
+    return true;
 }
 
 bool Canvas::onMouseMove(plugin::MouseContext context) {
@@ -578,16 +541,15 @@ bool Canvas::onMouseMove(plugin::MouseContext context) {
 
     MPoint pos = MPoint(context.position);
 
-    if (!isInside(pos) && drawing) {
-        drawing = manager->paintOnDeactivate(rendTarget, tempTarget);
+    if (!isInside(pos)) {
+        manager->disableTool(rendTarget, tempTarget, context);
     
-        return drawing;
+        return true;
     }
 
-    if (!drawing) return false;
-
-    drawing = manager->paintOnMove(rendTarget, tempTarget, pos - this->position);
-    return drawing;
+    plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
+    manager->paintOnMove(rendTarget, tempTarget, {draw_pos, context.button});
+    return true;
 }
 
 void Canvas::drawTexture(RenderTarget* toDraw, RenderTarget* drawOn) {

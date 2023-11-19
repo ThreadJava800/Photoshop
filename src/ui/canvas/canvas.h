@@ -24,8 +24,8 @@ protected:
 
     double        getCatmullCoeff (double prevCoeff, MPoint p1, MPoint p2);
     List<MPoint>* getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3, bool setOf3 = false);
-    void          drawCatmullOf3  (RenderTarget* perm, MColor color, MPoint p1, MPoint p2, MPoint p3);
-    void          drawCatmull     (RenderTarget* perm, MColor color);
+    void          drawCatmullOf3  (plugin::RenderTargetI* perm, MColor color, MPoint p1, MPoint p2, MPoint p3);
+    void          drawCatmull     (plugin::RenderTargetI* perm, MColor color);
 
 public:
     explicit Brush();
@@ -77,7 +77,7 @@ public:
 
 class EllipseTool : public StraightTool {
 private:
-    void drawEllipse(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);
+    void drawEllipse(MPoint lu, MPoint cur, MColor color, plugin::RenderTargetI *drawTarget);
 
 public:
     explicit EllipseTool();
@@ -89,7 +89,7 @@ public:
 
 class SquareTool : public StraightTool {
 private:
-    void drawSquare(MPoint lu, MPoint cur, MColor color, RenderTarget *drawTarget);
+    void drawSquare(MPoint lu, MPoint cur, MColor color, plugin::RenderTargetI *drawTarget);
 
 public:
     explicit SquareTool();
@@ -112,7 +112,7 @@ class CurveTool : public StraightTool {
 private:
     List<MPoint> *points = nullptr;
 
-    void drawCurve(MColor color, RenderTarget *drawTarget);
+    void drawCurve(MColor color, plugin::RenderTargetI *drawTarget);
 
 public:
     explicit CurveTool();
@@ -127,12 +127,12 @@ public:
 
 class ToolManager : public plugin::ToolManagerI {
 private:
-    Tool*  current = nullptr;
-    MColor color   = MColor();
+    plugin::ToolI* current = nullptr;
+    MColor         color   = MColor();
 
 public:
     explicit ToolManager();
-    explicit ToolManager(Tool *_current, MColor _color);
+    explicit ToolManager(plugin::ToolI *_current, MColor _color);
 
     ~ToolManager();
 
@@ -150,10 +150,9 @@ public:
 
 class Canvas : public Widget {
 private:
-    bool           drawing     = false;
     RenderTarget * rendTarget  = nullptr;
     RenderTarget * tempTarget  = nullptr;
-    ToolManager  * manager     = nullptr;
+    plugin::ToolManagerI * manager     = nullptr;
     FilterManager* filtManager = nullptr;
 
     MathRectangle  parentRect;
@@ -166,7 +165,7 @@ public:
 
     ~Canvas();
 
-    MImage* getTexture();
+    plugin::Texture* getTexture();
 
     void onScroll(MPoint shift);
 

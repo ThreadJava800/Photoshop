@@ -27,6 +27,7 @@ struct MPoint {
     ~MPoint();
 
     sf::Vector2f toSfVector();
+    plugin::Vec2 toVec2    ();
 
     bool   isNan();
     double getLen();
@@ -52,7 +53,8 @@ struct MColor {
     explicit MColor(sf::Color _color);
     explicit MColor(plugin::Color _color);
 
-    sf::Color toSfColor();
+    sf::Color     toSfColor();
+    plugin::Color toPlColor() const;
     friend bool operator==(const MColor& a, const MColor& b);
     friend void operator+=(      MColor& a, const int     b);
 
@@ -155,7 +157,7 @@ enum WindowType {
     DEFAULT    = sf::Style::Default
 };
 
-class RenderTarget : plugin::RenderTargetI {
+class RenderTarget : public plugin::RenderTargetI {
 private:
     MPoint             position = MPoint();
     sf::RenderTexture* texture  = nullptr;

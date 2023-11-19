@@ -37,6 +37,10 @@ sf::Vector2f MPoint::toSfVector() {
     return sf::Vector2f(x, y);
 }
 
+plugin::Vec2 MPoint::toVec2() {
+    return {x, y};
+}
+
 bool MPoint::isNan() {
     return std::isnan(x) || std::isnan(y);
 }
@@ -133,6 +137,10 @@ MColor::MColor(plugin::Color _color) :
 
 sf::Color MColor::toSfColor() {
     return sf::Color(r, g, b, a);
+}
+
+plugin::Color MColor::toPlColor() const {
+    return {r, g, b, a};
 }
 
 bool operator==(const MColor& a, const MColor& b) {
