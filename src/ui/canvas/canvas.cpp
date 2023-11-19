@@ -441,12 +441,12 @@ void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, plugin::Rende
     double yMin     = std::min(cur.y, lu.y);
     MPoint circleLU = MPoint(xMin, yMin);
 
-    double height = fabs(cur.y - lu.y) / 2;
-    double length = fabs(cur.x - lu.x) / 2;
+    double height = fabs(cur.y - lu.y);
+    double length = fabs(cur.x - lu.x);
 
     if (height < EPSILON || length < EPSILON) return;
 
-    drawTarget->drawEllipse(circleLU.toVec2(), {height, length}, color.toPlColor());
+    drawTarget->drawEllipse(circleLU.toVec2(), {length, height}, color.toPlColor());
 }
 
 void EllipseTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {

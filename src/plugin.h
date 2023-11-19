@@ -277,6 +277,8 @@ namespace plugin {
     struct ToolI: public Interface {
         virtual const Texture *getIcon() = 0;
 
+        virtual ~ToolI() = default;
+
         virtual void paintOnPress(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
         virtual void paintOnRelease(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
         virtual void paintOnMove(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
