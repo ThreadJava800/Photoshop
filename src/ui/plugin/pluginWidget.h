@@ -1,9 +1,10 @@
 #ifndef _PLUGIN_WIDGET_h_
 #define _PLUGIN_WIDGET_h_
 
-#include "../includes.h"
 #include "../../plugin.h"
 #include "../../../libs/multimedia/multimedia.h"
+
+plugin::WidgetI::~WidgetI() {};
 
 class PluginWidget : plugin::WidgetI {
 private:
