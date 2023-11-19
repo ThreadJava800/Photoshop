@@ -1,11 +1,12 @@
 #ifndef _CANVAS_h_
 #define _CANVAS_h_
 
+#include "../../plugin.h"
 #include "../../../libs/multimedia/multimedia.h"
 #include "../renderable.h"
 #include "filters.h"
 
-class Tool {
+class Tool : public plugin::ToolI {
 protected:
     MPoint start = MPoint();
     MPoint last  = MPoint();
@@ -15,11 +16,6 @@ public:
     explicit Tool(MPoint _start, MPoint _end);
 
     virtual ~Tool() = default;
-
-    virtual bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
-    virtual bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             = 0;
-    virtual bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) = 0;
-    virtual bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       = 0;
 };
 
 class Brush : public Tool {
@@ -37,10 +33,10 @@ public:
 
     ~Brush();
 
-    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                         override;
+    void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void disable       (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
 class Spline : public Brush {
@@ -48,10 +44,10 @@ public:
     explicit Spline();
     explicit Spline(MPoint _start, MPoint _end);
 
-    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                         override;
+    void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void disable       (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
 class FillTool : public Tool {
@@ -59,10 +55,10 @@ public:
     explicit FillTool();
     explicit FillTool(MPoint _start, MPoint _end);
 
-    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                         override;
+    void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void disable       (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
 class StraightTool : public Tool {
@@ -73,10 +69,10 @@ public:
     explicit StraightTool();
     explicit StraightTool(MPoint _start, MPoint _end);
 
-    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       override;
+    void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void disable       (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
 class EllipseTool : public StraightTool {
@@ -87,8 +83,8 @@ public:
     explicit EllipseTool();
     explicit EllipseTool(MPoint _start, MPoint _end);
 
-    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
 class SquareTool : public StraightTool {
@@ -99,8 +95,8 @@ public:
     explicit SquareTool();
     explicit SquareTool(MPoint _start, MPoint _end);
 
-    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
 class LineTool : public StraightTool {
@@ -108,8 +104,8 @@ public:
     explicit LineTool();
     explicit LineTool(MPoint _start, MPoint _end);
 
-    bool paintOnMove    (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur)             override;
-    bool paintOnReleased(RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
 class CurveTool : public StraightTool {
@@ -124,12 +120,12 @@ public:
 
     ~CurveTool();
 
-    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MColor color, MPoint cur, MMouse btn) override;
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp, MColor color)                                       override;
+    void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
+    void disable       (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) override;
 };
 
-class ToolManager {
+class ToolManager : public plugin::ToolManagerI {
 private:
     Tool*  current = nullptr;
     MColor color   = MColor();
@@ -140,15 +136,16 @@ public:
 
     ~ToolManager();
 
-    void setTool (Tool* _tool);
-    void setColor(MColor _color);
+    void setColor(plugin::Color color) override;
+    void setTool (plugin::ToolI *tool) override;
 
-    Tool* getTool();
+    plugin::ToolI *getTool () override;
+    plugin::Color  getColor() override;
 
-    bool paintOnPressed   (RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn);
-    bool paintOnMove      (RenderTarget *perm, RenderTarget *temp, MPoint cur);
-    bool paintOnReleased  (RenderTarget *perm, RenderTarget *temp, MPoint cur, MMouse btn);
-    bool paintOnDeactivate(RenderTarget *perm, RenderTarget *temp);
+    void paintOnMove   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) override;
+    void paintOnPress  (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) override;
+    void paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) override;
+    void disableTool   (plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context) override;
 };
 
 class Canvas : public Widget {
