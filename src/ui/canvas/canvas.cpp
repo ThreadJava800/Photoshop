@@ -175,7 +175,14 @@ void Spline::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tm
         points->pushBack(MPoint(context.position));
 
         tmp->clear();
-        drawCatmull(tmp, MColor(color));
+        drawCatmull(tmp,  MColor(color));
+
+        if (points->getSize() > 3) {
+            MPoint notDrawPoint = points->pop();
+            drawCatmull(data, MColor(color));
+
+            points->pushBack(notDrawPoint);
+        }
 
         return;
     }
@@ -198,7 +205,6 @@ void Spline::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, pl
     drawCatmull(data, MColor(color));
 
     points->clear();
-    is_drawing = false;
 }
 
 FillTool::FillTool() :

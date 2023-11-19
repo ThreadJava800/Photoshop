@@ -642,7 +642,7 @@ void RenderTarget::drawEllipse(MPoint pos, double scaleX, double scaleY, double 
 
     sf::CircleShape ellipse    (maxRad);
     ellipse.setPosition        (pos.toSfVector());
-    ellipse.setFillColor       (sf::Color::Transparent);
+    ellipse.setFillColor       (color.toSfColor());
     ellipse.setOutlineThickness(LINE_DIAM);
     ellipse.setOutlineColor    (color.toSfColor());
 
