@@ -440,7 +440,10 @@ void RenderTarget::drawText(plugin::Vec2 pos, const char *content, uint16_t char
 }
 
 plugin::Texture* RenderTarget::getTexture() {
+    sf::Texture* sfText = new sf::Texture(texture->getTexture());
+    MImage mInterLayer = MImage(sfText); 
 
+    return mInterLayer.toPluginTexture();;
 }
 
 void RenderTarget::display() {

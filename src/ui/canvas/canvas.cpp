@@ -113,7 +113,7 @@ const plugin::Texture *Brush::getIcon() {
 }
 
 void Brush::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+    ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
     is_drawing = true;
 
@@ -129,7 +129,7 @@ void Brush::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *t
 }
 
 void Brush::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+    ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
     if (!is_drawing) return;
 
@@ -167,7 +167,7 @@ const plugin::Texture *Spline::getIcon() {
 }
 
 void Spline::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+    ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
     is_drawing = true;
 
@@ -199,7 +199,7 @@ void Spline::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp
 }
 
 void Spline::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+    ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
     tmp->clear();
     drawCatmull(data, MColor(color));
@@ -230,7 +230,7 @@ const plugin::Texture *FillTool::getIcon() {
 }
 
 void FillTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+    ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
     MImage textureImage               = MImage(data->getTexture());
     List<List<MColor>*>* pixelListPtr = textureImage.getPixels();
@@ -343,7 +343,7 @@ const plugin::Texture *StraightTool::getIcon() {
 }
 
 void StraightTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "RenderTarget was null!", false);
+    ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
     is_drawing = true;
     if (context.button == plugin::MouseButton::Left) rectStart = MPoint(context.position);
@@ -396,7 +396,7 @@ void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, plugin::RenderT
 }
 
 void SquareTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
+    ON_ERROR(!data || !tmp, "Drawable area was null!",);
 
     tmp->clear();
     drawSquare(rectStart, MPoint(context.position), MColor(color), data);
@@ -404,7 +404,7 @@ void SquareTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTarge
 }
 
 void SquareTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!perm || !temp, "Drawable area was null!", false);
+    ON_ERROR(!data || !tmp, "Drawable area was null!",);
 
     if (!is_drawing) return;
 
@@ -450,7 +450,7 @@ void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, plugin::Rende
 }
 
 void EllipseTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
+    ON_ERROR(!data || !tmp, "Drawable area was null!",);
 
     tmp->clear();
     drawEllipse(rectStart, MPoint(context.position), MColor(color), data);
@@ -458,7 +458,7 @@ void EllipseTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTarg
 }
 
 void EllipseTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
+    ON_ERROR(!data || !tmp, "Drawable area was null!",);
 
     if (!is_drawing) return;
 
@@ -489,7 +489,7 @@ const plugin::Texture *LineTool::getIcon() {
 }
 
 void LineTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
+    ON_ERROR(!data || !tmp, "Drawable area was null!",);
 
     tmp->clear();
     data->drawLine(rectStart.toVec2(), context.position, color);
@@ -497,7 +497,7 @@ void LineTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI
 }
 
 void LineTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "Drawable area was null!", false);
+    ON_ERROR(!data || !tmp, "Drawable area was null!",);
 
     if (!is_drawing) return;
 
@@ -551,7 +551,7 @@ const plugin::Texture *CurveTool::getIcon() {
 }
 
 void CurveTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp || !points, "Drawable area was null!", false);
+    ON_ERROR(!data || !tmp || !points, "Drawable area was null!",);
 
     if (context.button == plugin::MouseButton::Left) {
         points->pushBack(MPoint(context.position));
@@ -577,7 +577,7 @@ void CurveTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTarget
 }
 
 void CurveTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!points, "Drawable area was null!", false);
+    ON_ERROR(!points, "Drawable area was null!",);
 
     tmp->clear();
     drawCurve(MColor(color), data);
