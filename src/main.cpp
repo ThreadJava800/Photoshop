@@ -104,8 +104,8 @@ void openBlurPicker(void* arg) {
 
     modalWinArgs->filtManager->setFilter(new BrightnessFilter());
 
-    plugin::Array<const char*> paramNames   = modalWinArgs->filtManager->getLast()->getParamNames();
-    EditBoxModal*              modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
+    plugin::Array<const char*> paramNames  = modalWinArgs->filtManager->getLast()->getParamNames();
+    EditBoxModal*              modalWindow = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
     modalWindow->setOnDestroy(closeModal);
     modalWindow->setDestrArgs(modalWindow);
 

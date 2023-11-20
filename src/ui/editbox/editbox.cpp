@@ -3,7 +3,7 @@
 const CheckInput EditBox::checkerFuncs[] = {chNumbersOnly, chAllInput};
 
 bool chNumbersOnly(plugin::Key key) {
-    return key >= plugin::Key::Num0 && key <= plugin::Key::Num9 || key == plugin::Key::Backspace || key == plugin::Key::Left || key == plugin::Key::Right;
+    return (key >= plugin::Key::Num0 && key <= plugin::Key::Num9) || (key >= (plugin::Key) 48 && key <= (plugin::Key) 58) || key == (plugin::Key)8 || key == plugin::Key::Backspace || key == plugin::Key::Left || key == plugin::Key::Right;
 }
 
 bool chAllInput(plugin::Key key) {
@@ -12,7 +12,8 @@ bool chAllInput(plugin::Key key) {
 
 inline char EditBox::getRealChar(plugin::Key key) {
     if (key <= plugin::Key::Z)    return (char)(key) + 'a';
-    if (key <= plugin::Key::Num9) return (char)(key) - (char)(plugin::Key::Num0) + '0';
+    if (key <= plugin::Key::Num0 && key <= plugin::Key::Num9) return (char)(key) - (char)(plugin::Key::Num0) + '0';
+    if (key <= (plugin::Key)48 && key <= (plugin::Key)58) return (char)(key) - (char)(48) + '0';
     return (char)(key);
 }
 
@@ -88,6 +89,8 @@ bool EditBox::onMousePress(plugin::MouseContext context) {
 bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
     ON_ERROR(!text, "Text pointer was null!", false);
 
+    // std::cout << (int)context.key << '\n';
+
     if (!checkerFuncs[inputType](context.key)) return false;
 
     if (context.key == plugin::Key::Left) {
@@ -100,7 +103,7 @@ bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
         return true;
     }
 
-    if (context.key == plugin::Key::Backspace) {
+    if (context.key == plugin::Key::Backspace || context.key == (plugin::Key)8) {
         size_t charCnt = text->getSize();
         if (charCnt >= 2 && curPos > 0) {
             text->remove(curPos - 1);
