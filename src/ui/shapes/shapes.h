@@ -12,7 +12,7 @@ private:
 
     
 public:
-    explicit Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor, Widget* _parent);
+    explicit Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor, void* _parent, bool _is_extern = false);
     ~Rectangle();
 
     MPoint getSize();

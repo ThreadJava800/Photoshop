@@ -271,18 +271,18 @@ namespace plugin {
         virtual void render(RenderTargetI* ) = 0;
         virtual void recalcRegion() = 0;
 
-        virtual ~WidgetI() = 0;
+        virtual ~WidgetI() = default;
     };
 
     struct ToolI: public Interface {
         virtual const Texture *getIcon() = 0;
 
-        virtual ~ToolI() = default;
-
         virtual void paintOnPress(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
         virtual void paintOnRelease(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
         virtual void paintOnMove(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
         virtual void disable(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
+    
+        virtual ~ToolI() = default;
     };
 
     struct ToolManagerI {

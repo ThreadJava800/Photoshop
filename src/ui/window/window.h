@@ -26,8 +26,8 @@ protected:
     void createTestWindow();
     
 public:
-    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority = 0);
-    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
+    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, void* _parent, bool _is_extern = false, uint8_t _priority = 0);
+    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, void* _parent, Menu* _actions, bool _is_extern = false, uint8_t _priority = 0);
     ~Window();
 
     const char* getName  ();
@@ -51,8 +51,8 @@ protected:
     void makeEventPrivate();
 
 public:
-    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent);
-    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions);
+    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, bool _is_extern = false);
+    explicit ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, Menu* _actions, bool _is_extern = false);
     ~ModalWindow();
 };
 
@@ -64,8 +64,8 @@ private:
     plugin::Array<const char*> paramNames;
 
 public:
-    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames);
-    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames, Menu* _actions);
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, plugin::Array<const char*> _paramNames, bool _is_extern = false);
+    explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, plugin::Array<const char*> _paramNames, Menu* _actions, bool _is_extern = false);
 
     ~EditBoxModal();
 

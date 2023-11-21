@@ -1,6 +1,6 @@
 #include "eventInterlayer.h"
 
-void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& drawWidget) {
+void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, PluginWidget& drawWidget) {
     auto timerStart = std::chrono::system_clock::now(); 
 
     while (renderTarget.getRenderWindow()->isOpen())

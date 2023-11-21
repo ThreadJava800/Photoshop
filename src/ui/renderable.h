@@ -17,7 +17,9 @@ protected:
 
     RegionSet* regSet = nullptr;
 
-    Widget* parent  = nullptr;
+    void* parent   = nullptr;
+    bool is_extern = false;
+
     bool    exists  = true;
     bool    visible = true;
 
@@ -26,18 +28,18 @@ protected:
 public:
     MColor debColor;
 
-    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, uint8_t _priority = 0);
-    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* subWindows, uint8_t _priority = 0);
+    explicit Widget(MPoint _position, MPoint _size, void* _parent, bool _is_extern = false, uint8_t _priority = 0);
+    explicit Widget(MPoint _position, MPoint _size, void* _parent, List<Widget*>* subWindows, bool _is_extern = false, uint8_t _priority = 0);
     virtual ~Widget();
 
-    MPoint         getPosition();
-    MPoint         getSize    ();
-    List<Widget*>* getWindows ();
-    void           setExists  (bool val);
-    bool           getExists  ();
-    bool           getVisible ();
-    RegionSet*     getRegSet  ();
-    Widget   *     getParent  ();
+    MPoint                 getPosition();
+    MPoint                 getSize    ();
+    List<Widget*>*         getWindows ();
+    void                   setExists  (bool val);
+    bool                   getExists  ();
+    bool                   getVisible ();
+    RegionSet*             getRegSet  ();
+    std::pair<void*, bool> getParent  ();
 
     void setParent (Widget* _parent);
     void setVisible(bool _visible);

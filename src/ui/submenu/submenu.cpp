@@ -12,7 +12,7 @@ void SubMenu::changeActivity() {
     // fillRegionSets();
 
     if (visible) prioritizeWindow();
-    if (parent)  parent->prioritizeWindow();
+    if (!is_extern && parent)  ((Widget*)parent)->prioritizeWindow();
 }
 
 void SubMenu::render(RenderTarget* renderTarget) {

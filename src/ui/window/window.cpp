@@ -2,8 +2,8 @@
 
 bool isCreated = false;
 
-Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority) :
-    Widget     (_position, _size, _parent, _priority),
+Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, void* _parent, bool _is_extern, uint8_t _priority) :
+    Widget     (_position, _size, _parent, _is_extern, _priority),
     manager    (_manager),
     filtManager(_filtManager),
     winManager (_winManager),
@@ -16,8 +16,8 @@ Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolMana
         textFont = new MFont(DEFAULT_FONT);
     }
 
-Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority) :
-    Widget     (_position, _size, _parent, _priority),
+Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, void* _parent, Menu* _actions, bool _is_extern, uint8_t _priority) :
+    Widget     (_position, _size, _parent, _is_extern, _priority),
     manager    (_manager),
     filtManager(_filtManager),
     winManager (_winManager),
@@ -159,14 +159,14 @@ void ModalWindow::makeEventPrivate() {
     }
 }
 
-ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent) :
-    Window  (_position, _size, _windowName, _manager, _filtManager, nullptr, false, _parent, 1),
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, bool _is_extern) :
+    Window  (_position, _size, _windowName, _manager, _filtManager, nullptr, false, _parent, _is_extern, 1),
     eventMan(_eventMan) {
         makeEventPrivate();
     }
 
-ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, Menu* _actions) :
-    Window  (_position, _size, _windowName, _manager, _filtManager, nullptr, false, _parent, _actions, 1),
+ModalWindow::ModalWindow (EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, Menu* _actions, bool _is_extern) :
+    Window  (_position, _size, _windowName, _manager, _filtManager, nullptr, false, _parent, _actions, _is_extern, 1),
     eventMan(_eventMan) {
         makeEventPrivate();
     }
@@ -176,14 +176,14 @@ ModalWindow::~ModalWindow() {
     eventMan->unregisterObject(this);
 }
 
-EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames) :
-    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent),
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, plugin::Array<const char*> _paramNames, bool _is_extern) :
+    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent, _is_extern),
     paramNames   (_paramNames) {
         editBoxes = new List<EditBox*>();
     }
 
-EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames, Menu* _actions) :
-    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent, _actions),
+EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, void* _parent, plugin::Array<const char*> _paramNames, Menu* _actions, bool _is_extern) :
+    ModalWindow  (_eventMan, _position, _size, _windowName, _manager, _filtManager, _parent, _actions, _is_extern),
     paramNames   (_paramNames) {
         editBoxes = new List<EditBox*>();
     }
@@ -239,7 +239,8 @@ void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     window->move(newPos - oldPos);
-    if (window->getParent()) window->getParent()->fillRegionSets();
+    std::pair<void*, bool> parent = window->getParent();
+    if (!parent.second && parent.first) ((Widget*)parent.first)->fillRegionSets();
 }
 
 void closeFunc(void* window) {

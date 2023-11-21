@@ -1,22 +1,24 @@
 #include "renderable.h"
 
-Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, uint8_t _priority) :
+Widget::Widget(MPoint _position, MPoint _size, void* _parent, bool _is_extern, uint8_t _priority) :
     EventProcessable(_priority),
-    position(_position),
-    size    (_size),
-    parent  (_parent),
-    visible (true),
-    exists  (true) {
+    position (_position),
+    size     (_size),
+    parent   (_parent),
+    is_extern(_is_extern),
+    visible  (true),
+    exists   (true) {
         debColor = MColor(DEB_COLS[rand() % DEB_COLS_CNT]);
         subWindows = new List<Widget*>();
         createEmptyRegionSet();
     }
 
-Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _subWindows, uint8_t _priority) :
+Widget::Widget(MPoint _position, MPoint _size, void* _parent, List<Widget*>* _subWindows, bool _is_extern, uint8_t _priority) :
     EventProcessable(_priority),
     position  (_position),
     size      (_size),
     parent    (_parent),
+    is_extern (_is_extern),
     subWindows(_subWindows),
     visible   (true),
     exists    (true)  {
@@ -75,8 +77,8 @@ RegionSet* Widget::getRegSet() {
     return regSet;
 }
 
-Widget* Widget::getParent  () {
-    return parent;
+std::pair<void*, bool> Widget::getParent() {
+    return {parent, is_extern};
 }
 
 void Widget::setParent(Widget* _parent) {
@@ -235,8 +237,8 @@ void Widget::unregisterObject() {
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
-        if (widget && !widget->getExists()) {
-            Widget* delParent = widget->getParent();
+        if (widget && !widget->getExists() && !widget->is_extern) {
+            Widget* delParent = (Widget*)widget->getParent().first;
 
             delete widget;
             subWindows->remove(i);
@@ -259,22 +261,23 @@ void Widget::clearRegionSets() {
 
 void Widget::fillRegionSets() {
     Widget* test = this;
-    while (test->parent != 0) test = test->parent;
+    while (test->parent != 0 && !test->is_extern) test = (Widget*)test->parent;
 
     test->fillRegionSetsRoot();
 }
 
 void Widget::fillRegionSetsRoot() {
     if (!regSet || !regSet->getRectangles()) return;
+    if (is_extern) return;
 
     regSet = getDefaultRegSet();
 
     if (parent) {
         RegionSet* oldRegSet = regSet;
-        regSet = regSet->cross(parent->regSet);
+        regSet = regSet->cross(((Widget*)parent)->regSet);
         delete oldRegSet;
 
-        List<Widget*>* parentWins = parent->subWindows;
+        List<Widget*>* parentWins = ((Widget*)parent)->subWindows;
         size_t         parentCCnt = parentWins->getSize();
         size_t         valInd     = 0;
         for (size_t i = 0; i < parentCCnt; i++) {
@@ -311,8 +314,10 @@ void Widget::fillRegionSetsRoot() {
 }
 
 void Widget::prioritizeWindow() {
-    if (parent && parent->getWindows()) {
-        parent->getWindows()->swapWithEnd(this);
-        parent->fillRegionSets();
+    if (is_extern) return;
+
+    if (parent && ((Widget*)parent)->getWindows()) {
+        ((Widget*)parent)->getWindows()->swapWithEnd(this);
+        ((Widget*)parent)->fillRegionSets();
     }
 }
