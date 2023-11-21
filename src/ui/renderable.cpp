@@ -160,12 +160,11 @@ bool Widget::isExtern() {
 }
 
 void Widget::setParent(WidgetI *root) {
-    parent = WidgetPtr(root);
+    parent = (Widget*) root;
 }
 
 plugin::WidgetI* Widget::getParent() {
-    if (parent.is_extern) return parent.plugin_widget;
-    return nullptr;
+    return parent;
 }
 
 void Widget::move(plugin::Vec2 shift) {
@@ -220,15 +219,6 @@ bool Widget::getVisible() {
 
 RegionSet* Widget::getRegSet() {
     return regSet;
-}
-
-Widget* Widget::getWidgetParent() {
-    if (!parent.is_extern) return parent.program_widget;
-    return nullptr;
-}
-
-void Widget::setParent(Widget* _parent) {
-    parent = WidgetPtr(_parent);
 }
 
 void Widget::setVisible(bool _visible) {
@@ -387,8 +377,7 @@ void Widget::clearRegionSets() {
 void Widget::fillRegionSets() {
     Widget* test = this;
 
-    Widget* test_parent = test->getWidgetParent();
-    while (test_parent != 0) test = test_parent;
+    while (test->parent && !test->parent->isExtern()) test = test->parent;
 
     test->fillRegionSetsRoot();
 }
@@ -398,14 +387,12 @@ void Widget::fillRegionSetsRoot() {
 
     regSet = getDefaultRegSet();
 
-    Widget* test_parent = getWidgetParent();
-
-    if (test_parent) {
+    if (parent) {
         RegionSet* oldRegSet = regSet;
-        regSet = regSet->cross(test_parent->regSet);
+        regSet = regSet->cross(parent->regSet);
         delete oldRegSet;
 
-        List<WidgetPtr>* parentWins = test_parent->subWindows;
+        List<WidgetPtr>* parentWins = parent->subWindows;
         size_t           parentCCnt = parentWins->getSize();
         size_t           valInd     = 0;
         for (size_t i = 0; i < parentCCnt; i++) {
@@ -443,7 +430,7 @@ void Widget::fillRegionSetsRoot() {
 }
 
 void Widget::prioritizeWindow() {
-    Widget* test_parent = getWidgetParent();
+    Widget* test_parent = parent;
 
     if (test_parent && test_parent->getWindows()) {
         test_parent->getWindows()->swapWithEnd(WidgetPtr(this));

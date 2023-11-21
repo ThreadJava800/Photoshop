@@ -502,8 +502,8 @@ void runMainCycle() {
 
     Widget drawWidget  = Widget(MPoint(0, 0), MPoint(1920, 1080), nullptr);
     Window* mainWindow = new Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1900, 1060), MAIN_WINDOW_NAME, &manager, &filtManager, &winManager, false, &drawWidget);
-    // drawWidget.registerObject(new Rectangle(MPoint(0, 0), MPoint(1920, 1080), MColor::BLACK, MColor::TRANSPARENT, &drawWidget));
-    // drawWidget.registerObject(mainWindow);
+    drawWidget.registerObject(new Rectangle(MPoint(0, 0), MPoint(1920, 1080), MColor::BLACK, MColor::TRANSPARENT, &drawWidget));
+    drawWidget.registerObject(mainWindow);
 
     // //create graphics picker of tools and colors
     // // Window* pickerWindow = createPickerWindow(mainWindow, &manager, &filtManager);
@@ -511,12 +511,12 @@ void runMainCycle() {
 
     // create event manager
     EventManager eventBoy = EventManager();
-    // eventBoy.registerObject(mainWindow);
+    eventBoy.registerObject(mainWindow);
 
     // create bar with tool picker, color picker, and new window creator
     List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs; List<ModalWindowArgs*> modArgs;
-    // Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, toolArgs, colArgs, modArgs);
-    // mainWindow->setActions(actions);
+    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, toolArgs, colArgs, modArgs);
+    mainWindow->setActions(actions);
 
     renderTarget.clearAll();
     drawWidget.render(&renderTarget);

@@ -46,9 +46,9 @@ protected:
 
     RegionSet* regSet = nullptr;
 
-    WidgetPtr        parent;
-    bool             exists  = true;
-    bool             visible = true;
+    Widget* parent;
+    bool    exists  = true;
+    bool    visible = true;
 
     uint8_t priority = 0;
 
@@ -64,8 +64,6 @@ public:
     List<WidgetPtr>* getWindows     ();
     bool             getVisible     ();
     RegionSet*       getRegSet      ();
-    Widget*          getWidgetParent();
-    void             setParent      (Widget* _parent);
 
     void setVisible(bool _visible);
 

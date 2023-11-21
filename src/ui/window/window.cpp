@@ -239,7 +239,7 @@ void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     window->move((newPos - oldPos).toVec2());
-    if (window->getWidgetParent()) window->getWidgetParent()->fillRegionSets();
+    if (window->getParent()) ((Widget*)window->getParent())->fillRegionSets();
 }
 
 void closeFunc(void* window) {
