@@ -31,6 +31,7 @@ struct WidgetPtr {
     bool       getAvailable     ();
     RegionSet* getDefaultRegSet ();
     void       recalcRegion     ();
+    void       render           (plugin::RenderTargetI* rt);
 
     friend bool operator==(const WidgetPtr& a, const WidgetPtr& b);
 };

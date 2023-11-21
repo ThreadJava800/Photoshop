@@ -29,21 +29,31 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
                 renderTarget.getRenderWindow()->close();
                 break;
             case sf::Event::KeyPressed:
-                if (event.key.code == sf::Keyboard::Escape)
-                    renderTarget.getRenderWindow()->close();
-                if (event.key.code == sf::Keyboard::Left)
-                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Left});
-                if (event.key.code == sf::Keyboard::Right)
-                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Right});
-                if (event.key.code == sf::Keyboard::Down)
-                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Down});
-                if (event.key.code == sf::Keyboard::Up)
-                    eventBoy.onKeyboardPress({false, false, false, plugin::Key::Up});
-                break;
-            case sf::Event::TextEntered:
-                // renderTarget.getRenderTexture()->clear();
+                plugin::KeyboardContext keyboard_context;
+                keyboard_context.key = (plugin::Key) event.key.code;
 
-                eventBoy.onKeyboardPress({false, false, false, (plugin::Key)(event.key.code)});
+                switch (keyboard_context.key)
+                {
+                case plugin::Key::LShift:
+                case plugin::Key::RShift:
+                    keyboard_context.shift = true;
+                    break;
+                case plugin::Key::LAlt:
+                case plugin::Key::RAlt:
+                    keyboard_context.alt = true;
+                    break;
+                case plugin::Key::LControl:
+                case plugin::Key::RControl:
+                    keyboard_context.ctrl = true;
+                    break;
+                case plugin::Key::Escape:
+                    renderTarget.getRenderWindow()->close();
+                    break;
+                default:
+                    break;
+                }
+
+                eventBoy.onKeyboardPress(keyboard_context);
 
                 drawWidget.render(&renderTarget);
                 renderTarget.displayAll();
@@ -56,7 +66,7 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
                 // renderTarget.getRenderTexture()->clear();
 
                 sf::Vector2i mouse_pos = sf::Mouse::getPosition();
-                eventBoy.onMousePress({{(double)(mouse_pos.x), (double)(mouse_pos.y)}, (plugin::MouseButton)(event.mouseButton.button)});
+                eventBoy.onMousePress({{(double)(mouse_pos.x), (double)(mouse_pos.y)}, (plugin::MouseButton)(event.key.code)});
 
                 drawWidget.render(&renderTarget);
                 renderTarget.displayAll();
@@ -78,6 +88,7 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
                 // renderTarget.getRenderTexture()->clear();
 
                 sf::Vector2i mouse_pos = sf::Mouse::getPosition();
+                
                 eventBoy.onMouseMove({{(double)(mouse_pos.x), (double)(mouse_pos.y)}, (plugin::MouseButton)(event.mouseButton.button)});
 
                 drawWidget.render(&renderTarget);

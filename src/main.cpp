@@ -496,7 +496,7 @@ Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager
 void runMainCycle() {
     RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), true);
 
-    MGUI tttt = MGUI({100, 100}, nullptr);
+    // MGUI tttt = MGUI({100, 100}, nullptr);
 
     Brush* defaultTool        = new Brush();
     ToolManager manager       = ToolManager(defaultTool, MColor::RED);

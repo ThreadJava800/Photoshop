@@ -7,12 +7,11 @@ plugin::Vec2 MGUI::getSize() {
 }
 
 plugin::RenderTargetI* MGUI::getRenderTarget(plugin::Vec2 size, plugin::Vec2 pos, plugin::Plugin *self) {
-    RenderTarget* rend_target = new RenderTarget(MPoint(pos), MPoint(size));
-    return rend_target;
+    return new RenderTarget(MPoint(pos), MPoint(size));
 }
 
 void MGUI::createParamWindow(plugin::Array<const char *> param_names, plugin::Interface * self) {
-    
+
 }
 
 plugin::WidgetI* MGUI::getRoot() {

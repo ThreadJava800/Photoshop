@@ -95,6 +95,11 @@ void WidgetPtr::recalcRegion() {
     else           program_widget->recalcRegion();
 }
 
+void WidgetPtr::render(plugin::RenderTargetI* rt) {
+    if (is_extern) plugin_widget ->render(rt);
+    else           program_widget->render(rt);
+}
+
 bool operator==(const WidgetPtr& a, const WidgetPtr& b) {
     if (!a.is_extern && !b.is_extern) return a.program_widget == b.program_widget;
     return (a.is_extern && b.is_extern) && (a.plugin_widget == b.plugin_widget);
@@ -155,7 +160,13 @@ void Widget::registerSubWidget(plugin::WidgetI* object) {
 }
 
 void Widget::unregisterSubWidget(plugin::WidgetI* object) {
-
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
+        WidgetPtr widget = (*subWindows)[i];
+        if ((widget.is_extern  && widget.plugin_widget  == object) ||
+            (!widget.is_extern && widget.program_widget == object))
+            subWindows->remove(i);
+    }
 }
 
 plugin::Vec2 Widget::getSize() {
@@ -217,7 +228,12 @@ void Widget::setAvailable(bool _available) {
 }
 
 void Widget::render(plugin::RenderTargetI* rt) {
-
+    if (getAvailable()) {
+        size_t listSize = subWindows->getSize();
+        for (size_t i = 0; i < listSize; i++) {
+            (*subWindows)[i].render(rt);
+        }
+    }
 }
 
 void Widget::recalcRegion() {
@@ -368,12 +384,14 @@ void Widget::unregisterObject() {
 void Widget::render(RenderTarget* renderTarget) {
     unregisterObject();
 
-    if (visible) {
+    if (visible && getAvailable()) {
         size_t listSize = subWindows->getSize();
         for (size_t i = 0; i < listSize; i++) {
             WidgetPtr widget = (*subWindows)[i];
             if (!widget.is_extern) {
                 widget.program_widget->render(renderTarget);
+            } else {
+                widget.plugin_widget ->render(renderTarget);
             }
         }
 
