@@ -1,25 +1,99 @@
 #include "renderable.h"
 
+WidgetPtr::WidgetPtr(plugin::WidgetI* _widget) {
+    is_extern = true;
+    plugin_widget = _widget;
+}
+
+WidgetPtr::WidgetPtr(Widget* _widget) {
+    is_extern      = false;
+    program_widget = _widget;
+}
+
+plugin::Vec2 WidgetPtr::getSize() {
+    if (is_extern) return plugin_widget->getSize();
+    return program_widget->getSize();
+}
+plugin::Vec2 WidgetPtr::getPos() {
+    if (is_extern) return plugin_widget->getPos();
+    return program_widget->getPos();
+}
+
+bool WidgetPtr::onKeyboardPress(plugin::KeyboardContext key) {
+    if (is_extern) return plugin_widget->onKeyboardPress(key);
+    return program_widget->onKeyboardPress(key);
+}
+
+bool WidgetPtr::onKeyboardRelease(plugin::KeyboardContext key) {
+    if (is_extern) return plugin_widget->onKeyboardRelease(key);
+    return program_widget->onKeyboardRelease(key);
+}
+
+bool WidgetPtr::onMousePress(plugin::MouseContext mouse) {
+    if (is_extern) return plugin_widget->onMousePress(mouse);
+    return program_widget->onMousePress(mouse);
+}
+
+bool WidgetPtr::onMouseRelease(plugin::MouseContext mouse) {
+    if (is_extern) return plugin_widget->onMouseRelease(mouse);
+    return program_widget->onMouseRelease(mouse);
+}
+
+bool WidgetPtr::onMouseMove(plugin::MouseContext mouse) {
+    if (is_extern) return plugin_widget->onMouseMove(mouse);
+    return program_widget->onMouseMove(mouse);
+}
+
+bool WidgetPtr::onClock(size_t delta) {
+    if (is_extern) return plugin_widget->onClock(delta);
+    return program_widget->onClock(delta);
+}
+
+void WidgetPtr::move(plugin::Vec2 shift) {
+    if (is_extern) plugin_widget ->move(shift);
+    else           program_widget->move(shift);
+}
+
+bool WidgetPtr::isInside(plugin::Vec2 position) {
+    if (is_extern) {
+        MathRectangle widget_rect = MathRectangle(MPoint(plugin_widget->getPos()),
+                                                  MPoint(plugin_widget->getSize()));
+        return widget_rect.isPointInside(MPoint(position));
+    }
+
+    return program_widget->isInside(MPoint(position));
+}
+
+void WidgetPtr::setAvailable(bool value) {
+    if (is_extern) plugin_widget ->setAvailable(value);
+    else           program_widget->setAvailable(value);
+}
+
+bool WidgetPtr::getAvailable() {
+    if (is_extern) plugin_widget->getAvailable();
+    return program_widget->getAvailable();
+}
+
 Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, uint8_t _priority) :
-    EventProcessable(_priority),
     position(_position),
     size    (_size),
     parent  (_parent),
     visible (true),
-    exists  (true) {
+    exists  (true),
+    priority(_priority) {
         debColor = MColor(DEB_COLS[rand() % DEB_COLS_CNT]);
-        subWindows = new List<Widget*>();
+        subWindows = new List<WidgetPtr>();
         createEmptyRegionSet();
     }
 
-Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* _subWindows, uint8_t _priority) :
-    EventProcessable(_priority),
+Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, List<WidgetPtr>* _subWindows, uint8_t _priority) :
     position  (_position),
     size      (_size),
     parent    (_parent),
     subWindows(_subWindows),
     visible   (true),
-    exists    (true)  {
+    exists    (true),
+    priority  (_priority)  {
         debColor = MColor(DEB_COLS[rand() % DEB_COLS_CNT]);
         createEmptyRegionSet();
     }
@@ -36,8 +110,8 @@ Widget::~Widget() {
 
     size_t listSize = subWindows->getSize();
     for (size_t i = 0; i < listSize; i++) {
-        Widget* widget = (*subWindows)[i];
-        if (widget) delete widget;
+        WidgetPtr widget = (*subWindows)[i];
+        if (!widget.is_extern) delete widget.program_widget;
     }
 
     delete subWindows;
@@ -47,24 +121,90 @@ Widget::~Widget() {
     regSet = nullptr;
 }
 
-MPoint Widget::getPosition() {
-    return position;
+void Widget::registerSubWidget(plugin::WidgetI* object) {
+    ON_ERROR(!object, "Widget ptr was null!",)
+
+    object->setParent(this);
+    subWindows->pushBack(WidgetPtr(object));
 }
 
-MPoint Widget::getSize() {
-    return size;
+void Widget::unregisterSubWidget(plugin::WidgetI* object) {
+
 }
 
-List<Widget*>* Widget::getWindows() {
-    return subWindows;
+plugin::Vec2 Widget::getSize() {
+    return size.toVec2();
 }
 
-void Widget::setExists(bool val) {
-    exists = val;
+void Widget::setSize(plugin::Vec2 _size) {
+    size = MPoint(_size);
 }
 
-bool Widget::getExists() {
+plugin::Vec2 Widget::getPos() {
+    return position.toVec2();
+}
+
+void Widget::setPos(plugin::Vec2 _pos) {
+    position = MPoint(_pos);
+}
+
+bool Widget::isExtern() {
+    return false;
+}
+
+void Widget::setParent(WidgetI *root) {
+    parent = WidgetPtr(root);
+}
+
+plugin::WidgetI* Widget::getParent() {
+    if (parent.is_extern) return parent.plugin_widget;
+    return nullptr;
+}
+
+void Widget::move(plugin::Vec2 shift) {
+    ON_ERROR(!subWindows, "List pointer was null!",);
+
+    if (regSet) {
+        size_t regionCnt = regSet->getSize();
+        for (size_t i = regionCnt; i < regionCnt; i++) {
+            MathRectangle moved = MathRectangle(MPoint((*regSet)[i].getPosition()) + MPoint(shift), (*regSet)[i].getSize());
+            (*regSet)[i] = moved;
+        }
+    }
+
+    size_t listSize = subWindows->getSize();
+    position += MPoint(shift);
+    for (size_t i = 0; i < listSize; i++) {
+        WidgetPtr widget = (*subWindows)[i];
+
+        if (widget.getAvailable()) {
+            widget.move(shift);
+        }
+    }
+}
+
+bool Widget::getAvailable() {
     return exists;
+}
+
+void Widget::setAvailable(bool _available) {
+    exists = _available;
+}
+
+void Widget::render(plugin::RenderTargetI* rt) {
+
+}
+
+void Widget::recalcRegion() {
+
+}
+
+uint8_t Widget::getPriority() {
+    return priority;
+}
+
+List<WidgetPtr>* Widget::getWindows() {
+    return subWindows;
 }
 
 bool Widget::getVisible() {
@@ -75,12 +215,13 @@ RegionSet* Widget::getRegSet() {
     return regSet;
 }
 
-Widget* Widget::getParent  () {
-    return parent;
+Widget* Widget::getWidgetParent() {
+    if (!parent.is_extern) return parent.program_widget;
+    return nullptr;
 }
 
 void Widget::setParent(Widget* _parent) {
-    parent = _parent;
+    parent = WidgetPtr(_parent);
 }
 
 void Widget::setVisible(bool _visible) {
@@ -94,10 +235,10 @@ bool Widget::onKeyboardPress(plugin::KeyboardContext context) {
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
+        WidgetPtr widget = (*subWindows)[i];
 
-        if (widget && widget->getExists() && widget->visible) {
-            wasClick = widget->onKeyboardPress(context);
+        if (widget.getAvailable()) {
+            wasClick = widget.onKeyboardPress(context);
             if (wasClick) return wasClick;
         }
     }
@@ -110,9 +251,9 @@ bool Widget::onKeyboardRelease(plugin::KeyboardContext context) {
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
+        WidgetPtr widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onKeyboardRelease(context);
+        if (widget.getAvailable()) widget.onKeyboardRelease(context);
     }
 
     return true;
@@ -123,9 +264,9 @@ bool Widget::onClock(uint64_t delta) {
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
+        WidgetPtr widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onClock(delta);
+        if (widget.getAvailable()) widget.onClock(delta);
     }
 
     return true;
@@ -138,10 +279,10 @@ bool Widget::onMousePress(plugin::MouseContext context) {
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
+        WidgetPtr widget = (*subWindows)[i];
 
-        if (widget && widget->getExists() && widget->visible && widget->isInside(MPoint(context.position))) {
-            wasClick = widget->onMousePress(context);
+        if (widget.getAvailable() && widget.isInside(context.position)) {
+            wasClick = widget.onMousePress(context);
             if (wasClick) return wasClick;
         }
     }
@@ -154,9 +295,9 @@ bool Widget::onMouseRelease(plugin::MouseContext context) {
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
+        WidgetPtr widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onMouseRelease(context);
+        if (widget.getAvailable()) widget.onMouseRelease(context);
     }
 
     return true;
@@ -167,43 +308,12 @@ bool Widget::onMouseMove(plugin::MouseContext context) {
 
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
+        WidgetPtr widget = (*subWindows)[i];
 
-        if (widget && widget->getExists()) widget->onMouseMove(context);
+        if (widget.getAvailable()) widget.onMouseMove(context);
     }
 
     return true;
-}
-
-void Widget::move(MPoint shift) {
-    ON_ERROR(!subWindows, "List pointer was null!",);
-
-    if (regSet) {
-        size_t regionCnt = regSet->getSize();
-        for (size_t i = regionCnt; i < regionCnt; i++) {
-            MathRectangle moved = MathRectangle((*regSet)[i].getPosition() + shift, (*regSet)[i].getSize());
-            (*regSet)[i] = moved;
-        }
-    }
-
-    size_t listSize = subWindows->getSize();
-    position += shift;
-    for (size_t i = 0; i < listSize; i++) {
-        Widget* widget = (*subWindows)[i];
-
-        if (widget && widget->getExists()) {
-            widget->move(shift);
-        }
-    }
-}
-
-void Widget::registerObject(Widget* widget) {
-    ON_ERROR(!widget, "Widget ptr was null!",)
-
-    widget->setParent(this);
-    subWindows->pushBack(widget);
-
-    fillRegionSets();  
 }
 
 bool Widget::isInside(MPoint point) {
@@ -215,35 +325,43 @@ RegionSet* Widget::getDefaultRegSet() {
     return regSet;
 }
 
+
+void Widget::registerObject(Widget* widget) {
+    ON_ERROR(!widget, "Widget ptr was null!",)
+
+    widget->setParent(this);
+    subWindows->pushBack(WidgetPtr(widget));
+
+    fillRegionSets();  
+}
+
+void Widget::unregisterObject() {
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
+        WidgetPtr widget = (*subWindows)[i];
+        if (!widget.getAvailable() && !widget.is_extern) {
+            delete widget.program_widget;
+            subWindows->remove(i);
+            listSize--;
+
+            fillRegionSets();
+        }
+    }
+}
+
 void Widget::render(RenderTarget* renderTarget) {
     unregisterObject();
 
     if (visible) {
         size_t listSize = subWindows->getSize();
         for (size_t i = 0; i < listSize; i++) {
-            Widget* widget = (*subWindows)[i];
-            if (widget) {
-                widget->render(renderTarget);
+            WidgetPtr widget = (*subWindows)[i];
+            if (!widget.is_extern) {
+                widget.program_widget->render(renderTarget);
             }
         }
 
         // regSet->visualize(renderTarget, debColor);
-    }
-}
-
-void Widget::unregisterObject() {
-    long listSize = long(subWindows->getSize());
-    for (long i = listSize - 1; i >= 0; i--) {
-        Widget* widget = (*subWindows)[i];
-        if (widget && !widget->getExists()) {
-            Widget* delParent = widget->getParent();
-
-            delete widget;
-            subWindows->remove(i);
-            listSize--;
-
-            fillRegionSets();
-        }
     }
 }
 
@@ -253,13 +371,17 @@ void Widget::clearRegionSets() {
     regSet->getRectangles()->clear();
 
     for (size_t i = 0; i < listSize; i++) {
-        (*subWindows)[i]->clearRegionSets();
+        WidgetPtr widget_ptr = (*subWindows)[i];
+
+        if (!widget_ptr.is_extern) widget_ptr.program_widget->clearRegionSets();
     }
 }
 
 void Widget::fillRegionSets() {
     Widget* test = this;
-    while (test->parent != 0) test = test->parent;
+
+    Widget* test_parent = test->getWidgetParent();
+    while (test_parent != 0) test = test_parent;
 
     test->fillRegionSetsRoot();
 }
@@ -269,26 +391,29 @@ void Widget::fillRegionSetsRoot() {
 
     regSet = getDefaultRegSet();
 
-    if (parent) {
+    Widget* test_parent = getWidgetParent();
+
+    if (test_parent) {
         RegionSet* oldRegSet = regSet;
-        regSet = regSet->cross(parent->regSet);
+        regSet = regSet->cross(test_parent->regSet);
         delete oldRegSet;
 
-        List<Widget*>* parentWins = parent->subWindows;
-        size_t         parentCCnt = parentWins->getSize();
-        size_t         valInd     = 0;
+        List<WidgetPtr>* parentWins = test_parent->subWindows;
+        size_t           parentCCnt = parentWins->getSize();
+        size_t           valInd     = 0;
         for (size_t i = 0; i < parentCCnt; i++) {
-            if (this == (*parentWins)[i]) {
+            WidgetPtr widget_ptr = (*parentWins)[i];
+            if (!widget_ptr.is_extern && this == widget_ptr.program_widget) {
                 valInd = i + 1;
                 break;
             }
         }
 
         for (size_t i = valInd; i < parentCCnt; i++) {
-            Widget* cur = (*parentWins)[i];
+            WidgetPtr cur = (*parentWins)[i];
 
-            if (cur->visible) {
-                regSet->subtract(cur->getDefaultRegSet());
+            if (!cur.is_extern && cur.program_widget->visible) {
+                regSet->subtract(cur.program_widget->getDefaultRegSet());
             }
         }
     }
@@ -296,23 +421,25 @@ void Widget::fillRegionSetsRoot() {
     size_t childCnt = subWindows->getSize();
 
     for (size_t i = 0; i < childCnt; i++) {
-        Widget *subWin = (*subWindows)[i];
-        if (subWin->visible) subWin->fillRegionSetsRoot();
+        WidgetPtr subWin = (*subWindows)[i];
+        if (!subWin.is_extern && subWin.program_widget->visible) subWin.program_widget->fillRegionSetsRoot();
     }
 
     // minus children
     for (size_t i = 0; i < childCnt; i++) {
-        Widget* cur = (*subWindows)[i];
+        WidgetPtr cur = (*subWindows)[i];
 
-        if (cur->visible) {
-            regSet->subtract(cur->getDefaultRegSet());
+        if (!cur.is_extern && cur.program_widget->visible) {
+            regSet->subtract(cur.program_widget->getDefaultRegSet());
         }
     }
 }
 
 void Widget::prioritizeWindow() {
-    if (parent && parent->getWindows()) {
-        parent->getWindows()->swapWithEnd(this);
-        parent->fillRegionSets();
+    Widget* test_parent = getWidgetParent();
+
+    if (test_parent && test_parent->getWindows()) {
+        test_parent->getWindows()->swapWithEnd(WidgetPtr(this));
+        test_parent->fillRegionSets();
     }
 }
