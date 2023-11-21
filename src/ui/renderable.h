@@ -19,16 +19,18 @@ struct WidgetPtr {
     plugin::Vec2 getSize();
     plugin::Vec2 getPos ();
 
-    bool onKeyboardPress  (plugin::KeyboardContext key);
-    bool onKeyboardRelease(plugin::KeyboardContext key);
-    bool onMousePress     (plugin::MouseContext mouse);
-    bool onMouseRelease   (plugin::MouseContext mouse);
-    bool onMouseMove      (plugin::MouseContext mouse);
-    bool onClock          (size_t delta);
-    void move             (plugin::Vec2 shift);
-    bool isInside         (plugin::Vec2 position);
-    void setAvailable     (bool value);
-    bool getAvailable     ();
+    bool       onKeyboardPress  (plugin::KeyboardContext key);
+    bool       onKeyboardRelease(plugin::KeyboardContext key);
+    bool       onMousePress     (plugin::MouseContext mouse);
+    bool       onMouseRelease   (plugin::MouseContext mouse);
+    bool       onMouseMove      (plugin::MouseContext mouse);
+    bool       onClock          (size_t delta);
+    void       move             (plugin::Vec2 shift);
+    bool       isInside         (plugin::Vec2 position);
+    void       setAvailable     (bool value);
+    bool       getAvailable     ();
+    RegionSet* getDefaultRegSet ();
+    void       recalcRegion     ();
 
     friend bool operator==(const WidgetPtr& a, const WidgetPtr& b);
 };

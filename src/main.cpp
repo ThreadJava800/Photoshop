@@ -7,6 +7,7 @@
 #include "ui/editbox/editbox.h"
 #include "../libs/multimedia/eventInterlayer.h"
 #include "ui/shapes/shapes.h"
+#include "pluginDriver.h"
 
 enum Tools {
     BRUSH,
@@ -494,6 +495,8 @@ Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager
 
 void runMainCycle() {
     RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), true);
+
+    MGUI tttt = MGUI({100, 100}, nullptr);
 
     Brush* defaultTool        = new Brush();
     ToolManager manager       = ToolManager(defaultTool, MColor::RED);

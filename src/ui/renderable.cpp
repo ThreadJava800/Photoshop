@@ -76,6 +76,25 @@ bool WidgetPtr::getAvailable() {
     return program_widget->getAvailable();
 }
 
+RegionSet* WidgetPtr::getDefaultRegSet() {
+    if (is_extern) {
+        if (!plugin_widget) return nullptr;
+
+        RegionSet* reg_set = new RegionSet();
+        reg_set->addRegion(MathRectangle(MPoint(plugin_widget->getPos()), MPoint(plugin_widget->getSize())));
+
+        return reg_set;
+    }
+
+    if (!program_widget) return nullptr;
+    return program_widget->getDefaultRegSet();
+}
+
+void WidgetPtr::recalcRegion() {
+    if (is_extern) plugin_widget ->recalcRegion();
+    else           program_widget->recalcRegion();
+}
+
 bool operator==(const WidgetPtr& a, const WidgetPtr& b) {
     if (!a.is_extern && !b.is_extern) return a.program_widget == b.program_widget;
     return (a.is_extern && b.is_extern) && (a.plugin_widget == b.plugin_widget);
@@ -202,7 +221,7 @@ void Widget::render(plugin::RenderTargetI* rt) {
 }
 
 void Widget::recalcRegion() {
-
+    fillRegionSetsRoot();
 }
 
 uint8_t Widget::getPriority() {
@@ -397,7 +416,7 @@ void Widget::fillRegionSetsRoot() {
         size_t           valInd     = 0;
         for (size_t i = 0; i < parentCCnt; i++) {
             WidgetPtr widget_ptr = (*parentWins)[i];
-            if (!widget_ptr.is_extern && this == widget_ptr.program_widget) {
+            if (this == widget_ptr.program_widget) {
                 valInd = i + 1;
                 break;
             }
@@ -406,8 +425,8 @@ void Widget::fillRegionSetsRoot() {
         for (size_t i = valInd; i < parentCCnt; i++) {
             WidgetPtr cur = (*parentWins)[i];
 
-            if (!cur.is_extern && cur.program_widget->visible) {
-                regSet->subtract(cur.program_widget->getDefaultRegSet());
+            if (cur.is_extern || !cur.is_extern && cur.program_widget->visible) {
+                regSet->subtract(cur.getDefaultRegSet());
             }
         }
     }
@@ -416,15 +435,16 @@ void Widget::fillRegionSetsRoot() {
 
     for (size_t i = 0; i < childCnt; i++) {
         WidgetPtr subWin = (*subWindows)[i];
-        if (!subWin.is_extern && subWin.program_widget->visible) subWin.program_widget->fillRegionSetsRoot();
+        if (subWin.is_extern || !subWin.is_extern && subWin.program_widget->visible) 
+            subWin.recalcRegion();
     }
 
     // minus children
     for (size_t i = 0; i < childCnt; i++) {
         WidgetPtr cur = (*subWindows)[i];
 
-        if (!cur.is_extern && cur.program_widget->visible) {
-            regSet->subtract(cur.program_widget->getDefaultRegSet());
+        if (cur.is_extern || !cur.is_extern && cur.program_widget->visible) {
+            regSet->subtract(cur.getDefaultRegSet());
         }
     }
 }

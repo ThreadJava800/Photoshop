@@ -245,7 +245,7 @@ void onMove(Window* window, MPoint newPos, MPoint oldPos) {
 void closeFunc(void* window) {
     ON_ERROR(!window, "Window pointer was null!",);
 
-    ((plugin::WidgetI*)window)->setAvailable(false);
+    ((Window*)window)->setAvailable(false);
 }
 
 WindowManager::WindowManager() {
