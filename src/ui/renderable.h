@@ -12,8 +12,9 @@ struct WidgetPtr {
     };
     bool          is_extern;
 
-    explicit     WidgetPtr(plugin::WidgetI* _widget);
-    explicit     WidgetPtr(Widget* _widget);
+    explicit WidgetPtr();
+    explicit WidgetPtr(plugin::WidgetI* _widget);
+    explicit WidgetPtr(Widget* _widget);
 
     plugin::Vec2 getSize();
     plugin::Vec2 getPos ();
@@ -28,6 +29,8 @@ struct WidgetPtr {
     bool isInside         (plugin::Vec2 position);
     void setAvailable     (bool value);
     bool getAvailable     ();
+
+    friend bool operator==(const WidgetPtr& a, const WidgetPtr& b);
 };
 
 class Renderable {

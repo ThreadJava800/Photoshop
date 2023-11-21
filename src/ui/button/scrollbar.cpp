@@ -106,8 +106,8 @@ void ScrollBar::render(RenderTarget* renderTarget) {
     Widget::render(renderTarget);
 }
 
-void ScrollBar::move(MPoint shift) {
-    sliderPos += shift;
+void ScrollBar::move(plugin::Vec2 shift) {
+    sliderPos += MPoint(shift);
     Widget::move(shift);
 }
 

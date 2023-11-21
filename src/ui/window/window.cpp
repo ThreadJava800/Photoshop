@@ -225,7 +225,7 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
         for (size_t i = 0; i < nameCnt; i++) {
             EditBox* editBox = (*editBoxes)[i];
 
-            renderTarget->drawText(editBox->getPosition() - MPoint(0, 2 * BTN_TXT_PT), paramNames.data[i], MColor::GRAY, textFont, BTN_TXT_PT);
+            renderTarget->drawText(MPoint(editBox->getPos()) - MPoint(0, 2 * BTN_TXT_PT), paramNames.data[i], MColor::GRAY, textFont, BTN_TXT_PT);
             editBox->render(renderTarget);
         }
     }
@@ -238,14 +238,14 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
 
-    window->move(newPos - oldPos);
-    if (window->getParent()) window->getParent()->fillRegionSets();
+    window->move((newPos - oldPos).toVec2());
+    if (window->getWidgetParent()) window->getWidgetParent()->fillRegionSets();
 }
 
 void closeFunc(void* window) {
     ON_ERROR(!window, "Window pointer was null!",);
 
-    ((Window*)window)->setExists(false);
+    ((plugin::WidgetI*)window)->setAvailable(false);
 }
 
 WindowManager::WindowManager() {

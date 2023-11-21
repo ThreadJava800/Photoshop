@@ -226,7 +226,7 @@ public:
     bool onMouseMove   (plugin::MouseContext context) override;
 
     void render(RenderTarget* renderTarget) override;
-    void move  (MPoint shift)               override;
+    void move  (plugin::Vec2 shift)         override;
 };
 
 #endif

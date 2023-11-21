@@ -32,7 +32,7 @@ public:
     bool onMouseRelease(plugin::MouseContext context) override;
     bool onMouseMove   (plugin::MouseContext context) override;
     void render        (RenderTarget* renderTarget)   override;
-    void move          (MPoint shift)                 override;
+    void move          (plugin::Vec2 shift)           override;
 };
 
 struct ScrollBtnArgs {

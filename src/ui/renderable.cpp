@@ -1,5 +1,7 @@
 #include "renderable.h"
 
+WidgetPtr::WidgetPtr() {}
+
 WidgetPtr::WidgetPtr(plugin::WidgetI* _widget) {
     is_extern = true;
     plugin_widget = _widget;
@@ -72,6 +74,11 @@ void WidgetPtr::setAvailable(bool value) {
 bool WidgetPtr::getAvailable() {
     if (is_extern) plugin_widget->getAvailable();
     return program_widget->getAvailable();
+}
+
+bool operator==(const WidgetPtr& a, const WidgetPtr& b) {
+    if (!a.is_extern && !b.is_extern) return a.program_widget == b.program_widget;
+    return (a.is_extern && b.is_extern) && (a.plugin_widget == b.plugin_widget);
 }
 
 Widget::Widget(MPoint _position, MPoint _size, Widget* _parent, uint8_t _priority) :

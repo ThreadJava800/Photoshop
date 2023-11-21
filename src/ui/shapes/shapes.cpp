@@ -12,8 +12,8 @@ Rectangle::~Rectangle() {
     outColor   = MColor();
 }
 
-MPoint Rectangle::getSize() {
-    return size;
+plugin::Vec2 Rectangle::getSize() {
+    return size.toVec2();
 }
 
 void Rectangle::render(RenderTarget* renderTarget) {

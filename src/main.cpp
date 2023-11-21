@@ -241,13 +241,17 @@ void saveCanvas(void* arg) {
 
     modWinArgs->curWindow->setName(fileName);
 
-    WindowManager* _winManager  = modWinArgs->winManager;
-    size_t          winCnt      = modWinArgs->subMenuChild->getWindows()->getSize();
-    List<Widget *>* subMenuBtns = modWinArgs->subMenuChild->getWindows();
+    WindowManager* _winManager   = modWinArgs->winManager;
+    size_t          winCnt       = modWinArgs->subMenuChild->getWindows()->getSize();
+    List<WidgetPtr>* subMenuBtns = modWinArgs->subMenuChild->getWindows();
 
     for (size_t i = 0; i < winCnt; i++) {
         const char* winName = (*_winManager->getCanvasWindows())[i]->getName();
-        ((TextButton*)(*subMenuBtns)[i])->setText(winName);
+
+        WidgetPtr widget_ptr = (*subMenuBtns)[i];
+        if (!widget_ptr.is_extern) {
+            ((TextButton*)widget_ptr.program_widget)->setText(winName);
+        }
     }
 }
 
@@ -413,7 +417,7 @@ SubMenu* createFileMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manage
     size_t   winCnt     = _winManager->getCanvasWindows()->getSize();
     ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, fileMenu, _evManager, _filtManager, _winManager);
 
-    MPoint chooseMenuPos = fileMenu->getPosition() + MPoint(fileMenu->getSize().x, 0);
+    MPoint chooseMenuPos = MPoint(fileMenu->getPos()) + MPoint(fileMenu->getSize().x, 0);
     SubMenu* chooseMenu  = new SubMenu(chooseMenuPos, MPoint(fileMenu->getSize().x, TOP_PANE_SIZE * winCnt), fileMenu);
     
     for (size_t i = 0; i < winCnt; i++) {
@@ -498,21 +502,21 @@ void runMainCycle() {
 
     Widget drawWidget  = Widget(MPoint(0, 0), MPoint(1920, 1080), nullptr);
     Window* mainWindow = new Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1900, 1060), MAIN_WINDOW_NAME, &manager, &filtManager, &winManager, false, &drawWidget);
-    drawWidget.registerObject(new Rectangle(MPoint(0, 0), MPoint(1920, 1080), MColor::BLACK, MColor::TRANSPARENT, &drawWidget));
-    drawWidget.registerObject(mainWindow);
+    // drawWidget.registerObject(new Rectangle(MPoint(0, 0), MPoint(1920, 1080), MColor::BLACK, MColor::TRANSPARENT, &drawWidget));
+    // drawWidget.registerObject(mainWindow);
 
-    //create graphics picker of tools and colors
-    // Window* pickerWindow = createPickerWindow(mainWindow, &manager, &filtManager);
-    // mainWindow->registerObject(pickerWindow);
+    // //create graphics picker of tools and colors
+    // // Window* pickerWindow = createPickerWindow(mainWindow, &manager, &filtManager);
+    // // mainWindow->registerObject(pickerWindow);
 
     // create event manager
     EventManager eventBoy = EventManager();
-    eventBoy.registerObject(mainWindow);
+    // eventBoy.registerObject(mainWindow);
 
     // create bar with tool picker, color picker, and new window creator
     List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs; List<ModalWindowArgs*> modArgs;
-    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, toolArgs, colArgs, modArgs);
-    mainWindow->setActions(actions);
+    // Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, toolArgs, colArgs, modArgs);
+    // mainWindow->setActions(actions);
 
     renderTarget.clearAll();
     drawWidget.render(&renderTarget);

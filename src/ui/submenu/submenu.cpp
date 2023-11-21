@@ -12,7 +12,7 @@ void SubMenu::changeActivity() {
     // fillRegionSets();
 
     if (visible) prioritizeWindow();
-    if (parent)  parent->prioritizeWindow();
+    if (parent.is_extern)  parent.program_widget->prioritizeWindow();
 }
 
 void SubMenu::render(RenderTarget* renderTarget) {
@@ -34,10 +34,10 @@ RegionSet* SubMenu::getDefaultRegSet() {
     createEmptyRegionSet();
 
     for (size_t i = 0; i < childrenCnt; i++) {
-        Widget* child = (*subWindows)[i];
+        WidgetPtr child = (*subWindows)[i];
 
-        if (child->getVisible()) {
-            regSet->merge(child->getRegSet());
+        if (!child.is_extern && child.program_widget->getVisible()) {
+            regSet->merge(child.program_widget->getRegSet());
         }
     } 
 

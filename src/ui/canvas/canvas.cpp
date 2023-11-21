@@ -653,7 +653,7 @@ Canvas::~Canvas() {
 }
 
 void Canvas::onScroll(MPoint shift) {
-    Widget::move(shift);
+    Widget::move(shift.toVec2());
 }
 
 plugin::Texture* Canvas::getTexture() {
@@ -739,7 +739,7 @@ void Canvas::render(RenderTarget* renderTarget) {
     Widget::render(renderTarget);
 }
 
-void Canvas::move(MPoint shift) {
-    parentRect.move(shift);
+void Canvas::move(plugin::Vec2 shift) {
+    parentRect.move(MPoint(shift));
     Widget::move(shift);
 }
