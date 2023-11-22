@@ -12,24 +12,27 @@ CFLAGS  = -g -D _DEBUG -ggdb3 -std=c++17 -Ofast -w -Wall -Wextra -Weffc++ -Waggr
 -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 
 
-SOURCES=libs/multimedia/multimedia.cpp libs/multimedia/eventInterlayer.cpp src/ui/renderable.cpp src/pluginDriver.cpp src/ui/button/scrollbar.cpp src/ui/editbox/editbox.cpp src/ui/canvas/filters.cpp src/events/events.cpp src/ui/submenu/submenu.cpp src/ui/canvas/canvas.cpp src/ui/shapes/shapes.cpp src/ui/menu/menu.cpp src/ui/button/button.cpp src/ui/window/window.cpp src/main.cpp
+SOURCES=monochrome/mono.cpp
 
-EXECUTABLE=phshop
+EXECUTABLE=monochrome.o
 
-SFML_EXEC= -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+EXECUTABLE_SO=monochrome.so
  
 all: compile_debug
 
-release: compile_release
+release: compile_release_o compile_release_so
 
 erase:
 	clear
 
 compile_debug:
-	@${CC} -fPIE ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
+	@${CC} ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
 
-compile_release:
-	@${CC} -fPIE $(SOURCES) -O2 -o $(EXECUTABLE) $(SFML_EXEC)
+compile_release_o:
+	${CC} -Wall -c -fPIC -o $(EXECUTABLE) $(SOURCES)
+
+compile_release_so:
+	gcc -shared -o ${EXECUTABLE_SO} ${EXECUTABLE}
 
 run:
 	@./${EXECUTABLE}

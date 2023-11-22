@@ -1,7 +1,6 @@
 #ifndef _PLUGINS_h_
 #define _PLUGINS_h_
 
-
 #include <cinttypes>
 
 namespace plugin {
@@ -199,7 +198,7 @@ namespace plugin {
         InterfaceType type;
 
         virtual Interface *getInterface() = 0;
-        virtual ~Plugin() = 0;
+        virtual ~Plugin() = default;
     };
 
     enum class EventType {
@@ -339,6 +338,6 @@ namespace plugin {
     };
 }
 
-plugin::Plugin* getInstance(plugin::App *app);
+extern "C" plugin::Plugin* getInstance(plugin::App *app);
 
 #endif

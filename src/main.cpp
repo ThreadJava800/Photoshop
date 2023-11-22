@@ -1,4 +1,5 @@
 #include <chrono>
+#include <dlfcn.h>
 
 #include "includes.h"
 #include "ui/window/window.h"
@@ -8,6 +9,10 @@
 #include "../libs/multimedia/eventInterlayer.h"
 #include "ui/shapes/shapes.h"
 #include "pluginDriver.h"
+
+static const char* PLUGINS = {
+    "/home/vladimir/Projects/Photoshop/plugins/monochrome.so"
+};
 
 enum Tools {
     BRUSH,
@@ -146,8 +151,8 @@ void monochromeFilter(void* arg) {
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
-    modalWinArgs->filtManager->setFilter(new MonochromeFilter());
-    modalWinArgs->filtManager->setActive(true);
+    // modalWinArgs->filtManager->setFilter(new MonochromeFilter());
+    // modalWinArgs->filtManager->setActive(true);
 
     modalWinArgs->subMenu->changeActivity();
 }
@@ -493,10 +498,22 @@ Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager
     return window;
 }
 
+typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
+void loadPlugins() {
+    void* mono = dlopen("/home/vladimir/Projects/Photoshop/src/monochrome.so", RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
+    if (!mono) { std::cerr << "NULL\n"; fputs(dlerror(), stderr); return; }
+    getInstFunc fun = reinterpret_cast<getInstFunc>(dlsym(mono, "getInstance"));
+    
+    fun({});
+
+    dlclose(mono);
+}
+
 void runMainCycle() {
     RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), true);
 
     // MGUI tttt = MGUI({100, 100}, nullptr);
+    loadPlugins(); 
 
     Brush* defaultTool        = new Brush();
     ToolManager manager       = ToolManager(defaultTool, MColor::RED);
