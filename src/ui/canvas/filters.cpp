@@ -25,7 +25,7 @@ void BrightnessFilter::apply(plugin::RenderTargetI *data) {
     }
 
     pixelData.imgFromPixel(pixelArr);
-    data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
+    data->drawTexture(41, {0, 0}, textureSize.toVec2(), pixelData.toPluginTexture(), 42);
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
@@ -132,7 +132,7 @@ void ColorfulnessFilter::apply(plugin::RenderTargetI *data) {
     }
 
     pixelData.imgFromPixel(pixelArr);
-    data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
+    data->drawTexture(41, {0, 0}, textureSize.toVec2(), pixelData.toPluginTexture(), 42);
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;

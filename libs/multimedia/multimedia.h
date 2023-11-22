@@ -188,7 +188,7 @@ public:
     void drawLine   (plugin::Vec2 pos, plugin::Vec2 point1, plugin::Color color)                     override;
     void drawRect   (plugin::Vec2 pos, plugin::Vec2 size,   plugin::Color color)                     override;
     void drawEllipse(plugin::Vec2 pos, plugin::Vec2 size,   plugin::Color color)                     override;
-    void drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture)            override;
+    void drawTexture(int temp1, plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture, int temp)            override;
     void drawText   (plugin::Vec2 pos, const char *content, uint16_t char_size, plugin::Color color) override;
 
     plugin::Texture *getTexture() override;

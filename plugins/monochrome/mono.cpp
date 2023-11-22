@@ -33,17 +33,19 @@ void MonochromeFilter::apply(plugin::RenderTargetI *data) {
     plugin::Texture* plTexture = data->getTexture();
     plugin::Vec2 textureSize = {plTexture->width, plTexture->height};
     
+    std::cout << textureSize.x << ' ' << textureSize.y << '\n';
+
     for (int i = 0; i < textureSize.x; i++) {
         for (int j = 0; j < textureSize.y; j++) {
             plugin::Color newPixel = plTexture->pixels[i * (int)textureSize.y + j];
 
-            newPixel = {(u_char)(newPixel.r * 0.3), (u_char)(newPixel.g * 0.6), (u_char)(newPixel.b * 0.1), newPixel.a};
+            u_char new_color = (u_char)(newPixel.r * 0.3) + (u_char)(newPixel.g * 0.6) + (u_char)(newPixel.b * 0.1);
 
-            plTexture->pixels[i * (int)textureSize.y + j] =  newPixel;
+            plTexture->pixels[i * (int)textureSize.y + j] = {new_color, new_color, new_color, newPixel.a};
         }
     }
 
-    data->drawTexture({0, 0}, textureSize, plTexture);
+    data->drawTexture(41, {0, 0}, textureSize, plTexture, 42);
 
     delete[] plTexture->pixels;
     delete   plTexture;

@@ -1,7 +1,6 @@
 #ifndef _PLUGINS_h_
 #define _PLUGINS_h_
 
-
 #include <cinttypes>
 
 namespace plugin {
@@ -172,7 +171,7 @@ namespace plugin {
         virtual void drawLine(Vec2 pos, Vec2 point1, Color color) = 0;
         virtual void drawRect(Vec2 pos, Vec2 size, Color color) = 0;
         virtual void drawEllipse(Vec2 pos, Vec2 size, Color color) = 0;
-        virtual void drawTexture(Vec2 pos, Vec2 size, const Texture *texture) = 0;
+        virtual void drawTexture(int temp1, Vec2 pos, Vec2 size, const Texture *texture, int temp) = 0;
         virtual void drawText(Vec2 pos, const char *content, uint16_t char_size, Color color) = 0;
 
         virtual Texture *getTexture() = 0;
@@ -199,7 +198,7 @@ namespace plugin {
         InterfaceType type;
 
         virtual Interface *getInterface() = 0;
-        virtual ~Plugin() = 0;
+        virtual ~Plugin() = default;
     };
 
     enum class EventType {
@@ -339,6 +338,6 @@ namespace plugin {
     };
 }
 
-plugin::Plugin* getInstance(plugin::App *app);
+extern "C" plugin::Plugin* getInstance(plugin::App *app);
 
 #endif
