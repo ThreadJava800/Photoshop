@@ -160,7 +160,7 @@ FilterManager::FilterManager() :
     rt        (nullptr)     {}
 
 FilterManager::~FilterManager() {
-    if (lastFilter) delete lastFilter;
+    if (lastFilter && need_free) delete lastFilter;
 
     active     = false;
     lastFilter = nullptr;
@@ -172,7 +172,7 @@ void FilterManager::setRenderTarget(plugin::RenderTargetI *target) {
 }
 
 void FilterManager::setFilter(plugin::FilterI *filter) {
-    if (lastFilter) delete lastFilter;
+    if (lastFilter && need_free) delete lastFilter;
 
     lastFilter = filter;
 }
@@ -181,6 +181,10 @@ void FilterManager::applyFilter() {
     if (!active || !rt || !lastFilter) return;
 
     lastFilter->apply(rt);
+}
+
+void FilterManager::setNeedFree(bool _need_free) {
+    need_free = _need_free;
 }
 
 void FilterManager::setActive(bool _active) {

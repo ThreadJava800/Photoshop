@@ -1,15 +1,24 @@
 #include "mono.h"
 
 plugin::Plugin* getInstance(plugin::App* app) {
-    std::cerr << "Hello, world\n";
     return new MonochromePlugin();
+}
+
+MonochromePlugin::MonochromePlugin() {
+    id   = 1;
+    name = "Monochrome";
+    type = plugin::InterfaceType::Filter;
+
+    filter = new MonochromeFilter();
 }
 
 plugin::Interface* MonochromePlugin::getInterface() {
     return filter;
 }
 
-MonochromePlugin::~MonochromePlugin() {}
+MonochromePlugin::~MonochromePlugin() {
+    delete filter;
+}
 
 MonochromeFilter::MonochromeFilter() {
     param_names.size = 1;
@@ -37,6 +46,7 @@ void MonochromeFilter::apply(plugin::RenderTargetI *data) {
     data->drawTexture({0, 0}, textureSize, plTexture);
 
     delete[] plTexture->pixels;
+    delete   plTexture;
 }
 
 plugin::Array<const char *> MonochromeFilter::getParamNames() {
@@ -48,3 +58,7 @@ plugin::Array<double> MonochromeFilter::getParams() {
 }
 
 void MonochromeFilter::setParams(plugin::Array<double> params) {}
+
+MonochromeFilter::~MonochromeFilter() {
+    delete[] param_names.data;
+}

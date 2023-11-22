@@ -10,9 +10,14 @@
 #include "ui/shapes/shapes.h"
 #include "pluginDriver.h"
 
-static const char* PLUGINS = {
-    "/home/vladimir/Projects/Photoshop/plugins/monochrome.so"
+List<plugin::Plugin*> plugins;
+
+static const char* FILTER_PLUGINS[] = {
+    "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
+    "/home/vladimir/Projects/Photoshop/plugins/Lol.so"
 };
+
+typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
 
 enum Tools {
     BRUSH,
@@ -49,15 +54,18 @@ struct ColPickerArgs {
 };
 
 struct ModalWindowArgs {
-    Widget*        drawZone;
-    SubMenu*       subMenu;
-    SubMenu*       subMenuChild;
-    EventManager*  evManager;
-    FilterManager* filtManager;
-    WindowManager* winManager;
-    Window       * curWindow;
-    EditBoxModal * editBoxModal;
-    double         saturCoeff;
+    Widget*          drawZone;
+    SubMenu*         subMenu;
+    SubMenu*         subMenuChild;
+    EventManager*    evManager;
+    FilterManager*   filtManager;
+    WindowManager*   winManager;
+    Window       *   curWindow;
+    EditBoxModal *   editBoxModal;
+    plugin::FilterI* filter;
+    double           saturCoeff;
+
+    ModalWindowArgs() {};
 
     ModalWindowArgs(Widget* _drawZone, SubMenu* _subMenu, EventManager* _evManager, FilterManager* _filtManager, WindowManager* _winManager, double _saturCoeff = 1.0) :
         drawZone   (_drawZone),
@@ -109,6 +117,7 @@ void openBlurPicker(void* arg) {
     ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
 
     modalWinArgs->filtManager->setFilter(new BrightnessFilter());
+    modalWinArgs->filtManager->setNeedFree(true);
 
     plugin::Array<const char*> paramNames  = modalWinArgs->filtManager->getLast()->getParamNames();
     EditBoxModal*              modalWindow = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Brightness", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
@@ -133,8 +142,9 @@ void changeBrightConst(void* arg) {
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
-    modalWinArgs->filtManager->setFilter(new BrightnessFilter());
-    modalWinArgs->filtManager->setActive(true);
+    modalWinArgs->filtManager->setFilter  (new BrightnessFilter());
+    modalWinArgs->filtManager->setActive  (true);
+    modalWinArgs->filtManager->setNeedFree(true);
     
     plugin::Array<double> arguments;
     arguments.size    = 1;
@@ -146,13 +156,14 @@ void changeBrightConst(void* arg) {
     modalWinArgs->subMenu->changeActivity();
 }
 
-void monochromeFilter(void* arg) {
+void addPluginFilter(void* arg) {
     if (!arg) return;
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
-    // modalWinArgs->filtManager->setFilter(new MonochromeFilter());
-    // modalWinArgs->filtManager->setActive(true);
+    modalWinArgs->filtManager->setFilter(modalWinArgs->filter);
+    modalWinArgs->filtManager->setNeedFree(false);
+    modalWinArgs->filtManager->setActive(true);
 
     modalWinArgs->subMenu->changeActivity();
 }
@@ -163,6 +174,7 @@ void saturationFilter(void* arg) {
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
     modalWinArgs->filtManager->setFilter(new ColorfulnessFilter());
+    modalWinArgs->filtManager->setNeedFree(true);
     modalWinArgs->filtManager->setActive(true);
 
     plugin::Array<double> params;
@@ -384,7 +396,28 @@ SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ColPicke
     return colMenu;
 }
 
-SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<ModalWindowArgs*>& modArgs) {
+void addFilterPlugins(List<ModalWindowArgs*>& modArgs, FilterManager* filt_manager, plugin::App* _app, SubMenu* filtMenu, int start_pos, MPoint start, MPoint size, MColor color) {
+    for (int i = 0; i < sizeof(FILTER_PLUGINS) / sizeof(const char*); i++) {
+        void* filt_lib = dlopen(FILTER_PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
+        getInstFunc fun = reinterpret_cast<getInstFunc>(dlsym(filt_lib, "getInstance"));
+        plugin::Plugin* plugin = fun(_app);
+        dlclose(filt_lib);
+
+        plugins.pushBack(plugin);
+
+        ModalWindowArgs* modWinArg = new ModalWindowArgs();
+        modWinArg->filter      = (plugin::FilterI*) plugin->getInterface();
+        modWinArg->subMenu     = filtMenu;
+        modWinArg->filtManager = filt_manager;
+
+        TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_pos + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
+        filtMenu->registerObject(text_label);
+
+        modArgs.pushBack(modWinArg);
+    }
+}
+
+SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, List<ModalWindowArgs*>& modArgs, plugin::App* _app) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
@@ -395,11 +428,10 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     TextButton* lastBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Last used",      filtMenu,  lastFilter,        modWinArgs);
     TextButton* constBlurBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (default)", filtMenu,  changeBrightConst, modWinArgs);
     TextButton* customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)",  filtMenu,  openBlurPicker,    modWinArgs);
-    TextButton* monochromeBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Monochrome",     filtMenu,  monochromeFilter,  modWinArgs);
-    TextButton* satUpBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur. (up)",   filtMenu,  saturationFilter,  modWinArgs);
+    TextButton* satUpBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur. (up)",   filtMenu,  saturationFilter,  modWinArgs);
     
     ModalWindowArgs* satDownArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager, nullptr, ColorfulnessFilter::SATUR_DOWN);
-    TextButton* satDownBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur. (down)",   filtMenu,  saturationFilter,  satDownArgs);
+    TextButton* satDownBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur. (down)",   filtMenu,  saturationFilter,  satDownArgs);
 
     modArgs.pushBack(modWinArgs);
     modArgs.pushBack(satDownArgs);
@@ -407,9 +439,10 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     filtMenu->registerObject(lastBtn);
     filtMenu->registerObject(constBlurBtn);
     filtMenu->registerObject(customBlurBtn);
-    filtMenu->registerObject(monochromeBtn);
     filtMenu->registerObject(satUpBtn);
     filtMenu->registerObject(satDownBtn);
+
+    addFilterPlugins(modArgs, _filtManager, _app, filtMenu, 7, start, size, color);
 
     return filtMenu;
 }
@@ -448,7 +481,7 @@ SubMenu* createFileMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manage
     return fileMenu;
 }
 
-Menu* createActionMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, WindowManager* _winManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs, List<ModalWindowArgs*>& modArgs) {
+Menu* createActionMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, WindowManager* _winManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs, List<ModalWindowArgs*>& modArgs, plugin::App* _app) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
@@ -457,7 +490,7 @@ Menu* createActionMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager
     SubMenu* fileMenu   = createFileMenu   (_drawZone, actionMenu, _manager, _filtManager, _evManager, _winManager, modArgs);
     SubMenu* toolMenu   = createToolPicker (actionMenu, _filtManager, _manager, toolArgs);
     SubMenu* colMenu    = createColorPicker(actionMenu, _manager, colArgs);
-    SubMenu* filtMenu   = createFilterMenu (_drawZone, actionMenu, _manager, _filtManager, _evManager, modArgs);
+    SubMenu* filtMenu   = createFilterMenu (_drawZone, actionMenu, _manager, _filtManager, _evManager, modArgs, _app);
 
     TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "File",   actionMenu, openToolMenu, fileMenu);
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);
@@ -498,22 +531,8 @@ Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager
     return window;
 }
 
-typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
-void loadPlugins() {
-    void* mono = dlopen("/home/vladimir/Projects/Photoshop/src/monochrome.so", RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
-    if (!mono) { std::cerr << "NULL\n"; fputs(dlerror(), stderr); return; }
-    getInstFunc fun = reinterpret_cast<getInstFunc>(dlsym(mono, "getInstance"));
-    
-    fun({});
-
-    dlclose(mono);
-}
-
 void runMainCycle() {
     RenderTarget renderTarget = RenderTarget(MPoint(0, 0), MPoint(1920, 1080), true);
-
-    // MGUI tttt = MGUI({100, 100}, nullptr);
-    loadPlugins(); 
 
     Brush* defaultTool        = new Brush();
     ToolManager manager       = ToolManager(defaultTool, MColor::RED);
@@ -533,9 +552,16 @@ void runMainCycle() {
     EventManager eventBoy = EventManager();
     eventBoy.registerObject(mainWindow);
 
+    MGUI gui_i = MGUI(drawWidget.getSize(), &drawWidget);
+    plugin::App app_instance;
+    app_instance.root           = &gui_i;
+    app_instance.event_manager  = &eventBoy;
+    app_instance.filter_manager = &filtManager;
+    app_instance.tool_manager   = &manager;
+
     // create bar with tool picker, color picker, and new window creator
     List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs; List<ModalWindowArgs*> modArgs;
-    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, toolArgs, colArgs, modArgs);
+    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, toolArgs, colArgs, modArgs, &app_instance);
     mainWindow->setActions(actions);
 
     renderTarget.clearAll();
@@ -547,6 +573,7 @@ void runMainCycle() {
     for (size_t i = 0; i < toolArgs.getSize(); i++) delete toolArgs[i];
     for (size_t i = 0; i < colArgs .getSize(); i++) delete colArgs [i];
     for (size_t i = 0; i < modArgs .getSize(); i++) delete modArgs [i];
+    for (size_t i = 0; i < plugins .getSize(); i++) delete plugins [i];
 }
 
 int main() {

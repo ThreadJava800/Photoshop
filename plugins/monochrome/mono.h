@@ -15,6 +15,8 @@ public:
     plugin::Array<const char *> getParamNames()                             override;
     plugin::Array<double>       getParams    ()                             override;
     void                        setParams    (plugin::Array<double> params) override; 
+
+    ~MonochromeFilter();
 };
 
 class MonochromePlugin : public plugin::Plugin {
@@ -23,7 +25,7 @@ private:
     MonochromeFilter* filter;
 
 public:
-    explicit MonochromePlugin() = default;
+    explicit MonochromePlugin();
 
     plugin::Interface *getInterface() override;
     ~MonochromePlugin();

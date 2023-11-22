@@ -55,6 +55,7 @@ public:
 
 class FilterManager : public plugin::FilterManagerI {
 private:
+    bool                   need_free  = false;
     bool                   active     = false;
     plugin::FilterI*       lastFilter = nullptr;
     plugin::RenderTargetI* rt         = nullptr;
@@ -64,10 +65,11 @@ public:
 
     ~FilterManager();
 
-    void                   setActive(bool _active);
-    plugin::RenderTargetI* getRT    ();
-    plugin::FilterI*       getLast  ();
-    bool                   getActive();
+    void                   setActive  (bool _active);
+    void                   setNeedFree(bool _need_free);
+    plugin::RenderTargetI* getRT      ();
+    plugin::FilterI*       getLast    ();
+    bool                   getActive  ();
 
     void setRenderTarget(plugin::RenderTargetI *target) override;
     void setFilter      (plugin::FilterI *filter)       override;
