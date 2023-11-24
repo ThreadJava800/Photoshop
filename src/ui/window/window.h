@@ -88,11 +88,11 @@ private:
     const char* WINDOW_NAME  = "Plugin parameter window";
 
 public:
+    friend void onOkClick(void* args);
+
     explicit PluginParamWindow(plugin::WidgetI* parent, plugin::Array<const char *> param_names, plugin::Interface * _self);
 
     ~PluginParamWindow();
-
-    friend void onOkClick(void* args);
 };
 
 class WindowManager {

@@ -251,6 +251,15 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
     renderTarget->drawText(position + MPoint(2 * TOP_PANE_SIZE, 0), windowName, MColor::BLACK, textFont, BTN_TXT_PT, regSet);
 }
 
+void onOkClick(void* args) {
+    PluginParamWindow* param_win = (PluginParamWindow*)args;
+
+    plugin::Array<double> params = param_win->getParams();
+    param_win->self->setParams(params);
+
+    param_win->setAvailable(false);
+}
+
 PluginParamWindow::PluginParamWindow(plugin::WidgetI* root, plugin::Array<const char *> param_names, plugin::Interface* _self) :
     EditBoxModal(nullptr, DEFAULT_POS, DEFAULT_SIZE, WINDOW_NAME, nullptr, nullptr, (Widget*)root, param_names),
     self(_self) {
@@ -260,15 +269,6 @@ PluginParamWindow::PluginParamWindow(plugin::WidgetI* root, plugin::Array<const 
 }
 
 PluginParamWindow::~PluginParamWindow() {}
-
-void onOkClick(void* args) {
-    PluginParamWindow* param_win = (PluginParamWindow*)args;
-
-    plugin::Array<double> params = param_win->getParams();
-    param_win->self->setParams(params);
-
-    param_win->setAvailable(false);
-}
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {
     ON_ERROR(!window, "Window pointer was null!",);
