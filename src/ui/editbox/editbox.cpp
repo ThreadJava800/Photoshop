@@ -32,19 +32,21 @@ double EditBox::getCursorX(MFont* font, int pt) {
     return posX;
 }
 
-EditBox::EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, INPUT_TYPE _type, int _pt) :
-    Widget     (_position, _size, _parent),
-    font       (_font),
-    curPos     (0),
-    cursorState(false),
-    inputType  (_type),
-    pt         (_pt)       {
+EditBox::EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, INPUT_TYPE _type, const char* _default_text, int _pt) :
+    Widget      (_position, _size, _parent),
+    font        (_font),
+    curPos      (0),
+    cursorState (false),
+    inputType   (_type),
+    default_text(strdup(_default_text)),
+    pt          (_pt)       {
         text = new List<char>();
     }
 
 EditBox::~EditBox() {
     delete font;
     delete text;
+    free(default_text);
 }
 
 char* EditBox::getText() {
@@ -60,7 +62,9 @@ void EditBox::render(RenderTarget* renderTarget) {
     char* printText = text->getCArray();
 
     renderTarget->drawFrame(position, size, MColor::GRAY, regSet);
-    renderTarget->drawText (position, printText, MColor::GRAY, font, BTN_TXT_PT, regSet);
+
+    if (!is_active && text->getSize() == 0) renderTarget->drawText (position, default_text, MColor::GRAY, font, BTN_TXT_PT, regSet);
+    else                                    renderTarget->drawText (position, printText,    MColor::GRAY, font, BTN_TXT_PT, regSet);
 
     int xCursorPos = getCursorX(font, BTN_TXT_PT);
 
@@ -71,6 +75,18 @@ bool EditBox::onMousePress(plugin::MouseContext context) {
     ON_ERROR(!text, "Text pointer was null!", false);
 
     MPoint pos = MPoint(context.position);
+
+    bool is_ins_bool = isInside(pos);
+
+    if (!is_ins_bool) {
+        is_active = false;
+        return false;
+    }
+
+    if (!is_active && is_ins_bool) {
+        is_active = true;
+        return true;
+    }
 
     size_t charCnt    = text->getSize();
     double shiftConst = getTextSize(text->getCArray(), font, pt).x / (charCnt - 1);
@@ -91,6 +107,7 @@ bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
     ON_ERROR(!text, "Text pointer was null!", false);
 
     // std::cout << (int)context.key << '\n';
+    if (!is_active) return false;
 
     if (!checkerFuncs[inputType](context.key)) return false;
 
@@ -134,7 +151,8 @@ bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
 }
 
 bool EditBox::onClock(uint64_t delta) {
-    cursorState = !cursorState;
+    if (is_active) cursorState = !cursorState;
+    else           cursorState = false;
 
     return true;
 }

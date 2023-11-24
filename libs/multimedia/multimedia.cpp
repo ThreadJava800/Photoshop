@@ -213,6 +213,7 @@ void MImage::buildFromPluginTexture(const plugin::Texture* _texture) {
     uint64_t height = _texture->height;
     uint64_t width  = _texture->width;
 
+
     sf::Image sf_pixel_array;
     sf_pixel_array.create(width, height);
 

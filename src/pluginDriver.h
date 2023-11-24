@@ -7,11 +7,13 @@
 
 class MGUI : public plugin::GuiI {
 private:
-    plugin::Vec2     size;
-    plugin::WidgetI* root;
+    plugin::Vec2 size;
+    Widget*      root;
+
+    EventManager*  ev_manager;
 
 public:
-    explicit MGUI(plugin::Vec2, plugin::WidgetI*);
+    explicit MGUI(EventManager* _ev_man, plugin::Vec2, Widget*);
 
     plugin::Vec2           getSize          ()                                                                  override;
     plugin::RenderTargetI* getRenderTarget  (plugin::Vec2 size, plugin::Vec2 pos, plugin::Plugin *self)         override;

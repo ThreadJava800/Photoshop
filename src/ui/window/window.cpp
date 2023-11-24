@@ -192,7 +192,7 @@ EditBoxModal::~EditBoxModal() {
     if (onDestroyFunc) onDestroyFunc(onDestroyArgs);
 
     delete   editBoxes;
-    delete[] paramNames.data;
+    // if (paramNames.data) delete[] paramNames.data;
 }
 
 plugin::Array<double> EditBoxModal::getParams() {
@@ -260,12 +260,17 @@ void onOkClick(void* args) {
     param_win->setAvailable(false);
 }
 
-PluginParamWindow::PluginParamWindow(plugin::WidgetI* root, plugin::Array<const char *> param_names, plugin::Interface* _self) :
-    EditBoxModal(nullptr, DEFAULT_POS, DEFAULT_SIZE, WINDOW_NAME, nullptr, nullptr, (Widget*)root, param_names),
+PluginParamWindow::PluginParamWindow(EventManager* _ev_man, Widget* root, plugin::Array<const char *> param_names, plugin::Interface* _self) :
+    EditBoxModal(_ev_man, DEFAULT_POS, DEFAULT_SIZE, WINDOW_NAME, nullptr, nullptr, root, param_names),
     self(_self) {
 
-        TextButton* ok_btn = new TextButton(DEFAULT_POS + MPoint(DEFAULT_SIZE.x / 2, DEFAULT_SIZE.y - 10), MPoint(100, 30), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), "Save", this, onOkClick, this);
-        registerSubWidget(ok_btn);
+        TextButton* ok_btn = new TextButton(DEFAULT_POS + MPoint(DEFAULT_SIZE.x / 2, DEFAULT_SIZE.y - 50), MPoint(100, 30), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), "OK", this, onOkClick, this);
+        registerObject(ok_btn);
+
+        for (int i = 0; i < param_names.size; i++) {
+            EditBox* editBox = new EditBox(DEFAULT_POS + MPoint(100, i * 60 + TOP_PANE_SIZE + 10), MPoint(1080, 50), this, new MFont(DEFAULT_FONT), NUMBERS_ONLY, param_names.data[i]);
+            addEditBox(editBox);
+        }
 }
 
 PluginParamWindow::~PluginParamWindow() {}

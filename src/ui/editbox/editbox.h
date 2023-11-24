@@ -25,6 +25,9 @@ private:
     bool        cursorState = false;
     INPUT_TYPE  inputType   = ALL_CHARACTER;
 
+    char* default_text = "Text";
+    bool  is_active    = false;
+
     double getCursorX(MFont* font, int pt);
 
     static const CheckInput checkerFuncs[];
@@ -32,7 +35,7 @@ private:
     inline char getRealChar(plugin::Key key);
 
 public:
-    explicit EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, INPUT_TYPE _type, int _pt = BTN_TXT_PT);
+    explicit EditBox(MPoint _position, MPoint _size, Widget* _parent, MFont* _font, INPUT_TYPE _type, const char* _default_text, int _pt = BTN_TXT_PT);
 
     ~EditBox();
 

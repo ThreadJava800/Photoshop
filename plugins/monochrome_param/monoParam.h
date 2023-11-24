@@ -1,15 +1,16 @@
-#ifndef _MONO_FILTER_h_
-#define _MONO_FILTER_h_
+#ifndef _MONO_PARAM_FILTER_h_
+#define _MONO_PARAM_FILTER_h_
 
 #include <iostream>
 #include "../plugin.h"
 
-class MonochromeFilter : public plugin::FilterI {
+class MonochromeParamFilter : public plugin::FilterI {
 private:
     plugin::Array<const char *> param_names;
+    double r = 0.3, g = 0.6, b = 0.1;
 
 public:
-    explicit MonochromeFilter();
+    explicit MonochromeParamFilter();
 
     void                        apply        (plugin::RenderTargetI *data)  override;
     plugin::Array<const char *> getParamNames()                             override;
@@ -17,13 +18,13 @@ public:
     void                        setParams    (plugin::Array<double> params) override; 
 };
 
-class MonochromePlugin : public plugin::Plugin {
+class MonochromeParamPlugin : public plugin::Plugin {
 private:
     plugin::App*      app;
-    MonochromeFilter* filter;
+    MonochromeParamFilter* filter;
 
 public:
-    explicit MonochromePlugin();
+    explicit MonochromeParamPlugin();
 
     plugin::Interface *getInterface() override;
 };

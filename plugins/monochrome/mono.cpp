@@ -16,15 +16,8 @@ plugin::Interface* MonochromePlugin::getInterface() {
     return filter;
 }
 
-MonochromePlugin::~MonochromePlugin() {
-    delete filter;
-}
-
 MonochromeFilter::MonochromeFilter() {
-    param_names.size = 1;
-    param_names.data = new const char*[param_names.size];
-
-    param_names.data[0] = "Monochrome";
+    param_names.size = 0;
 }
 
 void MonochromeFilter::apply(plugin::RenderTargetI *data) {
@@ -60,7 +53,3 @@ plugin::Array<double> MonochromeFilter::getParams() {
 }
 
 void MonochromeFilter::setParams(plugin::Array<double> params) {}
-
-MonochromeFilter::~MonochromeFilter() {
-    delete[] param_names.data;
-}

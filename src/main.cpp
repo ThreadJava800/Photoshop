@@ -14,6 +14,7 @@ List<plugin::Plugin*> plugins;
 
 static const char* FILTER_PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
+    "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
     "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
     "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so"
 };
@@ -116,7 +117,7 @@ void openBlurPicker(void* arg) {
     modalWindow->setDestrArgs(modalWindow);
 
     // add edit box
-    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), NUMBERS_ONLY);
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), NUMBERS_ONLY, paramNames.data[0]);
     modalWindow->addEditBox(editBox);
 
     // TextButton* okBtn = new TextButton(MPoint(300, 500), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), color, new MFont (DEFAULT_FONT), "OK", modalWindow, closeModal, lineArgs);
@@ -151,6 +152,12 @@ void addPluginFilter(void* arg) {
     if (!arg) return;
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
+
+    plugin::Array params = modalWinArgs->filter->getParamNames();
+    if (params.size > 0) {
+        PluginParamWindow* modalWindow = new PluginParamWindow(modalWinArgs->evManager, modalWinArgs->drawZone, params, modalWinArgs->filter);
+        modalWinArgs->drawZone->registerObject(modalWindow);
+    }
 
     modalWinArgs->filtManager->setFilter(modalWinArgs->filter);
     modalWinArgs->filtManager->setNeedFree(false);
@@ -280,7 +287,7 @@ void saveBtnFunc(void* arg) {
     modalWindow->setOnDestroy(saveCanvas);
     modalWindow->setDestrArgs(modalWinArgs);
 
-    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), ALL_CHARACTER);
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), ALL_CHARACTER, paramNames.data[0]);
 
     modalWindow->addEditBox(editBox);
     modalWinArgs->drawZone->registerObject(modalWindow);
@@ -387,7 +394,7 @@ SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ColPicke
     return colMenu;
 }
 
-void addFilterPlugins(List<ModalWindowArgs*>& modArgs, FilterManager* filt_manager, plugin::App* _app, SubMenu* filtMenu, int start_pos, MPoint start, MPoint size, MColor color) {
+void addFilterPlugins(List<ModalWindowArgs*>& modArgs, Widget* drawZone, EventManager* evMan, FilterManager* filt_manager, plugin::App* _app, SubMenu* filtMenu, int start_pos, MPoint start, MPoint size, MColor color) {
     for (int i = 0; i < sizeof(FILTER_PLUGINS) / sizeof(const char*); i++) {
         void* filt_lib = dlopen(FILTER_PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
         getInstFunc fun = reinterpret_cast<getInstFunc>(dlsym(filt_lib, "getInstance"));
@@ -400,6 +407,8 @@ void addFilterPlugins(List<ModalWindowArgs*>& modArgs, FilterManager* filt_manag
         modWinArg->filter      = (plugin::FilterI*) plugin->getInterface();
         modWinArg->subMenu     = filtMenu;
         modWinArg->filtManager = filt_manager;
+        modWinArg->evManager   = evMan;
+        modWinArg->drawZone    = drawZone;
 
         TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_pos + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
         filtMenu->registerObject(text_label);
@@ -433,7 +442,7 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     filtMenu->registerObject(satUpBtn);
     filtMenu->registerObject(satDownBtn);
 
-    addFilterPlugins(modArgs, _filtManager, _app, filtMenu, 7, start, size, color);
+    addFilterPlugins(modArgs, _drawZone, _evManager, _filtManager, _app, filtMenu, 7, start, size, color);
 
     return filtMenu;
 }
@@ -543,7 +552,7 @@ void runMainCycle() {
     EventManager eventBoy = EventManager();
     eventBoy.registerObject(mainWindow);
 
-    MGUI gui_i = MGUI(drawWidget.getSize(), &drawWidget);
+    MGUI gui_i = MGUI(&eventBoy, drawWidget.getSize(), &drawWidget);
     plugin::App app_instance;
     app_instance.root           = &gui_i;
     app_instance.event_manager  = &eventBoy;

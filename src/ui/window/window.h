@@ -69,28 +69,27 @@ public:
 
     virtual ~EditBoxModal();
 
-    plugin::Array<double> getParams();
+    plugin::Array<double> getParams   ();
     List<EditBox*>*       getEditBoxes();
     void                  setOnDestroy(ButtonFunc _editBoxes);
     void                  setDestrArgs(void* _args);
-
-    void addEditBox(EditBox* _editBox);
+    void                  addEditBox  (EditBox* _editBox);
 
     void render (RenderTarget* renderTarget) override;
 };
+
+static const MPoint DEFAULT_POS  = MPoint(320, 280);
+static const MPoint DEFAULT_SIZE = MPoint(1280, 520);
+static const char*  WINDOW_NAME  = "Plugin parameter window";
 
 class PluginParamWindow : public EditBoxModal {
 private:
     plugin::Interface* self = nullptr;
 
-    MPoint      DEFAULT_POS  = MPoint(300, 300);
-    MPoint      DEFAULT_SIZE = MPoint(500, 400);
-    const char* WINDOW_NAME  = "Plugin parameter window";
-
 public:
     friend void onOkClick(void* args);
 
-    explicit PluginParamWindow(plugin::WidgetI* parent, plugin::Array<const char *> param_names, plugin::Interface * _self);
+    explicit PluginParamWindow(EventManager* _ev_man, Widget* parent, plugin::Array<const char *> param_names, plugin::Interface * _self);
 
     ~PluginParamWindow();
 };

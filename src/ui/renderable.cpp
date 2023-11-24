@@ -313,7 +313,7 @@ bool Widget::onMousePress(plugin::MouseContext context) {
     for (long i = listSize - 1; i >= 0; i--) {
         WidgetPtr widget = (*subWindows)[i];
 
-        if (widget.getAvailable() && widget.isInside(context.position)) {
+        if (widget.getAvailable()) {
             wasClick = widget.onMousePress(context);
             if (wasClick) return wasClick;
         }
