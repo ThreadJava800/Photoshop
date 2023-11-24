@@ -11,7 +11,8 @@ plugin::RenderTargetI* MGUI::getRenderTarget(plugin::Vec2 size, plugin::Vec2 pos
 }
 
 void MGUI::createParamWindow(plugin::Array<const char *> param_names, plugin::Interface * self) {
-
+    PluginParamWindow* param_win = new PluginParamWindow(root, param_names, self);
+    ((Widget*)root)->registerSubWidget(param_win);
 }
 
 plugin::WidgetI* MGUI::getRoot() {

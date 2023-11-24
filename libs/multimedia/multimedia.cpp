@@ -429,7 +429,7 @@ void RenderTarget::drawEllipse(plugin::Vec2 pos, plugin::Vec2 size, plugin::Colo
     drawEllipse(MPoint(pos), scaleX, scaleY, std::max(height, length), MColor(color));
 }
 
-void RenderTarget::drawTexture(int temp1, plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture, int temp) {
+void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture) {
     // plugin::Texture* copy = new plugin::Texture;
     // *copy = *texture;
     // copy->width  = 3000;

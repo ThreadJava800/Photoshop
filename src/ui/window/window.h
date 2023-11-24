@@ -57,7 +57,7 @@ public:
 };
 
 class EditBoxModal : public ModalWindow {
-private:
+protected:
     List<EditBox*>*            editBoxes     = nullptr;
     ButtonFunc                 onDestroyFunc = nullptr;
     void*                      onDestroyArgs = nullptr;
@@ -67,15 +67,32 @@ public:
     explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames);
     explicit EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, Widget* _parent, plugin::Array<const char*> _paramNames, Menu* _actions);
 
-    ~EditBoxModal();
+    virtual ~EditBoxModal();
 
-    List<EditBox*>* getEditBoxes();
-    void            setOnDestroy(ButtonFunc _editBoxes);
-    void            setDestrArgs(void* _args);
+    plugin::Array<double> getParams();
+    List<EditBox*>*       getEditBoxes();
+    void                  setOnDestroy(ButtonFunc _editBoxes);
+    void                  setDestrArgs(void* _args);
 
     void addEditBox(EditBox* _editBox);
 
     void render (RenderTarget* renderTarget) override;
+};
+
+class PluginParamWindow : public EditBoxModal {
+private:
+    plugin::Interface* self = nullptr;
+
+    MPoint      DEFAULT_POS  = MPoint(300, 300);
+    MPoint      DEFAULT_SIZE = MPoint(500, 400);
+    const char* WINDOW_NAME  = "Plugin parameter window";
+
+public:
+    explicit PluginParamWindow(plugin::WidgetI* parent, plugin::Array<const char *> param_names, plugin::Interface * _self);
+
+    ~PluginParamWindow();
+
+    friend void onOkClick(void* args);
 };
 
 class WindowManager {

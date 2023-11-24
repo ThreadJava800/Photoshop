@@ -45,7 +45,7 @@ void MonochromeFilter::apply(plugin::RenderTargetI *data) {
         }
     }
 
-    data->drawTexture(41, {0, 0}, textureSize, plTexture, 42);
+    data->drawTexture({0, 0}, textureSize, plTexture);
 
     delete[] plTexture->pixels;
     delete   plTexture;

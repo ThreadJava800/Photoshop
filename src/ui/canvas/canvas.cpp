@@ -298,7 +298,7 @@ void FillTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *
     }
 
     textureImage.imgFromPixel(&resPixels);
-    data->drawTexture(41, {0, 0}, {(double)xSize, (double)ySize}, textureImage.toPluginTexture(), 42);
+    data->drawTexture({0, 0}, {(double)xSize, (double)ySize}, textureImage.toPluginTexture());
 
     for (size_t i = 0; i < xSize; i++) delete (*pixelListPtr)[i];
     delete pixelListPtr;

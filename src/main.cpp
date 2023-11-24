@@ -14,7 +14,8 @@ List<plugin::Plugin*> plugins;
 
 static const char* FILTER_PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
-    "/home/vladimir/Projects/Photoshop/plugins/Lol.so"
+    "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
+    "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
@@ -94,18 +95,8 @@ void closeModal(void* arg) {
 
     EditBoxModal* modWindow = (EditBoxModal*) arg;
 
-    plugin::FilterI*      filter       = modWindow->getFiltManager()->getLast();
-    List<EditBox*>*       editBoxes    = modWindow->getEditBoxes();
-    size_t                editBoxesCnt = editBoxes->getSize();
-    plugin::Array<double> doubleArgs;
-
-    doubleArgs.size = editBoxesCnt;
-    doubleArgs.data = new double[editBoxesCnt];
-
-    for (size_t i = 0; i < editBoxesCnt; i++) {
-        double doubleArg = atof((*editBoxes)[i]->getText());
-        doubleArgs.data[i] = doubleArg;
-    }
+    plugin::FilterI*      filter     = modWindow->getFiltManager()->getLast();
+    plugin::Array<double> doubleArgs = modWindow->getParams();
 
     filter->setParams(doubleArgs);
     modWindow->getFiltManager()->setActive(true);

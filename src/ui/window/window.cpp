@@ -195,6 +195,22 @@ EditBoxModal::~EditBoxModal() {
     delete[] paramNames.data;
 }
 
+plugin::Array<double> EditBoxModal::getParams() {
+    plugin::Array<double> doubleArgs;
+
+    size_t editBoxesCnt = editBoxes->getSize();
+
+    doubleArgs.size = editBoxesCnt;
+    doubleArgs.data = new double[editBoxesCnt];
+
+    for (size_t i = 0; i < editBoxesCnt; i++) {
+        double doubleArg = atof((*editBoxes)[i]->getText());
+        doubleArgs.data[i] = doubleArg;
+    }
+
+    return doubleArgs;
+}
+
 List<EditBox*>* EditBoxModal::getEditBoxes() {
     return editBoxes;
 }
@@ -233,6 +249,25 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
     Widget::render(renderTarget);
 
     renderTarget->drawText(position + MPoint(2 * TOP_PANE_SIZE, 0), windowName, MColor::BLACK, textFont, BTN_TXT_PT, regSet);
+}
+
+PluginParamWindow::PluginParamWindow(plugin::WidgetI* root, plugin::Array<const char *> param_names, plugin::Interface* _self) :
+    EditBoxModal(nullptr, DEFAULT_POS, DEFAULT_SIZE, WINDOW_NAME, nullptr, nullptr, (Widget*)root, param_names),
+    self(_self) {
+
+        TextButton* ok_btn = new TextButton(DEFAULT_POS + MPoint(DEFAULT_SIZE.x / 2, DEFAULT_SIZE.y - 10), MPoint(100, 30), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), "Save", this, onOkClick, this);
+        registerSubWidget(ok_btn);
+}
+
+PluginParamWindow::~PluginParamWindow() {}
+
+void onOkClick(void* args) {
+    PluginParamWindow* param_win = (PluginParamWindow*)args;
+
+    plugin::Array<double> params = param_win->getParams();
+    param_win->self->setParams(params);
+
+    param_win->setAvailable(false);
 }
 
 void onMove(Window* window, MPoint newPos, MPoint oldPos) {

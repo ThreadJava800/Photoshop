@@ -3,6 +3,7 @@
 
 #include "plugin.h"
 #include "../libs/multimedia/multimedia.h"
+#include "../src/ui/window/window.h"
 
 class MGUI : public plugin::GuiI {
 private:

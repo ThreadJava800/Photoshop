@@ -62,7 +62,7 @@ void WhiteAndBlackFilter::apply(plugin::RenderTargetI* rt)
 
     fuck();
 
-    rt->drawTexture(24, pos, size, texture, 42);
+    rt->drawTexture(pos, size, texture);
     delete[] texture->pixels;
     delete texture;
 }
