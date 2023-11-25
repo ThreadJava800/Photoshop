@@ -172,8 +172,6 @@ void FilterManager::setRenderTarget(plugin::RenderTargetI *target) {
 }
 
 void FilterManager::setFilter(plugin::FilterI *filter) {
-    if (lastFilter && need_free) delete lastFilter;
-
     lastFilter = filter;
 }
 

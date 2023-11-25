@@ -241,7 +241,6 @@ void EditBoxModal::render(RenderTarget* renderTarget) {
         for (size_t i = 0; i < nameCnt; i++) {
             EditBox* editBox = (*editBoxes)[i];
 
-            renderTarget->drawText(MPoint(editBox->getPos()) - MPoint(0, 2 * BTN_TXT_PT), paramNames.data[i], MColor::GRAY, textFont, BTN_TXT_PT);
             editBox->render(renderTarget);
         }
     }

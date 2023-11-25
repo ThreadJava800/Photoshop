@@ -16,6 +16,8 @@ public:
     plugin::Array<const char *> getParamNames()                             override;
     plugin::Array<double>       getParams    ()                             override;
     void                        setParams    (plugin::Array<double> params) override;
+
+    ~BrightnessFilter() {}
 };
 
 // class MonochromeFilter : public plugin::FilterI {
@@ -51,6 +53,8 @@ public:
     plugin::Array<const char *> getParamNames()                             override;
     plugin::Array<double>       getParams    ()                             override;
     void                        setParams    (plugin::Array<double> params) override;
+
+    ~ColorfulnessFilter() {}
 };
 
 class FilterManager : public plugin::FilterManagerI {
