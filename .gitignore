@@ -85,4 +85,7 @@ sim
 *.out
 logs.txt
 
+plugins/Lol.cpp
+plugins/Lol.h
+
 phshop
