@@ -6,7 +6,7 @@ plugin::Plugin* getInstance(plugin::App* app) {
 
 MonochromeParamPlugin::MonochromeParamPlugin() {
     id   = 2;
-    name = "Monochr.(custom)";
+    name = "Mono(custom)";
     type = plugin::InterfaceType::Filter;
 
     filter = new MonochromeParamFilter();
@@ -31,14 +31,13 @@ void MonochromeParamFilter::apply(plugin::RenderTargetI *data) {
     plugin::Texture* plTexture = data->getTexture();
     plugin::Vec2 textureSize = {plTexture->width, plTexture->height};
     
-    std::cout << textureSize.x << ' ' << textureSize.y << '\n';
+    // std::cout << r << ' ' << g << ' ' << b << '\n';
 
     for (int i = 0; i < textureSize.x; i++) {
         for (int j = 0; j < textureSize.y; j++) {
             plugin::Color newPixel = plTexture->pixels[i * (int)textureSize.y + j];
 
             u_char new_color = (u_char)(newPixel.r * r) + (u_char)(newPixel.g * g) + (u_char)(newPixel.b * b);
-
             plTexture->pixels[i * (int)textureSize.y + j] = {new_color, new_color, new_color, newPixel.a};
         }
     }
@@ -58,15 +57,15 @@ plugin::Array<double> MonochromeParamFilter::getParams() {
     params.size = 3;
     params.data = new double[params.size];
 
-    params.data[0] = r / 255;
-    params.data[1] = g / 255;
-    params.data[2] = b / 255;
+    params.data[0] = r;
+    params.data[1] = g;
+    params.data[2] = b;
 
     return params;
 }
 
 void MonochromeParamFilter::setParams(plugin::Array<double> params) {
-    r = params.data[0];
-    g = params.data[1];
-    b = params.data[2];
+    r = params.data[0] / 255;
+    g = params.data[1] / 255;
+    b = params.data[2] / 255;
 }

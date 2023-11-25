@@ -13,8 +13,8 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
 
             eventBoy.onClock(passed.count());
 
-            // drawWidget.render(&renderTarget);
-            // window.display();
+            drawWidget.render(&renderTarget);
+            renderTarget.displayAll();
 
             timerStart = timerEnd;
         }
