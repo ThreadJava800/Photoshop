@@ -12,11 +12,14 @@
 
 List<plugin::Plugin*> plugins;
 
+// TODO:
+// p^2, phi + rand(0, 1)^2 => числа будут тяготеть к границу (из плотности вероятности возникновения корня)
+
 static const char* FILTER_PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
     "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
-    "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
     "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so"
+    "/home/vladimir/Projects/Photoshop/plugins/plug1.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
@@ -396,9 +399,11 @@ SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ColPicke
 
 void addFilterPlugins(List<ModalWindowArgs*>& modArgs, Widget* drawZone, EventManager* evMan, FilterManager* filt_manager, plugin::App* _app, SubMenu* filtMenu, int start_pos, MPoint start, MPoint size, MColor color) {
     for (int i = 0; i < sizeof(FILTER_PLUGINS) / sizeof(const char*); i++) {
-        void* filt_lib = dlopen(FILTER_PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
-        getInstFunc fun = reinterpret_cast<getInstFunc>(dlsym(filt_lib, "getInstance"));
-        plugin::Plugin* plugin = fun(_app);
+
+        void* filt_lib            = dlopen(FILTER_PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
+        // fprintf(stderr, "%s\n", dlerror());
+        getInstFunc get_inst_func = (getInstFunc)(dlsym(filt_lib, "getInstance"));
+        plugin::Plugin* plugin    = get_inst_func(_app);
         dlclose(filt_lib);
 
         plugins.pushBack(plugin);

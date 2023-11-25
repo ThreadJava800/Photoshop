@@ -49,7 +49,7 @@ protected:
 
     RegionSet* regSet = nullptr;
 
-    Widget* parent;
+    Widget* parent  = nullptr;
     bool    exists  = true;
     bool    visible = true;
 
