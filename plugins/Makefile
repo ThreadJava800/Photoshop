@@ -29,7 +29,7 @@ compile_debug:
 	@${CC} ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
 
 compile_release_o:
-	${CC} -g -Wall -c -fPIC -o $(EXECUTABLE) $(SOURCES)
+	${CC} -Wall -c -fPIC -o $(EXECUTABLE) $(SOURCES)
 
 compile_release_so:
 	gcc -shared -o ${EXECUTABLE_SO} ${EXECUTABLE}

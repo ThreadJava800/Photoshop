@@ -19,9 +19,9 @@ static const char* PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
     "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
     "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
-    // "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
+    "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/plug1.so",
-    // "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so"
+    "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/balloon.so"
 };
 
@@ -108,6 +108,11 @@ void chooseTool(void* arg) {
     ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
 
     // delete modWinArgs->toolManager->getTool();
+
+    std::cerr << "AFTER WIN PTR " << modWinArgs << '\n';
+    std::cerr << "TOOLMAN " << modWinArgs->toolManager << ' ' << modWinArgs->plugin << '\n';
+    if (!modWinArgs->plugin) return;
+    std::cerr << modWinArgs->toolManager << '\n';
 
     modWinArgs->toolManager->setTool((plugin::ToolI*)modWinArgs->plugin);
     modWinArgs->subMenu->changeActivity();
@@ -291,12 +296,13 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
         }
 
         if (plugin->type == plugin::InterfaceType::Tool) {
-            ModalWindowArgs* modWinArg = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
-
-            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg);
+            std::cerr << "WIN PTR " << plugin->getInterface() << '\n';
+            ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
+            std::cerr << "WIN PTR " << modWinArg2->plugin << '\n';
+            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
 
-            modArgs.pushBack(modWinArg);
+            modArgs.pushBack(modWinArg2);
         }
     }
 }
@@ -306,7 +312,7 @@ SubMenu* createFilterMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs,
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
-    SubMenu* filtMenu           = new SubMenu(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 12 * TOP_PANE_SIZE), arg.drawZone);
+    SubMenu* filtMenu = new SubMenu(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 12 * TOP_PANE_SIZE), arg.drawZone);
 
     ModalWindowArgs* lastArgs = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, arg.toolManager->getTool());
     TextButton*      lastBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Last used", filtMenu, addPluginFilter, lastArgs);
