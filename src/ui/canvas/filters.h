@@ -4,6 +4,9 @@
 #include "../../../libs/multimedia/multimedia.h"
 #include "../../plugin.h"
 
+static const char* BRIGHTNESS_PARAM_NAMES  [] = {"Brightness"};
+static const char* COLORFULNESS_PARAM_NAMES[] = {"Colorfulness"};
+
 class BrightnessFilter : public plugin::FilterI {
 private:
     int                         changeValue = 0;
@@ -16,22 +19,7 @@ public:
     plugin::Array<const char *> getParamNames()                             override;
     plugin::Array<double>       getParams    ()                             override;
     void                        setParams    (plugin::Array<double> params) override;
-
-    ~BrightnessFilter() {}
 };
-
-// class MonochromeFilter : public plugin::FilterI {
-// private:
-//     plugin::Array<const char *> param_names;
-
-// public:
-//     explicit MonochromeFilter();
-
-//     void                        apply        (plugin::RenderTargetI *data)  override;
-//     plugin::Array<const char *> getParamNames()                             override;
-//     plugin::Array<double>       getParams    ()                             override;
-//     void                        setParams    (plugin::Array<double> params) override;  
-// };
 
 class ColorfulnessFilter : public plugin::FilterI {
 private:
@@ -53,8 +41,6 @@ public:
     plugin::Array<const char *> getParamNames()                             override;
     plugin::Array<double>       getParams    ()                             override;
     void                        setParams    (plugin::Array<double> params) override;
-
-    ~ColorfulnessFilter() {}
 };
 
 class FilterManager : public plugin::FilterManagerI {

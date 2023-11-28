@@ -2,9 +2,7 @@
 
 BrightnessFilter::BrightnessFilter() {
     param_names.size = 1;
-    param_names.data = new const char*[param_names.size];
-
-    param_names.data[0] = "Brightness:";
+    param_names.data = BRIGHTNESS_PARAM_NAMES;
 }
 
 void BrightnessFilter::apply(plugin::RenderTargetI *data) {
@@ -25,7 +23,14 @@ void BrightnessFilter::apply(plugin::RenderTargetI *data) {
     }
 
     pixelData.imgFromPixel(pixelArr);
-    data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
+    plugin::Texture* drawable_texture = pixelData.toPluginTexture();
+    data->drawTexture({0, 0}, textureSize.toVec2(), drawable_texture);
+
+    delete[] drawable_texture->pixels;
+    delete   drawable_texture;
+
+    delete[] plTexture->pixels;
+    delete   plTexture;
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
@@ -47,58 +52,11 @@ plugin::Array<double> BrightnessFilter::getParams() {
 
 void BrightnessFilter::setParams(plugin::Array<double> params) {
     changeValue = params.data[0];
-
-    delete[] params.data;
 }
-
-// MonochromeFilter::MonochromeFilter() {
-//     param_names.size = 1;
-//     param_names.data = new const char*[param_names.size];
-
-//     param_names.data[0] = "Monochrome";
-// }
-
-// void MonochromeFilter::apply(plugin::RenderTargetI *data) {
-//     if (!data) return;
-
-//     plugin::Texture* plTexture = data->getTexture();
-//     MPoint textureSize         = MPoint(plTexture->width, plTexture->height);
-//     MImage pixelData           = MImage(plTexture);
-
-//     List<List<MColor>*>* pixelArr = pixelData.getPixels();
-//     for (int i = 0; i < textureSize.x; i++) {
-//         for (int j = 0; j < textureSize.y; j++) {
-//             MColor newPixel = (*(*pixelArr)[i])[j];
-
-//             int sum = newPixel.r + newPixel.g + newPixel.b;
-//             newPixel = MColor(sum / 3, sum / 3, sum / 3, newPixel.a);
-
-//             (*(*pixelArr)[i])[j] =  newPixel;
-//         }
-//     }
-
-//     pixelData.imgFromPixel(pixelArr);
-//     data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
-
-//     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
-//     delete pixelArr;
-// }
-
-// plugin::Array<const char *> MonochromeFilter::getParamNames() {
-//     return param_names;
-// }
-
-// plugin::Array<double> MonochromeFilter::getParams() {
-//     return {};
-// }
-
-// void MonochromeFilter::setParams(plugin::Array<double> params) {}
 
 ColorfulnessFilter::ColorfulnessFilter() {
     param_names.size = 1;
-    param_names.data = new const char*[param_names.size];
-
-    param_names.data[0] = "Colorfulness";
+    param_names.data = COLORFULNESS_PARAM_NAMES;
 }
 
 void ColorfulnessFilter::apply(plugin::RenderTargetI *data) {
@@ -132,7 +90,14 @@ void ColorfulnessFilter::apply(plugin::RenderTargetI *data) {
     }
 
     pixelData.imgFromPixel(pixelArr);
-    data->drawTexture({0, 0}, textureSize.toVec2(), pixelData.toPluginTexture());
+    plugin::Texture* drawable_texture = pixelData.toPluginTexture();
+    data->drawTexture({0, 0}, textureSize.toVec2(), drawable_texture);
+
+    delete[] drawable_texture->pixels;
+    delete   drawable_texture;
+
+    delete[] plTexture->pixels;
+    delete   plTexture;
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
@@ -160,7 +125,7 @@ FilterManager::FilterManager() :
     rt        (nullptr)     {}
 
 FilterManager::~FilterManager() {
-    if (lastFilter && need_free) delete lastFilter;
+    if (lastFilter && need_free) delete ((plugin::Plugin*)lastFilter);
 
     active     = false;
     lastFilter = nullptr;

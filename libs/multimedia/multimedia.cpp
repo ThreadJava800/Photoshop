@@ -439,9 +439,9 @@ void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin
 
     // std::cerr << "TEMP1: " << temp1 << " TEMP LAST " << temp << '\n';
     
-    std::cerr << "DRAW_TEXT_SIZ: "     << size.x << ' ' << size.y << '\n';
-    std::cerr << "DRAW_TEXT_POS: "     << pos.x  << ' ' << pos.y << '\n';
-    std::cerr << "DRAW_TEXT_SIZ_TXT: " << texture->width << ' ' << texture->height << '\n';
+    // std::cerr << "DRAW_TEXT_SIZ: "     << size.x << ' ' << size.y << '\n';
+    // std::cerr << "DRAW_TEXT_POS: "     << pos.x  << ' ' << pos.y << '\n';
+    // std::cerr << "DRAW_TEXT_SIZ_TXT: " << texture->width << ' ' << texture->height << '\n';
     
     MImage sf_texture = MImage(texture);
     drawSprite(MPoint(pos), MPoint(size), &sf_texture);
@@ -456,7 +456,7 @@ plugin::Texture* RenderTarget::getTexture() {
     sf::Texture* sfText = new sf::Texture(texture->getTexture());
     MImage mInterLayer = MImage(sfText); 
 
-    return mInterLayer.toPluginTexture();;
+    return mInterLayer.toPluginTexture();
 }
 
 void RenderTarget::display() {

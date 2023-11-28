@@ -594,7 +594,7 @@ ToolManager::ToolManager(plugin::ToolI *_current, MColor _color) :
     color  (_color)     {}
 
 ToolManager::~ToolManager() {
-    delete current;
+    // delete current;
 }
 
 void ToolManager::setColor(plugin::Color color) {
