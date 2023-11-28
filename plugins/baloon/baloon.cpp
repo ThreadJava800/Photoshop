@@ -46,12 +46,14 @@ void BalloonTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tm
     is_active = false;
 }
 
-BaloonToolPlugin::BaloonToolPlugin() {}
-
-plugin::Interface* BaloonToolPlugin::getInterface() {
+BaloonToolPlugin::BaloonToolPlugin() {
     id   = 3;
     name = "Spray";
     type = plugin::InterfaceType::Tool;
 
     tool = new BalloonTool();
+}
+
+plugin::Interface* BaloonToolPlugin::getInterface() {
+    return tool;
 }

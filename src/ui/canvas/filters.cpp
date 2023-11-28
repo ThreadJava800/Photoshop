@@ -112,6 +112,7 @@ plugin::Array<double> ColorfulnessFilter::getParams() {
 }
 
 void ColorfulnessFilter::setParams(plugin::Array<double> params) {
+    fprintf(stderr, "%d\n", params.size);
     if (params.size == 0) return;
 
     saturCoeff = params.data[0];
