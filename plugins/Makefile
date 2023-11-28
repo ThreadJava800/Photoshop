@@ -20,7 +20,7 @@ EXECUTABLE_SO=monoParam.so
  
 all: compile_debug
 
-release: compile_release_o compile_release_so
+release: compile_release_o compile_release_so clean
 
 erase:
 	clear
@@ -38,4 +38,4 @@ run:
 	@./${EXECUTABLE}
 
 clean:
-	@rm -rf ${EXECUTABLE}
+	@rm ${EXECUTABLE}

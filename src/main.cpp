@@ -15,69 +15,45 @@ List<plugin::Plugin*> plugins;
 // TODO:
 // p^2, phi + rand(0, 1)^2 => числа будут тяготеть к границу (из плотности вероятности возникновения корня)
 
-static const char* FILTER_PLUGINS[] = {
+static const char* PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
     "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so"
+    "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
+    "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/plug1.so"
+    // "/home/vladimir/Projects/Photoshop/plugins/baloon.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
 
-enum Tools {
-    BRUSH,
-    LINE,
-    RECT,
-    ELLIPSE,
-    CURVE,
-    SPLINE,
-    FILL
-};
-
-struct SubMenuArgs {
-    FilterManager* filtManager;
-    ToolManager  * manager;
-    SubMenu      * subMenu;
-    Tools          toolType;
-
-    SubMenuArgs(FilterManager* _filtManager, ToolManager* _manager, SubMenu* _subMenu, Tools _toolType) :
-        filtManager(_filtManager),
-        manager    (_manager),
-        subMenu    (_subMenu),
-        toolType   (_toolType)      {}
-};
-
-struct ColPickerArgs {
-    ToolManager* manager;
-    SubMenu    * subMenu;
-    MColor       color;
-
-    ColPickerArgs(ToolManager* _manager, SubMenu* _subMenu, MColor _color) :
-        manager(_manager),
-        subMenu(_subMenu),
-        color  (_color)     {}
-};
-
 struct ModalWindowArgs {
-    Widget*          drawZone;
+    Widget *         drawZone;
     SubMenu*         subMenu;
     SubMenu*         subMenuChild;
-    EventManager*    evManager;
+
+    EventManager *   evManager;
     FilterManager*   filtManager;
+    ToolManager  *   toolManager;
     WindowManager*   winManager;
-    Window       *   curWindow;
-    EditBoxModal *   editBoxModal;
-    plugin::FilterI* filter;
-    double           saturCoeff;
+
+    Window           *   curWindow;
+    EditBoxModal     *   editBoxModal;
+    plugin::Interface*   plugin;
+
+    double saturCoeff;
+    MColor color;
 
     ModalWindowArgs() {};
 
-    ModalWindowArgs(Widget* _drawZone, SubMenu* _subMenu, EventManager* _evManager, FilterManager* _filtManager, WindowManager* _winManager, double _saturCoeff = 1.0) :
+    ModalWindowArgs(Widget* _drawZone, SubMenu* _subMenu, EventManager* _evManager, FilterManager* _filtManager, WindowManager* _winManager, ToolManager* _toolManager = nullptr, plugin::Interface* _plugin = nullptr, MColor _color = MColor::TRANSPARENT, double _saturCoeff = 1.0) :
         drawZone   (_drawZone),
         subMenu    (_subMenu),
         evManager  (_evManager),
         filtManager(_filtManager),
         winManager (_winManager),
+        toolManager(_toolManager),
+        plugin     (_plugin),
+        color      (_color),
         saturCoeff (_saturCoeff)   {} 
 };
 
@@ -156,13 +132,15 @@ void addPluginFilter(void* arg) {
 
     ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
 
-    plugin::Array params = modalWinArgs->filter->getParamNames();
+    plugin::FilterI* filter = (plugin::FilterI*)modalWinArgs->plugin;
+
+    plugin::Array params = filter->getParamNames();
     if (params.size > 0) {
-        PluginParamWindow* modalWindow = new PluginParamWindow(modalWinArgs->evManager, modalWinArgs->drawZone, params, modalWinArgs->filter);
+        PluginParamWindow* modalWindow = new PluginParamWindow(modalWinArgs->evManager, modalWinArgs->drawZone, params, filter);
         modalWinArgs->drawZone->registerObject(modalWindow);
     }
 
-    modalWinArgs->filtManager->setFilter(modalWinArgs->filter);
+    modalWinArgs->filtManager->setFilter(filter);
     modalWinArgs->filtManager->setNeedFree(false);
     modalWinArgs->filtManager->setActive(true);
 
@@ -199,50 +177,21 @@ void lastFilter(void* arg) {
 
 void chooseTool(void* arg) {
     if (!arg) return;
-    SubMenuArgs* menu = (SubMenuArgs*) arg;
+    ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
 
-    delete menu->manager->getTool();
+    delete modWinArgs->toolManager->getTool();
 
-    Tool* newTool = nullptr;
-
-    switch (menu->toolType)
-    {
-    case BRUSH:
-        newTool = new Brush();
-        break;
-    case LINE:
-        newTool = new LineTool();
-        break;
-    case RECT:
-        newTool = new SquareTool();
-        break;
-    case ELLIPSE:
-        newTool = new EllipseTool();
-        break;
-    case CURVE:
-        newTool = new CurveTool();
-        break;
-    case SPLINE:
-        newTool = new Spline();
-        break;
-    case FILL:
-        newTool = new FillTool();
-        break;
-    default:
-        break;
-    }
-
-    menu->manager->setTool(newTool);
-    menu->subMenu->changeActivity();
-    menu->filtManager->setActive(false);
+    modWinArgs->toolManager->setTool((plugin::ToolI*)modWinArgs->plugin);
+    modWinArgs->subMenu->changeActivity();
+    modWinArgs->filtManager->setActive(false);
 }
 
 void chooseColor(void* arg) {
     if (!arg) return;
-    ColPickerArgs* menu = (ColPickerArgs*) arg;
+    ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
 
-    menu->manager->setColor(menu->color.toPlColor());
-    menu->subMenu->changeActivity();
+    modWinArgs->toolManager->setColor(modWinArgs->color.toPlColor());
+    modWinArgs->subMenu->changeActivity();
 }
 
 void saveCanvas(void* arg) {
@@ -299,45 +248,41 @@ void saveBtnFunc(void* arg) {
     modalWinArgs->subMenu     ->changeActivity();
 }
 
-SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<SubMenuArgs*>& toolArgs) {
+SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolManager* _manager, List<ModalWindowArgs*>& modArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     SubMenu* toolMenu = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), _winPtr);
-    // SubMenu* testSub  = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE) + MPoint(2 * ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), MPoint(100, 100), toolMenu);
-    // testSub->setVisible(true);
 
-    // toolMenu->registerObject(testSub);
-
-    SubMenuArgs* brushArgs   = new SubMenuArgs(_filtManager, _manager, toolMenu, BRUSH);
-    TextButton* brushBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);
+    ModalWindowArgs* brushArgs   = new ModalWindowArgs(nullptr, toolMenu, nullptr, _filtManager, nullptr, _manager, new Brush());
+    TextButton* brushBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);
   
-    SubMenuArgs* lineArgs    = new SubMenuArgs(_filtManager, _manager, toolMenu, LINE);
-    TextButton* lineBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Line", toolMenu, chooseTool, lineArgs);
+    ModalWindowArgs* lineArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, _filtManager, nullptr, _manager, new LineTool());
+    TextButton* lineBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Line", toolMenu, chooseTool, lineArgs);
   
-    SubMenuArgs* rectArgs    = new SubMenuArgs(_filtManager, _manager, toolMenu, RECT);
-    TextButton* rectBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Rectangle", toolMenu, chooseTool, rectArgs);
+    ModalWindowArgs* rectArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, _filtManager, nullptr, _manager, new SquareTool());
+    TextButton* rectBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Rectangle", toolMenu, chooseTool, rectArgs);
 
-    SubMenuArgs* ellipseArgs = new SubMenuArgs(_filtManager, _manager, toolMenu, ELLIPSE);
-    TextButton* ellipseBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Ellipse", toolMenu, chooseTool, ellipseArgs);
+    ModalWindowArgs* ellipseArgs = new ModalWindowArgs(nullptr, toolMenu, nullptr, _filtManager, nullptr, _manager, new EllipseTool());
+    TextButton* ellipseBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Ellipse", toolMenu, chooseTool, ellipseArgs);
 
-    SubMenuArgs* curveArgs   = new SubMenuArgs(_filtManager, _manager, toolMenu, CURVE);
-    TextButton* curveBtn     = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
+    ModalWindowArgs* curveArgs   = new ModalWindowArgs(nullptr, toolMenu, nullptr, _filtManager, nullptr, _manager, new CurveTool());
+    TextButton* curveBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
 
-    SubMenuArgs* splineArgs  = new SubMenuArgs(_filtManager, _manager, toolMenu, SPLINE);
-    TextButton* splineBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
+    ModalWindowArgs* splineArgs  = new ModalWindowArgs(nullptr, toolMenu, nullptr, _filtManager, nullptr, _manager, new Spline());
+    TextButton* splineBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
 
-    SubMenuArgs* fillArgs    = new SubMenuArgs(_filtManager, _manager, toolMenu, FILL);
-    TextButton* fillBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+    ModalWindowArgs* fillArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, _filtManager, nullptr, _manager, new FillTool());
+    TextButton* fillBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
 
-    toolArgs.pushBack(brushArgs);
-    toolArgs.pushBack(lineArgs);
-    toolArgs.pushBack(rectArgs);
-    toolArgs.pushBack(ellipseArgs);
-    toolArgs.pushBack(curveArgs);
-    toolArgs.pushBack(splineArgs);
-    toolArgs.pushBack(fillArgs);
+    modArgs.pushBack(brushArgs);
+    modArgs.pushBack(lineArgs);
+    modArgs.pushBack(rectArgs);
+    modArgs.pushBack(ellipseArgs);
+    modArgs.pushBack(curveArgs);
+    modArgs.pushBack(splineArgs);
+    modArgs.pushBack(fillArgs);
 
     toolMenu->registerObject(brushBtn);
     toolMenu->registerObject(lineBtn);
@@ -350,41 +295,41 @@ SubMenu* createToolPicker(Widget* _winPtr, FilterManager* _filtManager, ToolMana
     return toolMenu;
 }
 
-SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ColPickerArgs*>& colArgs) {
+SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ModalWindowArgs*>& modArgs) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     SubMenu* colMenu  = new SubMenu(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
 
-    ColPickerArgs* redArgs     = new ColPickerArgs(_manager, colMenu, MColor::RED);
-    TextButton* redBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), size, MColor::RED, new MFont (DEFAULT_FONT), "Red", colMenu, chooseColor, redArgs);
+    ModalWindowArgs* redArgs     = new ModalWindowArgs(nullptr, colMenu, nullptr, nullptr, nullptr, _manager, nullptr, MColor::RED);
+    TextButton* redBtn           = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 2 * TOP_PANE_SIZE), size, MColor::RED, new MFont (DEFAULT_FONT), "Red", colMenu, chooseColor, redArgs);
     
-    ColPickerArgs* greenArgs   = new ColPickerArgs(_manager, colMenu, MColor::GREEN);
-    TextButton* greenBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 3 * TOP_PANE_SIZE), size, MColor::GREEN, new MFont (DEFAULT_FONT), "Green", colMenu, chooseColor, greenArgs);
+    ModalWindowArgs* greenArgs   = new ModalWindowArgs(nullptr, colMenu, nullptr, nullptr, nullptr, _manager, nullptr, MColor::GREEN);
+    TextButton* greenBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 3 * TOP_PANE_SIZE), size, MColor::GREEN, new MFont (DEFAULT_FONT), "Green", colMenu, chooseColor, greenArgs);
     
-    ColPickerArgs* yellowArgs  = new ColPickerArgs(_manager, colMenu, MColor::YELLOW);
-    TextButton* yellowBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 4 * TOP_PANE_SIZE), size, MColor::YELLOW, new MFont (DEFAULT_FONT), "Yellow", colMenu, chooseColor, yellowArgs);
+    ModalWindowArgs* yellowArgs  = new ModalWindowArgs(nullptr, colMenu, nullptr, nullptr, nullptr, _manager, nullptr, MColor::YELLOW);
+    TextButton* yellowBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 4 * TOP_PANE_SIZE), size, MColor::YELLOW, new MFont (DEFAULT_FONT), "Yellow", colMenu, chooseColor, yellowArgs);
     
-    ColPickerArgs* blueArgs    = new ColPickerArgs(_manager, colMenu, MColor::BLUE);
-    TextButton* blueBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 5 * TOP_PANE_SIZE), size, MColor::BLUE, new MFont (DEFAULT_FONT), "Blue", colMenu, chooseColor, blueArgs);
+    ModalWindowArgs* blueArgs    = new ModalWindowArgs(nullptr, colMenu, nullptr, nullptr, nullptr, _manager, nullptr, MColor::BLUE);
+    TextButton* blueBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 5 * TOP_PANE_SIZE), size, MColor::BLUE, new MFont (DEFAULT_FONT), "Blue", colMenu, chooseColor, blueArgs);
     
-    ColPickerArgs* blackArgs   = new ColPickerArgs(_manager, colMenu, MColor::BLACK);
-    TextButton* blackBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 6 * TOP_PANE_SIZE), size, MColor::BLACK, new MFont (DEFAULT_FONT), "Black", colMenu, chooseColor, blackArgs);
+    ModalWindowArgs* blackArgs   = new ModalWindowArgs(nullptr, colMenu, nullptr, nullptr, nullptr, _manager, nullptr, MColor::BLACK);
+    TextButton* blackBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 6 * TOP_PANE_SIZE), size, MColor::BLACK, new MFont (DEFAULT_FONT), "Black", colMenu, chooseColor, blackArgs);
     
-    ColPickerArgs* cyanArgs    = new ColPickerArgs(_manager, colMenu, MColor::CYAN);
-    TextButton* cyanBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), size, MColor::CYAN, new MFont (DEFAULT_FONT), "Cyan", colMenu, chooseColor, cyanArgs);
+    ModalWindowArgs* cyanArgs    = new ModalWindowArgs(nullptr, colMenu, nullptr, nullptr, nullptr, _manager, nullptr, MColor::CYAN);
+    TextButton* cyanBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 7 * TOP_PANE_SIZE), size, MColor::CYAN, new MFont (DEFAULT_FONT), "Cyan", colMenu, chooseColor, cyanArgs);
     
-    ColPickerArgs* magentaArgs = new ColPickerArgs(_manager, colMenu, MColor::MAGENTA);    
-    TextButton*    magentaBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 8 * TOP_PANE_SIZE), size, MColor::MAGENTA, new MFont (DEFAULT_FONT), "Magenta", colMenu, chooseColor, magentaArgs);
+    ModalWindowArgs* magentaArgs = new ModalWindowArgs(nullptr, colMenu, nullptr, nullptr, nullptr, _manager, nullptr, MColor::MAGENTA);
+    TextButton*    magentaBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, 8 * TOP_PANE_SIZE), size, MColor::MAGENTA, new MFont (DEFAULT_FONT), "Magenta", colMenu, chooseColor, magentaArgs);
 
-    colArgs.pushBack(redArgs);
-    colArgs.pushBack(greenArgs);
-    colArgs.pushBack(yellowArgs);
-    colArgs.pushBack(blueArgs);
-    colArgs.pushBack(blackArgs);
-    colArgs.pushBack(cyanArgs);
-    colArgs.pushBack(magentaArgs);
+    modArgs.pushBack(redArgs);
+    modArgs.pushBack(greenArgs);
+    modArgs.pushBack(yellowArgs);
+    modArgs.pushBack(blueArgs);
+    modArgs.pushBack(blackArgs);
+    modArgs.pushBack(cyanArgs);
+    modArgs.pushBack(magentaArgs);
 
     colMenu->registerObject(redBtn);
     colMenu->registerObject(greenBtn);
@@ -398,27 +343,33 @@ SubMenu* createColorPicker(Widget* _winPtr, ToolManager* _manager, List<ColPicke
 }
 
 void addFilterPlugins(List<ModalWindowArgs*>& modArgs, Widget* drawZone, EventManager* evMan, FilterManager* filt_manager, plugin::App* _app, SubMenu* filtMenu, int start_pos, MPoint start, MPoint size, MColor color) {
-    for (int i = 0; i < sizeof(FILTER_PLUGINS) / sizeof(const char*); i++) {
+    for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
-        void* filt_lib            = dlopen(FILTER_PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
-        // fprintf(stderr, "%s\n", dlerror());
+        void* filt_lib            = dlopen(PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
         getInstFunc get_inst_func = (getInstFunc)(dlsym(filt_lib, "getInstance"));
         plugin::Plugin* plugin    = get_inst_func(_app);
         dlclose(filt_lib);
 
         plugins.pushBack(plugin);
 
-        ModalWindowArgs* modWinArg = new ModalWindowArgs();
-        modWinArg->filter      = (plugin::FilterI*) plugin->getInterface();
-        modWinArg->subMenu     = filtMenu;
-        modWinArg->filtManager = filt_manager;
-        modWinArg->evManager   = evMan;
-        modWinArg->drawZone    = drawZone;
+        if (plugin->type == plugin::InterfaceType::Filter) {
+            ModalWindowArgs* modWinArg = new ModalWindowArgs();
+            modWinArg->plugin      = plugin->getInterface();
+            modWinArg->subMenu     = filtMenu;
+            modWinArg->filtManager = filt_manager;
+            modWinArg->evManager   = evMan;
+            modWinArg->drawZone    = drawZone;
 
-        TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_pos + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
-        filtMenu->registerObject(text_label);
+            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_pos + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
+            filtMenu->registerObject(text_label);
 
-        modArgs.pushBack(modWinArg);
+            modArgs.pushBack(modWinArg);
+            continue;
+        }
+
+        if (plugin->type == plugin::InterfaceType::Tool) {
+
+        }
     }
 }
 
@@ -428,14 +379,14 @@ SubMenu* createFilterMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _mana
     MColor color = MColor(DEFAULT_BACK_COL);
 
     SubMenu* filtMenu           = new SubMenu(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 9 * TOP_PANE_SIZE), _winPtr);
-    ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager, nullptr, ColorfulnessFilter::SATUR_UP);
+    ModalWindowArgs* modWinArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager, nullptr, nullptr, nullptr, MColor::TRANSPARENT, ColorfulnessFilter::SATUR_UP);
 
     TextButton* lastBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Last used",      filtMenu,  lastFilter,        modWinArgs);
     TextButton* constBlurBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (default)", filtMenu,  changeBrightConst, modWinArgs);
     TextButton* customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)",  filtMenu,  openBlurPicker,    modWinArgs);
     TextButton* satUpBtn      = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur. (up)",   filtMenu,  saturationFilter,  modWinArgs);
     
-    ModalWindowArgs* satDownArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager, nullptr, ColorfulnessFilter::SATUR_DOWN);
+    ModalWindowArgs* satDownArgs = new ModalWindowArgs(_drawZone, filtMenu, _evManager, _filtManager, nullptr, nullptr, nullptr, MColor::TRANSPARENT, ColorfulnessFilter::SATUR_DOWN);
     TextButton* satDownBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur. (down)",   filtMenu,  saturationFilter,  satDownArgs);
 
     modArgs.pushBack(modWinArgs);
@@ -486,15 +437,15 @@ SubMenu* createFileMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manage
     return fileMenu;
 }
 
-Menu* createActionMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, WindowManager* _winManager, List<SubMenuArgs*>& toolArgs, List<ColPickerArgs*>& colArgs, List<ModalWindowArgs*>& modArgs, plugin::App* _app) {
+Menu* createActionMenu(Widget* _drawZone, Widget* _winPtr, ToolManager* _manager, FilterManager* _filtManager, EventManager* _evManager, WindowManager* _winManager, List<ModalWindowArgs*>& modArgs, plugin::App* _app) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(4 * ACTION_BTN_LEN, TOP_PANE_SIZE), _winPtr);
     SubMenu* fileMenu   = createFileMenu   (_drawZone, actionMenu, _manager, _filtManager, _evManager, _winManager, modArgs);
-    SubMenu* toolMenu   = createToolPicker (actionMenu, _filtManager, _manager, toolArgs);
-    SubMenu* colMenu    = createColorPicker(actionMenu, _manager, colArgs);
+    SubMenu* toolMenu   = createToolPicker (actionMenu, _filtManager, _manager, modArgs);
+    SubMenu* colMenu    = createColorPicker(actionMenu, _manager, modArgs);
     SubMenu* filtMenu   = createFilterMenu (_drawZone, actionMenu, _manager, _filtManager, _evManager, modArgs, _app);
 
     TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "File",   actionMenu, openToolMenu, fileMenu);
@@ -565,8 +516,8 @@ void runMainCycle() {
     app_instance.tool_manager   = &manager;
 
     // create bar with tool picker, color picker, and new window creator
-    List<SubMenuArgs*> toolArgs; List<ColPickerArgs*> colArgs; List<ModalWindowArgs*> modArgs;
-    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, toolArgs, colArgs, modArgs, &app_instance);
+    List<ModalWindowArgs*> modArgs;
+    Menu* actions = createActionMenu(&drawWidget, mainWindow, &manager, &filtManager, &eventBoy, &winManager, modArgs, &app_instance);
     mainWindow->setActions(actions);
 
     renderTarget.clearAll();
@@ -575,8 +526,6 @@ void runMainCycle() {
 
     runEventCycle(renderTarget, eventBoy, drawWidget);
 
-    for (size_t i = 0; i < toolArgs.getSize(); i++) delete toolArgs[i];
-    for (size_t i = 0; i < colArgs .getSize(); i++) delete colArgs [i];
     for (size_t i = 0; i < modArgs .getSize(); i++) delete modArgs [i];
     for (size_t i = 0; i < plugins .getSize(); i++) delete plugins [i];
 }

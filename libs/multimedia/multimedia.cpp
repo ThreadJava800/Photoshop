@@ -213,7 +213,6 @@ void MImage::buildFromPluginTexture(const plugin::Texture* _texture) {
     uint64_t height = _texture->height;
     uint64_t width  = _texture->width;
 
-
     sf::Image sf_pixel_array;
     sf_pixel_array.create(width, height);
 
@@ -440,9 +439,9 @@ void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin
 
     // std::cerr << "TEMP1: " << temp1 << " TEMP LAST " << temp << '\n';
     
-    // std::cerr << "DRAW_TEXT_SIZ: "     << size.x << ' ' << size.y << '\n';
-    // std::cerr << "DRAW_TEXT_POS: "     << pos.x  << ' ' << pos.y << '\n';
-    // std::cerr << "DRAW_TEXT_SIZ_TXT: " << texture->width << ' ' << texture->height << '\n';
+    std::cerr << "DRAW_TEXT_SIZ: "     << size.x << ' ' << size.y << '\n';
+    std::cerr << "DRAW_TEXT_POS: "     << pos.x  << ' ' << pos.y << '\n';
+    std::cerr << "DRAW_TEXT_SIZ_TXT: " << texture->width << ' ' << texture->height << '\n';
     
     MImage sf_texture = MImage(texture);
     drawSprite(MPoint(pos), MPoint(size), &sf_texture);
