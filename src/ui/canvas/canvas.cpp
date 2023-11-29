@@ -663,7 +663,8 @@ plugin::Texture* Canvas::getTexture() {
 bool Canvas::onMousePress(plugin::MouseContext context) {
     if (!rendTarget) return false;
 
-    MPoint pos = MPoint(context.position);
+    MPoint pos            = MPoint(context.position);
+    plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
 
     if (parentRect.isPointInside(MPoint(pos))) {
         if (filtManager && filtManager->getActive()) {
@@ -675,9 +676,11 @@ bool Canvas::onMousePress(plugin::MouseContext context) {
 
         is_drawing = true;
 
-        plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
         manager->paintOnPress(rendTarget, tempTarget, {draw_pos, context.button});
         return true;
+    } else {
+        is_drawing = false;
+        manager->disableTool(rendTarget, tempTarget, {draw_pos, context.button});
     }
 
     return false;
@@ -691,6 +694,8 @@ bool Canvas::onMouseRelease(plugin::MouseContext context) {
     plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
     manager->paintOnRelease(rendTarget, tempTarget, {draw_pos, context.button});
 
+    is_drawing = false;
+
     return true;
 }
 
@@ -699,6 +704,8 @@ bool Canvas::onMouseMove(plugin::MouseContext context) {
 
     MPoint pos = MPoint(context.position);
 
+    if (!is_drawing) return false;
+
     if (!isInside(pos)) {
         if (is_drawing) manager->disableTool(rendTarget, tempTarget, context);
         is_drawing = false;
@@ -706,7 +713,6 @@ bool Canvas::onMouseMove(plugin::MouseContext context) {
         return true;
     }
 
-    if (!is_drawing) return false;
 
     plugin::Vec2 draw_pos = {context.position.x - this->position.x, context.position.y - this->position.y};
     manager->paintOnMove(rendTarget, tempTarget, {draw_pos, context.button});

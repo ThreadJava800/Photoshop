@@ -6,9 +6,9 @@ void runEventCycle(RenderTarget& renderTarget, EventManager& eventBoy, Widget& d
     while (renderTarget.getRenderWindow()->isOpen())
     {
         auto timerEnd = std::chrono::system_clock::now();
-        auto passed   = std::chrono::duration_cast<std::chrono::seconds>(timerEnd - timerStart);
+        auto passed   = std::chrono::duration_cast<std::chrono::milliseconds>(timerEnd - timerStart);
 
-        if (passed.count() >= 1) {
+        if (passed.count() >= 250) {
             // renderTarget.getRenderTexture()->clear();
 
             eventBoy.onClock(passed.count());

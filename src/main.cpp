@@ -21,7 +21,8 @@ static const char* PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
     "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/plug1.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so",
+    "/home/vladimir/Projects/Photoshop/plugins/Brush.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/balloon.so"
 };
 
@@ -108,11 +109,6 @@ void chooseTool(void* arg) {
     ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
 
     // delete modWinArgs->toolManager->getTool();
-
-    std::cerr << "AFTER WIN PTR " << modWinArgs << '\n';
-    std::cerr << "TOOLMAN " << modWinArgs->toolManager << ' ' << modWinArgs->plugin << '\n';
-    if (!modWinArgs->plugin) return;
-    std::cerr << modWinArgs->toolManager << '\n';
 
     modWinArgs->toolManager->setTool((plugin::ToolI*)modWinArgs->plugin);
     modWinArgs->subMenu->changeActivity();
@@ -296,9 +292,7 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
         }
 
         if (plugin->type == plugin::InterfaceType::Tool) {
-            std::cerr << "WIN PTR " << plugin->getInterface() << '\n';
             ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
-            std::cerr << "WIN PTR " << modWinArg2->plugin << '\n';
             TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
 
@@ -317,14 +311,29 @@ SubMenu* createFilterMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs,
     ModalWindowArgs* lastArgs = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, arg.toolManager->getTool());
     TextButton*      lastBtn  = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Last used", filtMenu, addPluginFilter, lastArgs);
     
-    ModalWindowArgs* customBlurArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, new BrightnessFilter());
-    TextButton*      customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)", filtMenu, addPluginFilter, customBlurArg);
+    ModalWindowArgs* constBrightArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, new BrightnessFilter(false));
+    TextButton*      constBrightBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (const)", filtMenu, addPluginFilter, constBrightArg);
+
+    ModalWindowArgs* customBlurArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, new BrightnessFilter(true));
+    TextButton*      customBlurBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Blur (custom)", filtMenu, addPluginFilter, customBlurArg);
+
+    ModalWindowArgs* colorfulnessUPArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, new ColorfulnessFilter(ColorfulnessFilter::SATUR_UP));
+    TextButton*      colorfulnessUPBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur (UP)", filtMenu, addPluginFilter, colorfulnessUPArg);
+
+    ModalWindowArgs* colorfulnessDOArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, new ColorfulnessFilter(ColorfulnessFilter::SATUR_DOWN));
+    TextButton*      colorfulnessDOBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Satur (DOWN)", filtMenu, addPluginFilter, colorfulnessDOArg);
 
     modArgs.pushBack(lastArgs);
+    modArgs.pushBack(constBrightArg);
     modArgs.pushBack(customBlurArg);
+    modArgs.pushBack(colorfulnessUPArg);
+    modArgs.pushBack(colorfulnessDOArg);
 
     filtMenu->registerObject(lastBtn);
+    filtMenu->registerObject(constBrightBtn);
     filtMenu->registerObject(customBlurBtn);
+    filtMenu->registerObject(colorfulnessUPBtn);
+    filtMenu->registerObject(colorfulnessDOBtn);
 
     return filtMenu;
 }
@@ -374,7 +383,7 @@ Menu* createActionMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, pl
     SubMenu* colMenu    = createColorPicker(arg, modArgs);
     SubMenu* filtMenu   = createFilterMenu (arg, modArgs, _app);
 
-    loadPlugins(filtMenu, toolMenu, arg, modArgs, _app, MPoint(7, 7), start, size, color);
+    loadPlugins(filtMenu, toolMenu, arg, modArgs, _app, MPoint(7, 4), start, size, color);
 
     TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "File",   actionMenu, openToolMenu, fileMenu);
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);

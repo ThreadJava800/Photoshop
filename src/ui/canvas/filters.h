@@ -9,11 +9,12 @@ static const char* COLORFULNESS_PARAM_NAMES[] = {"Colorfulness"};
 
 class BrightnessFilter : public plugin::FilterI {
 private:
-    int                         changeValue = 0;
+    bool                        need_argument;
+    int                         changeValue = BRIGHTNESS_SHIFT;
     plugin::Array<const char *> param_names;
 
 public:
-    explicit BrightnessFilter();
+    explicit BrightnessFilter(bool _need_argument);
 
     void                        apply        (plugin::RenderTargetI *data)  override;
     plugin::Array<const char *> getParamNames()                             override;
@@ -35,7 +36,7 @@ public:
     static constexpr double SATUR_UP   = 2.0;
     static constexpr double SATUR_DOWN = 0.5;
 
-    explicit ColorfulnessFilter();
+    explicit ColorfulnessFilter(double _satur_coeff);
 
     void                        apply        (plugin::RenderTargetI *data)  override;
     plugin::Array<const char *> getParamNames()                             override;

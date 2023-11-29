@@ -1,8 +1,12 @@
 #include "filters.h"
 
-BrightnessFilter::BrightnessFilter() {
-    param_names.size = 1;
-    param_names.data = BRIGHTNESS_PARAM_NAMES;
+BrightnessFilter::BrightnessFilter(bool _need_argument) : need_argument(_need_argument) {
+    if (need_argument) {
+        param_names.size = 1;
+        param_names.data = BRIGHTNESS_PARAM_NAMES;
+    } else {
+        param_names.size = 0;
+    }
 }
 
 void BrightnessFilter::apply(plugin::RenderTargetI *data) {
@@ -51,12 +55,11 @@ plugin::Array<double> BrightnessFilter::getParams() {
 }
 
 void BrightnessFilter::setParams(plugin::Array<double> params) {
-    changeValue = params.data[0];
+    if (need_argument)  changeValue = params.data[0];
 }
 
-ColorfulnessFilter::ColorfulnessFilter() {
-    param_names.size = 1;
-    param_names.data = COLORFULNESS_PARAM_NAMES;
+ColorfulnessFilter::ColorfulnessFilter(double _satur_coeff) : saturCoeff(_satur_coeff) {
+    param_names.size = 0;
 }
 
 void ColorfulnessFilter::apply(plugin::RenderTargetI *data) {
@@ -111,14 +114,7 @@ plugin::Array<double> ColorfulnessFilter::getParams() {
     return {};
 }
 
-void ColorfulnessFilter::setParams(plugin::Array<double> params) {
-    fprintf(stderr, "%d\n", params.size);
-    if (params.size == 0) return;
-
-    saturCoeff = params.data[0];
-
-    delete[] params.data;
-}
+void ColorfulnessFilter::setParams(plugin::Array<double> params) {}
 
 FilterManager::FilterManager() :
     active    (false),
