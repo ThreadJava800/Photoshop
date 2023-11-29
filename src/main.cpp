@@ -45,6 +45,9 @@ struct ModalWindowArgs {
     double saturCoeff;
     MColor color;
 
+    List<ModalWindowArgs*>* modArgs;
+    MPoint                  subMenuStart;
+
     ModalWindowArgs() {};
 
     ModalWindowArgs(Widget* _drawZone, SubMenu* _subMenu, EventManager* _evManager, FilterManager* _filtManager, WindowManager* _winManager, ToolManager* _toolManager = nullptr, plugin::Interface* _plugin = nullptr, MColor _color = MColor::TRANSPARENT, double _saturCoeff = 1.0) :
@@ -124,7 +127,6 @@ void createCanvasFromTxt(void* arg) {
 
     canv_win->createCanvas(draw_img->width, draw_img->height);
     main_win->registerObject(canv_win);
-    modalWinArgs->winManager->getCanvasWindows()->pushBack(canv_win);
     canv_win->getCanvas()->setTexture(draw_img);
 
     delete[] draw_img->pixels;
@@ -155,25 +157,6 @@ void openFile(void* arg) {
     modalWinArgs->subMenu->changeActivity();
 }
 
-void chooseTool(void* arg) {
-    if (!arg) return;
-    ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
-
-    // delete modWinArgs->toolManager->getTool();
-
-    modWinArgs->toolManager->setTool((plugin::ToolI*)modWinArgs->plugin);
-    modWinArgs->subMenu->changeActivity();
-    modWinArgs->filtManager->setActive(false);
-}
-
-void chooseColor(void* arg) {
-    if (!arg) return;
-    ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
-
-    modWinArgs->toolManager->setColor(modWinArgs->color.toPlColor());
-    modWinArgs->subMenu->changeActivity();
-}
-
 void saveCanvas(void* arg) {
     if (!arg) return;
 
@@ -188,19 +171,6 @@ void saveCanvas(void* arg) {
     if (!res) return;
 
     modWinArgs->curWindow->setName(fileName);
-
-    WindowManager* _winManager   = modWinArgs->winManager;
-    size_t          winCnt       = modWinArgs->subMenuChild->getWindows()->getSize();
-    List<WidgetPtr>* subMenuBtns = modWinArgs->subMenuChild->getWindows();
-
-    for (size_t i = 0; i < winCnt; i++) {
-        const char* winName = (*_winManager->getCanvasWindows())[i]->getName();
-
-        WidgetPtr widget_ptr = (*subMenuBtns)[i];
-        if (!widget_ptr.is_extern) {
-            ((TextButton*)widget_ptr.program_widget)->setText(winName);
-        }
-    }
 }
 
 void saveBtnFunc(void* arg) {
@@ -226,6 +196,48 @@ void saveBtnFunc(void* arg) {
 
     modalWinArgs->subMenuChild->changeActivity();
     modalWinArgs->subMenu     ->changeActivity();
+}
+
+void openSaveMenu(void* arg) {
+    if (!arg) return;
+
+    ModalWindowArgs* mod_win_arg = (ModalWindowArgs*) arg;
+
+    WindowManager* winManager = mod_win_arg->winManager;
+    size_t         winCnt     = winManager->getCanvasWindows()->getSize();
+
+    for (size_t i = 0; i < winCnt; i++) {
+        const char* winName = (*(winManager)->getCanvasWindows())[i]->getName();
+
+        ModalWindowArgs* fileBtnArgs = new ModalWindowArgs(mod_win_arg->drawZone, mod_win_arg->subMenu, mod_win_arg->evManager, mod_win_arg->filtManager, mod_win_arg->winManager);
+        fileBtnArgs->curWindow    = (*(winManager)->getCanvasWindows())[i];
+        fileBtnArgs->subMenuChild = mod_win_arg->subMenuChild;
+        mod_win_arg->modArgs->pushBack(fileBtnArgs);
+        
+        TextButton* fileBtn = new TextButton(mod_win_arg->subMenuStart + MPoint(0, i * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), winName, mod_win_arg->subMenuChild, saveBtnFunc, fileBtnArgs);
+        mod_win_arg->subMenuChild->registerObject(fileBtn);
+    }
+
+    mod_win_arg->subMenuChild->changeActivity();
+}
+
+void chooseTool(void* arg) {
+    if (!arg) return;
+    ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
+
+    // delete modWinArgs->toolManager->getTool();
+
+    modWinArgs->toolManager->setTool((plugin::ToolI*)modWinArgs->plugin);
+    modWinArgs->subMenu->changeActivity();
+    modWinArgs->filtManager->setActive(false);
+}
+
+void chooseColor(void* arg) {
+    if (!arg) return;
+    ModalWindowArgs* modWinArgs = (ModalWindowArgs*) arg;
+
+    modWinArgs->toolManager->setColor(modWinArgs->color.toPlColor());
+    modWinArgs->subMenu->changeActivity();
 }
 
 SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
@@ -321,7 +333,7 @@ SubMenu* createColorPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs
 
     return colMenu;
 }
-#include <assert.h>
+
 void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app, MPoint start_ind, MPoint start, MPoint size, MColor color) {
     for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
@@ -343,7 +355,6 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
         }
 
         if (plugin->type == plugin::InterfaceType::Tool) {
-            std::cerr << PLUGINS[i] << ' ' << plugin->getInterface() << '\n';
             ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
             TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
@@ -401,20 +412,13 @@ SubMenu* createFileMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
 
     MPoint chooseMenuPos = MPoint(fileMenu->getPos()) + MPoint(fileMenu->getSize().x, 0);
     SubMenu* chooseMenu  = new SubMenu(chooseMenuPos, MPoint(fileMenu->getSize().x, TOP_PANE_SIZE * winCnt), fileMenu);
-    
-    for (size_t i = 0; i < winCnt; i++) {
-        const char* winName = (*(arg.winManager)->getCanvasWindows())[i]->getName();
 
-        ModalWindowArgs* fileBtnArgs = new ModalWindowArgs(arg.drawZone, fileMenu, arg.evManager, arg.filtManager, arg.winManager);
-        fileBtnArgs->curWindow    = (*(arg.winManager)->getCanvasWindows())[i];
-        fileBtnArgs->subMenuChild = chooseMenu;
-        modArgs.pushBack(fileBtnArgs);
-        
-        TextButton* fileBtn = new TextButton(chooseMenuPos + MPoint(0, i * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), winName, chooseMenu, saveBtnFunc, fileBtnArgs);
-        chooseMenu->registerObject(fileBtn);
-    }
+    ModalWindowArgs* saveArgs = new ModalWindowArgs(arg.drawZone, fileMenu, arg.evManager, arg.filtManager, arg.winManager);
+    saveArgs->subMenuChild = chooseMenu;
+    saveArgs->modArgs      = &modArgs;
+    saveArgs->subMenuStart = chooseMenuPos;
 
-    TextButton* saveBtn = new TextButton(start + MPoint(0, 2 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Save", fileMenu, openToolMenu, chooseMenu);
+    TextButton* saveBtn = new TextButton(start + MPoint(0, 2 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Save", fileMenu, openSaveMenu, saveArgs);
 
     ModalWindowArgs* openArg = new ModalWindowArgs(arg.drawZone, fileMenu, arg.evManager, arg.filtManager, arg.winManager, arg.toolManager);
     TextButton*      openBtn = new TextButton     (start + MPoint(0, 3 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Open", fileMenu, openFile, openArg);
@@ -425,6 +429,7 @@ SubMenu* createFileMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
 
     modArgs.pushBack(modWinArgs);
     modArgs.pushBack(openArg);
+    modArgs.pushBack(saveArgs);
 
     return fileMenu;
 }
