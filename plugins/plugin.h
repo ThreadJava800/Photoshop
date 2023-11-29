@@ -280,8 +280,6 @@ namespace plugin {
         virtual void paintOnRelease(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
         virtual void paintOnMove(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
         virtual void disable(RenderTargetI *data, RenderTargetI *tmp, MouseContext context, Color color) = 0;
-    
-        virtual ~ToolI() = default;
     };
 
     struct ToolManagerI {

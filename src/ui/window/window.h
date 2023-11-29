@@ -21,7 +21,6 @@ protected:
     char* windowName = nullptr;
     MFont     * textFont   = nullptr;
     
-    void createCanvas    ();
     void createTopPanel  ();
     void createTestWindow();
     
@@ -33,6 +32,8 @@ public:
     const char* getName  ();
     void        setName  (const char* _windowName);
     Canvas    * getCanvas();
+
+    void createCanvas(int width = CANVAS_SIZE, int height = CANVAS_SIZE);
 
     bool onMousePress(plugin::MouseContext context) override;
 
@@ -96,6 +97,7 @@ public:
 
 class WindowManager {
 private:
+    Window*        main_window   = nullptr;
     List<Window*>* canvasWindows = nullptr;
 
 public:
@@ -104,6 +106,8 @@ public:
     ~WindowManager();
 
     List<Window*>* getCanvasWindows();
+    Window*        getMainWindow();
+    void           setMainWindow(Window* _main_window);
 };
 
 void onVertScroll(void* args, MPoint delta);

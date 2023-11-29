@@ -74,9 +74,9 @@ void onVertScroll(void* args, MPoint delta) {
     canvas->onScroll(delta * -1);
 }
 
-void Window::createCanvas() {
+void Window::createCanvas(int width, int height) {
     MathRectangle parentRect = MathRectangle(position + MPoint(0, TOP_PANE_SIZE), size - MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE));
-    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(CANVAS_SIZE, CANVAS_SIZE), manager, filtManager, this, parentRect);
+    Canvas *canvas = new Canvas(MPoint(position.x, position.y + TOP_PANE_SIZE), MPoint(width, height), manager, filtManager, this, parentRect);
     registerObject(canvas);
 
     MathRectangle sliderX = MathRectangle(MPoint(position.x + SCROLLBAR_BTN_H, position.y  + size.y - TOP_PANE_SIZE), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE));
@@ -297,4 +297,12 @@ WindowManager::~WindowManager() {
 
 List<Window*>* WindowManager::getCanvasWindows() {
     return canvasWindows;
+}
+
+Window* WindowManager::getMainWindow() {
+    return main_window;
+}
+
+void WindowManager::setMainWindow(Window* _main_window) {
+    main_window = _main_window;
 }

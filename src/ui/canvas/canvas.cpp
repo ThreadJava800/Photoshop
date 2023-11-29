@@ -207,116 +207,116 @@ void Spline::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, pl
     points->clear();
 }
 
-FillTool::FillTool() :
-    Tool()              {}
+// FillTool::FillTool() :
+//     Tool()              {}
 
-FillTool::FillTool(MPoint _start, MPoint _end) :
-    Tool(_start, _end)  {}
+// FillTool::FillTool(MPoint _start, MPoint _end) :
+//     Tool(_start, _end)  {}
 
-plugin::Array<const char *> FillTool::getParamNames() {
-    return {};
-}
+// plugin::Array<const char *> FillTool::getParamNames() {
+//     return {};
+// }
 
-plugin::Array<double> FillTool::getParams() {
-    return {};
-}
+// plugin::Array<double> FillTool::getParams() {
+//     return {};
+// }
 
-void FillTool::setParams(plugin::Array<double> params) {
+// void FillTool::setParams(plugin::Array<double> params) {
 
-}
+// }
 
-const plugin::Texture *FillTool::getIcon() {
-    return nullptr;
-}
+// const plugin::Texture *FillTool::getIcon() {
+//     return nullptr;
+// }
 
-void FillTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
-    ON_ERROR(!data || !tmp, "RenderTarget was null!",);
+// void FillTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+//     ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
-    MImage textureImage               = MImage(data->getTexture());
-    List<List<MColor>*>* pixelListPtr = textureImage.getPixels();
-    if (!pixelListPtr) return;
+//     MImage textureImage               = MImage(data->getTexture());
+//     List<List<MColor>*>* pixelListPtr = textureImage.getPixels();
+//     if (!pixelListPtr) return;
 
-    size_t xSize = CANVAS_SIZE;
-    size_t ySize = CANVAS_SIZE;
+//     size_t xSize = CANVAS_SIZE;
+//     size_t ySize = CANVAS_SIZE;
 
-    List<MPoint>  bfsList = List<MPoint>();
-    List<bool>    was     = List<bool>(xSize * ySize);
-    bfsList.pushBack(MPoint(context.position));
+//     List<MPoint>  bfsList = List<MPoint>();
+//     List<bool>    was     = List<bool>(xSize * ySize);
+//     bfsList.pushBack(MPoint(context.position));
 
-    List<List<MColor>*> resPixels = List<List<MColor>*>(xSize);
-    for (size_t i = 0; i < xSize; i++) {
-        resPixels.pushBack(new List<MColor>(ySize));
-        for (size_t j = 0; j < ySize; j++) {
-            resPixels[i]->pushBack(MColor());
-        }
-    }
+//     List<List<MColor>*> resPixels = List<List<MColor>*>(xSize);
+//     for (size_t i = 0; i < xSize; i++) {
+//         resPixels.pushBack(new List<MColor>(ySize));
+//         for (size_t j = 0; j < ySize; j++) {
+//             resPixels[i]->pushBack(MColor());
+//         }
+//     }
 
-    while (bfsList.getSize()) {
-        MPoint bfs = bfsList.pop();
+//     while (bfsList.getSize()) {
+//         MPoint bfs = bfsList.pop();
 
-        bfs.x = int(bfs.x);
-        bfs.y = int(bfs.y);
+//         bfs.x = int(bfs.x);
+//         bfs.y = int(bfs.y);
 
-        if (was[bfs.y * xSize + bfs.x]) continue;
-        was[bfs.y * xSize + bfs.x] = true;
+//         if (was[bfs.y * xSize + bfs.x]) continue;
+//         was[bfs.y * xSize + bfs.x] = true;
 
-        if (bfs.y != 0) {
-            MPoint up = MPoint(bfs.x, bfs.y - 1);
-            if ((*((*pixelListPtr)[up.x]))[up.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
-                bfsList.pushBack(up);
+//         if (bfs.y != 0) {
+//             MPoint up = MPoint(bfs.x, bfs.y - 1);
+//             if ((*((*pixelListPtr)[up.x]))[up.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
+//                 bfsList.pushBack(up);
 
-                (*(resPixels)[up.x])[up.y] = MColor(color);
-            }
-        }
+//                 (*(resPixels)[up.x])[up.y] = MColor(color);
+//             }
+//         }
 
-        if (bfs.x != 0) {
-            MPoint lp = MPoint(bfs.x - 1, bfs.y);
-            if ((*((*pixelListPtr)[lp.x]))[lp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
-                bfsList.pushBack(lp);
+//         if (bfs.x != 0) {
+//             MPoint lp = MPoint(bfs.x - 1, bfs.y);
+//             if ((*((*pixelListPtr)[lp.x]))[lp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
+//                 bfsList.pushBack(lp);
 
-                (*(resPixels)[lp.x])[lp.y] = MColor(color);
-            }
-        }
+//                 (*(resPixels)[lp.x])[lp.y] = MColor(color);
+//             }
+//         }
 
-        if (bfs.x != xSize - 1) {
-            MPoint rp = MPoint(bfs.x + 1, bfs.y);
-            if ((*((*pixelListPtr)[rp.x]))[rp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
-                bfsList.pushBack(rp);
+//         if (bfs.x != xSize - 1) {
+//             MPoint rp = MPoint(bfs.x + 1, bfs.y);
+//             if ((*((*pixelListPtr)[rp.x]))[rp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
+//                 bfsList.pushBack(rp);
 
-                (*(resPixels)[rp.x])[rp.y] = MColor(color);
-            }
-        }
+//                 (*(resPixels)[rp.x])[rp.y] = MColor(color);
+//             }
+//         }
 
-        if (bfs.y != ySize - 1) {
-            MPoint bp = MPoint(bfs.x, bfs.y + 1);
-            if ((*((*pixelListPtr)[bp.x]))[bp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
-                bfsList.pushBack(bp);
+//         if (bfs.y != ySize - 1) {
+//             MPoint bp = MPoint(bfs.x, bfs.y + 1);
+//             if ((*((*pixelListPtr)[bp.x]))[bp.y] == (*((*pixelListPtr)[bfs.x]))[bfs.y]) {
+//                 bfsList.pushBack(bp);
 
-                (*(resPixels)[bp.x])[bp.y] = MColor(color);
-            }
-        }
-    }
+//                 (*(resPixels)[bp.x])[bp.y] = MColor(color);
+//             }
+//         }
+//     }
 
-    textureImage.imgFromPixel(&resPixels);
-    data->drawTexture({0, 0}, {(double)xSize, (double)ySize}, textureImage.toPluginTexture());
+//     textureImage.imgFromPixel(&resPixels);
+//     data->drawTexture({0, 0}, {(double)xSize, (double)ySize}, textureImage.toPluginTexture());
 
-    for (size_t i = 0; i < xSize; i++) delete (*pixelListPtr)[i];
-    delete pixelListPtr;
+//     for (size_t i = 0; i < xSize; i++) delete (*pixelListPtr)[i];
+//     delete pixelListPtr;
 
-    for (size_t i = 0; i < xSize; i++) delete resPixels[i];
-}
+//     for (size_t i = 0; i < xSize; i++) delete resPixels[i];
+// }
 
-void FillTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+// void FillTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
 
-}
+// }
 
-void FillTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+// void FillTool::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
 
-}
+// }
 
-void FillTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
+// void FillTool::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
 
-}
+// }
 
 StraightTool::StraightTool() :
     Tool(),
@@ -748,4 +748,8 @@ void Canvas::render(RenderTarget* renderTarget) {
 void Canvas::move(plugin::Vec2 shift) {
     parentRect.move(MPoint(shift));
     Widget::move(shift);
+}
+
+void Canvas::setTexture(plugin::Texture* texture) {
+    rendTarget->drawTexture({0, 0}, size.toVec2(), texture);
 }

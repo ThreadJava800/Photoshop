@@ -19,10 +19,10 @@ static const char* PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
     "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
     "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/plug1.so",
+    "/home/vladimir/Projects/Photoshop/plugins/libsphere_filter.so",
+    "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/Brush.so",
-    // "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/balloon.so"
 };
 
@@ -100,6 +100,57 @@ void addPluginFilter(void* arg) {
     modalWinArgs->filtManager->setFilter(filter);
     modalWinArgs->filtManager->setNeedFree(false);
     modalWinArgs->filtManager->setActive(true);
+
+    modalWinArgs->subMenu->changeActivity();
+}
+
+void createCanvasFromTxt(void* arg) {
+    if (!arg) return;
+
+    ModalWindowArgs* modalWinArgs = (ModalWindowArgs*) arg;
+    EditBoxModal   * modWindow    = modalWinArgs->editBoxModal;
+
+    List<EditBox*>* editBoxes = modWindow->getEditBoxes();
+    char* fileName = (*editBoxes)[0]->getText();
+
+    MImage           load_img = MImage(fileName);
+    plugin::Texture* draw_img = load_img.toPluginTexture();
+
+    char canv_name[128];
+    sprintf(canv_name, "Canvas %d", modalWinArgs->winManager->getCanvasWindows()->getSize() + 1);
+
+    Window* main_win = modalWinArgs->winManager->getMainWindow();
+    Window* canv_win = new Window(MPoint(300, 200), MPoint(std::min(1200, (int)draw_img->width), std::min(800, (int)draw_img->height)), canv_name, modalWinArgs->toolManager, modalWinArgs->filtManager, modalWinArgs->winManager, true, main_win);
+
+    canv_win->createCanvas(draw_img->width, draw_img->height);
+    main_win->registerObject(canv_win);
+    modalWinArgs->winManager->getCanvasWindows()->pushBack(canv_win);
+    canv_win->getCanvas()->setTexture(draw_img);
+
+    delete[] draw_img->pixels;
+    delete   draw_img;
+}
+
+void openFile(void* arg) {
+    if (!arg) return;
+
+    ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
+
+    plugin::Array<const char*> paramNames;
+    paramNames.size    = 1;
+    paramNames.data    = new const char*[paramNames.size];
+    paramNames.data[0] = "Enter filename";
+    EditBoxModal* modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
+    
+    modalWinArgs->editBoxModal = modalWindow;
+    
+    modalWindow->setOnDestroy(createCanvasFromTxt);
+    modalWindow->setDestrArgs(modalWinArgs);
+
+    EditBox* editBox = new EditBox(MPoint(300, 400), MPoint(300, 50), modalWindow, new MFont(DEFAULT_FONT), ALL_CHARACTER, paramNames.data[0]);
+
+    modalWindow->addEditBox(editBox);
+    modalWinArgs->drawZone->registerObject(modalWindow);
 
     modalWinArgs->subMenu->changeActivity();
 }
@@ -202,8 +253,8 @@ SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs)
     ModalWindowArgs* splineArgs  = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new Spline());
     TextButton* splineBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
 
-    ModalWindowArgs* fillArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new FillTool());
-    TextButton* fillBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+    // ModalWindowArgs* fillArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new FillTool());
+    // TextButton* fillBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
 
     modArgs.pushBack(brushArgs);
     modArgs.pushBack(lineArgs);
@@ -211,7 +262,7 @@ SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs)
     modArgs.pushBack(ellipseArgs);
     modArgs.pushBack(curveArgs);
     modArgs.pushBack(splineArgs);
-    modArgs.pushBack(fillArgs);
+    // modArgs.pushBack(fillArgs);
 
     toolMenu->registerObject(brushBtn);
     toolMenu->registerObject(lineBtn);
@@ -219,7 +270,7 @@ SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs)
     toolMenu->registerObject(ellipseBtn);
     toolMenu->registerObject(curveBtn);
     toolMenu->registerObject(splineBtn);
-    toolMenu->registerObject(fillBtn);
+    // toolMenu->registerObject(fillBtn);
 
     return toolMenu;
 }
@@ -270,7 +321,7 @@ SubMenu* createColorPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs
 
     return colMenu;
 }
-
+#include <assert.h>
 void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app, MPoint start_ind, MPoint start, MPoint size, MColor color) {
     for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
@@ -292,6 +343,7 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
         }
 
         if (plugin->type == plugin::InterfaceType::Tool) {
+            std::cerr << PLUGINS[i] << ' ' << plugin->getInterface() << '\n';
             ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
             TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
@@ -364,10 +416,15 @@ SubMenu* createFileMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
 
     TextButton* saveBtn = new TextButton(start + MPoint(0, 2 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Save", fileMenu, openToolMenu, chooseMenu);
 
+    ModalWindowArgs* openArg = new ModalWindowArgs(arg.drawZone, fileMenu, arg.evManager, arg.filtManager, arg.winManager, arg.toolManager);
+    TextButton*      openBtn = new TextButton     (start + MPoint(0, 3 * TOP_PANE_SIZE), size, color, new MFont(DEFAULT_FONT), "Open", fileMenu, openFile, openArg);
+
     fileMenu->registerObject(saveBtn);
+    fileMenu->registerObject(openBtn);
     fileMenu->registerObject(chooseMenu);
 
     modArgs.pushBack(modWinArgs);
+    modArgs.pushBack(openArg);
 
     return fileMenu;
 }
@@ -436,6 +493,8 @@ void runMainCycle() {
     Window* mainWindow = new Window(MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT), MPoint(1900, 1060), MAIN_WINDOW_NAME, &manager, &filtManager, &winManager, false, &drawWidget);
     drawWidget.registerObject(new Rectangle(MPoint(0, 0), MPoint(1920, 1080), MColor::BLACK, MColor::TRANSPARENT, &drawWidget));
     drawWidget.registerObject(mainWindow);
+
+    winManager.setMainWindow(mainWindow);
 
     // //create graphics picker of tools and colors
     // // Window* pickerWindow = createPickerWindow(mainWindow, &manager, &filtManager);
