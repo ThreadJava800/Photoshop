@@ -20,15 +20,19 @@ static const int BTN_TXT_PT    = 23;
 
 class DefaultWidget : public plugin::WidgetI {
 protected:
-    ThreadJava800_List::List<DefaultWidget*>* children = {};
-    plugin::Vec2                              size     = {0, 0};
-    plugin::Vec2                              position = {0, 0};
-    plugin::WidgetI*                          parent   = nullptr;
-    bool                                      is_alive = true;
+    ThreadJava800_List::List<DefaultWidget*>* children   = {};
+    plugin::Vec2                              size       = {0, 0};
+    plugin::Vec2                              position   = {0, 0};
+    plugin::WidgetI*                          parent     = nullptr;
+    bool                                      is_alive   = true;
+    bool                                      is_visible = true;
 
 public:
     explicit DefaultWidget(plugin::App* _app);
     explicit DefaultWidget(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size);
+
+    bool getVisible();
+    void setVisible(bool _vis);
 
     void             registerSubWidget  (plugin::WidgetI* object) override;
     void             unregisterSubWidget(plugin::WidgetI* object) override;
@@ -58,20 +62,7 @@ public:
     virtual ~DefaultWidget(); 
 };
 
-struct OnClick {
-    virtual void operator()() = 0;
-    virtual ~OnClick()        = default;
-};
-
-struct OnCloseClick : OnClick {
-private:
-    DefaultWidget* widget = nullptr;
-
-public:
-    explicit OnCloseClick(DefaultWidget* _widget);
-    void operator()() override;
-};
-
+struct OnClick;
 class Button : public DefaultWidget {
 private:
     OnClick* on_click = nullptr;
@@ -111,19 +102,34 @@ public:
     bool onMouseMove   (plugin::MouseContext context) override;
 };
 
-class CurveWindow : public DefaultWidget {
+class CurveCoordPlane : public DefaultWidget {
 private:
+    plugin::Vec2 unit     = {0, 0};
+    plugin::Vec2 max_unit = {0, 0};
+
+    static constexpr plugin::Vec2 SHIFT_FROM_EDGES = {10, 10};
+    static constexpr int          MAX_UNIT_LEN     = 8;
+
+public:
+    explicit CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit);
+
+    void render(plugin::RenderTargetI*) override;
+};
+
+class CurveWindow : public DefaultWidget {
+public:
     enum class ACTIVE_SUB_WIN {
         RED_WIN,
         GREEN_WIN,
         BLUE_WIN
     };
 
-    plugin::App*   app        = nullptr;
-    ACTIVE_SUB_WIN active_win = ACTIVE_SUB_WIN::RED_WIN;
+private:
+    plugin::App*   app         = nullptr;
+    ACTIVE_SUB_WIN active_win  = ACTIVE_SUB_WIN::RED_WIN;
+    char*          window_name = nullptr;
 
-    int r_diff = 0, g_diff = 0, b_diff = 0;
-    char* window_name = nullptr;
+
 
     void drawFrame(plugin::RenderTargetI*, plugin::Color);
     void createTopPanel();
@@ -131,7 +137,8 @@ private:
 public:
     explicit CurveWindow(plugin::App* _app, const char* _window_name);
 
-    void render(plugin::RenderTargetI*) override;
+    void render      (plugin::RenderTargetI*) override;
+    void setActiveTab(ACTIVE_SUB_WIN _new_win);
 
     ~CurveWindow();
 };
@@ -149,6 +156,30 @@ public:
     plugin::Array<double>       getParams    ()                             override;
     void                        setParams    (plugin::Array<double> params) override; 
     plugin::Interface*          getInterface ()                             override;
+};
+
+struct OnClick {
+    virtual void operator()() = 0;
+    virtual ~OnClick()        = default;
+};
+
+struct OnCloseClick : OnClick {
+private:
+    DefaultWidget* widget = nullptr;
+
+public:
+    explicit OnCloseClick(DefaultWidget* _widget);
+    void operator()() override;
+};
+
+struct OnTabChangeClick : OnClick {
+private:
+    CurveWindow*                curve_win     = nullptr;
+    CurveWindow::ACTIVE_SUB_WIN change_to_win = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
+
+public:
+    explicit OnTabChangeClick(CurveWindow* _curve_win, CurveWindow::ACTIVE_SUB_WIN _change_to);
+    void operator()() override;
 };
 
 };
