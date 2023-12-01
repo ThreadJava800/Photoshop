@@ -182,7 +182,7 @@ namespace plugin {
         /// clear
         virtual void clear() = 0;
     };
-
+    
     struct Interface {
         virtual Array<const char *> getParamNames() = 0;
         

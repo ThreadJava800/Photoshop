@@ -28,6 +28,7 @@ protected:
 
 public:
     explicit DefaultWidget(plugin::App* _app);
+    explicit DefaultWidget(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size);
 
     void             registerSubWidget  (plugin::WidgetI* object) override;
     void             unregisterSubWidget(plugin::WidgetI* object) override;
@@ -54,7 +55,45 @@ public:
 
     virtual bool isInside(plugin::Vec2 pos);
 
-    virtual ~DefaultWidget();   
+    virtual ~DefaultWidget(); 
+};
+
+struct OnClick {
+    virtual void operator()() = 0;
+    virtual ~OnClick()        = default;
+};
+
+struct OnCloseClick : OnClick {
+private:
+    DefaultWidget* widget = nullptr;
+
+public:
+    explicit OnCloseClick(DefaultWidget* _widget);
+    void operator()() override;
+};
+
+class Button : public DefaultWidget {
+private:
+    OnClick* on_click = nullptr;
+
+public:
+    explicit Button(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, OnClick* _on_click);
+
+    bool onMousePress(plugin::MouseContext context) override;
+
+    ~Button();
+};
+
+class TextButton : public Button {
+private:
+    char* text = nullptr;
+
+public:
+    explicit TextButton(plugin::App* _app, plugin::Vec2 pos, plugin::Vec2 size, OnClick* _on_click, const char* _text);
+
+    ~TextButton();
+
+    void render(plugin::RenderTargetI*) override;
 };
 
 class TopPanel : public DefaultWidget {
@@ -87,6 +126,7 @@ private:
     char* window_name = nullptr;
 
     void drawFrame(plugin::RenderTargetI*, plugin::Color);
+    void createTopPanel();
 
 public:
     explicit CurveWindow(plugin::App* _app, const char* _window_name);

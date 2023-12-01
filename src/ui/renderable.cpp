@@ -371,8 +371,9 @@ void Widget::unregisterObject() {
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         WidgetPtr widget = (*subWindows)[i];
-        if (!widget.getAvailable() && !widget.is_extern) {
-            delete widget.program_widget;
+        if (!widget.getAvailable()) {
+            if(!widget.is_extern) delete widget.program_widget;
+            else                  delete widget.plugin_widget;
             subWindows->remove(i);
             listSize--;
 

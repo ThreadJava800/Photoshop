@@ -16,6 +16,18 @@ DefaultWidget::DefaultWidget(plugin::App* _app) {
     _app->event_manager->setPriority(plugin::EventType::MouseRelease, 1);
 }
 
+DefaultWidget::DefaultWidget(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size) :
+    position(_pos), size(_size) {
+
+    children = new ThreadJava800_List::List<DefaultWidget*>();
+
+    _app->event_manager->registerObject(this);
+
+    _app->event_manager->setPriority(plugin::EventType::MousePress, 1);
+    _app->event_manager->setPriority(plugin::EventType::MouseMove, 1);
+    _app->event_manager->setPriority(plugin::EventType::MouseRelease, 1);
+}
+
 void DefaultWidget::registerSubWidget(plugin::WidgetI* object) {
     object->setParent(this);
 
@@ -154,6 +166,43 @@ DefaultWidget::~DefaultWidget() {
     delete children;
 }
 
+OnCloseClick::OnCloseClick(DefaultWidget* _widget) : widget(_widget) {}
+
+void OnCloseClick::operator()() {
+    widget->setAvailable(false);
+}
+
+Button::Button(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, OnClick* _on_click) : 
+    DefaultWidget(_app, _pos, _size), on_click(_on_click) {}
+
+bool Button::onMousePress(plugin::MouseContext context) {
+    if (isInside(context.position) && on_click) {
+        if (on_click) {
+            (*on_click)();
+            return true;
+        }
+    }
+    return false;
+}
+
+Button::~Button() {
+    if(on_click) delete on_click;
+}
+
+TextButton::TextButton(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, OnClick* _on_click, const char* _text) : 
+    Button(_app, _pos, _size, _on_click) {
+    text = strdup(_text);
+}
+
+TextButton::~TextButton() {
+    if (text) free(text);
+}
+
+void TextButton::render(plugin::RenderTargetI* rt) {
+    rt->drawRect(position, size, WHITE);
+    rt->drawText(position, text, BTN_TXT_PT, BLACK);
+}
+
 TopPanel::TopPanel(plugin::App* _app, plugin::Color _color, plugin::Vec2 _position, int width) : DefaultWidget(_app) {
     size     = {(double)width, TOP_PANE_SIZE};
     position = _position;
@@ -162,6 +211,7 @@ TopPanel::TopPanel(plugin::App* _app, plugin::Color _color, plugin::Vec2 _positi
 
 void TopPanel::render(plugin::RenderTargetI* rt) {
     rt->drawRect(position, size, color);
+    DefaultWidget::render(rt);
 }
 
 bool TopPanel::onMousePress(plugin::MouseContext context) {
@@ -197,6 +247,15 @@ void CurveWindow::drawFrame(plugin::RenderTargetI* rt, plugin::Color color) {
     rt->drawLine({position.x, position.y + size.y}, {position.x + size.x, position.y + size.y}, color);
 }
 
+void CurveWindow::createTopPanel() {
+    TopPanel* top_panel = new TopPanel(app, LIGHT_BLUE, position, size.x);
+
+    TextButton* on_close = new TextButton(app, position, {TOP_PANE_SIZE, TOP_PANE_SIZE}, new OnCloseClick(this), "X");
+    top_panel->registerSubWidget(on_close);
+
+    registerSubWidget(top_panel);
+}
+
 CurveWindow::CurveWindow(plugin::App* _app, const char* _window_name) : DefaultWidget(_app), app(_app) {
     window_name = strdup(_window_name);
 
@@ -205,8 +264,7 @@ CurveWindow::CurveWindow(plugin::App* _app, const char* _window_name) : DefaultW
     size     = {root_size.x / 2, root_size.y / 2};
     position = {root_size.x / 4, root_size.y / 4};
 
-    TopPanel* top_panel = new TopPanel(app, LIGHT_BLUE, position, size.x);
-    registerSubWidget(top_panel);
+    createTopPanel();
 }
 
 void CurveWindow::render(plugin::RenderTargetI* rt) {
@@ -220,6 +278,12 @@ void CurveWindow::render(plugin::RenderTargetI* rt) {
 
 CurveWindow::~CurveWindow() {
     if (window_name) free(window_name);
+
+    app->event_manager->setPriority(plugin::EventType::MousePress, 0);
+    app->event_manager->setPriority(plugin::EventType::MouseMove, 0);
+    app->event_manager->setPriority(plugin::EventType::MouseRelease, 0);
+
+    app->event_manager->unregisterObject(this);
 }
 
 CurveFilter::CurveFilter(plugin::App* _app) : app(_app) {
