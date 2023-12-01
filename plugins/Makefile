@@ -12,11 +12,11 @@ CFLAGS  = -g -D _DEBUG -ggdb3 -std=c++17 -Ofast -w -Wall -Wextra -Weffc++ -Waggr
 -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 
 
-SOURCES=baloon/baloon.cpp
+SOURCES=curves/curves.cpp
 
-EXECUTABLE=balloon.o
+EXECUTABLE=curves.o
 
-EXECUTABLE_SO=balloon.so
+EXECUTABLE_SO=curves.so
  
 all: compile_debug
 
@@ -29,7 +29,7 @@ compile_debug:
 	@${CC} ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
 
 compile_release_o:
-	${CC} -Wall -c -fPIC -o $(EXECUTABLE) $(SOURCES)
+	${CC} -c -fPIC -o $(EXECUTABLE) $(SOURCES)
 
 compile_release_so:
 	gcc -shared -o ${EXECUTABLE_SO} ${EXECUTABLE}

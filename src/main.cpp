@@ -23,7 +23,8 @@ static const char* PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/libsphere_filter.so",
     "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/Brush.so",
-    "/home/vladimir/Projects/Photoshop/plugins/balloon.so"
+    "/home/vladimir/Projects/Photoshop/plugins/balloon.so",
+    "/home/vladimir/Projects/Photoshop/plugins/curves.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);

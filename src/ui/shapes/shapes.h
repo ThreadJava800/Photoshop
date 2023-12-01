@@ -9,8 +9,6 @@ private:
     MColor fillColor = MColor();
     MColor outColor  = MColor();
 
-
-    
 public:
     explicit Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor, Widget* _parent);
     ~Rectangle();

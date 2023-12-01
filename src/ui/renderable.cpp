@@ -3,7 +3,7 @@
 WidgetPtr::WidgetPtr() {}
 
 WidgetPtr::WidgetPtr(plugin::WidgetI* _widget) {
-    is_extern = true;
+    is_extern     = true;
     plugin_widget = _widget;
 }
 
@@ -72,7 +72,7 @@ void WidgetPtr::setAvailable(bool value) {
 }
 
 bool WidgetPtr::getAvailable() {
-    if (is_extern) plugin_widget->getAvailable();
+    if (is_extern) return plugin_widget ->getAvailable();
     return program_widget->getAvailable();
 }
 
@@ -97,7 +97,7 @@ void WidgetPtr::recalcRegion() {
 
 void WidgetPtr::render(plugin::RenderTargetI* rt) {
     if (is_extern) plugin_widget ->render(rt);
-    else           program_widget->render(rt);
+    else program_widget->render((RenderTarget*)rt);
 }
 
 bool operator==(const WidgetPtr& a, const WidgetPtr& b) {
@@ -388,11 +388,7 @@ void Widget::render(RenderTarget* renderTarget) {
         size_t listSize = subWindows->getSize();
         for (size_t i = 0; i < listSize; i++) {
             WidgetPtr widget = (*subWindows)[i];
-            if (!widget.is_extern) {
-                widget.program_widget->render(renderTarget);
-            } else {
-                widget.plugin_widget ->render(renderTarget);
-            }
+            widget.render(renderTarget);
         }
 
         // regSet->visualize(renderTarget, debColor);
