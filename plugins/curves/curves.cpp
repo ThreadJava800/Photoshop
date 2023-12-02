@@ -312,7 +312,7 @@ void CurveWindow::createTopPanel() {
     plugin::Vec2 plane_size = {std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE), std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE)};
     plugin::Vec2 plane_pos  = {position.x + (size.x - plane_size.x) / 2, position.y + (size.y - plane_size.y) / 2};
 
-    CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
+    CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {85, 85}, {255, 255});
     registerSubWidget(red_plane);
 }
 

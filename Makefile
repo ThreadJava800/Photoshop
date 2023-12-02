@@ -29,7 +29,7 @@ compile_debug:
 	@${CC} -Wl,--export-dynamic -g -fPIE ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC) -ldl
 
 compile_release:
-	@${CC} -Wl,--export-dynamic -g -fPIE -fsanitize=address $(SOURCES) -O0 -o $(EXECUTABLE) $(SFML_EXEC) -ldl
+	@${CC} -Wl,--export-dynamic -g -fPIE -fsanitize=address $(SOURCES) -O3 -o $(EXECUTABLE) $(SFML_EXEC) -ldl
 
 run:
 	@./${EXECUTABLE}

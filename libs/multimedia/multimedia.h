@@ -164,6 +164,8 @@ private:
     sf::Sprite*        sprite   = nullptr;
     sf::RenderWindow*  window   = nullptr;
 
+    static MFont* DEFAULT_FONT_LOADED;
+
 public:
     explicit RenderTarget(MPoint _position, MPoint _size, bool needWindow = false, int winX = 1920, int winY = 1080, int posX = 0, int posY = 0, WindowType winType = FULLSCREEN);
     ~RenderTarget();

@@ -321,6 +321,8 @@ sf::Texture* MImage::getSfTexture() {
     return img;
 }
 
+MFont* RenderTarget::DEFAULT_FONT_LOADED = new MFont(DEFAULT_FONT);
+
 RenderTarget::RenderTarget(MPoint _position, MPoint _size, bool needWindow, int winX, int winY, int posX, int posY, WindowType winType) :
     position(_position)    {
         texture = new sf::RenderTexture();
@@ -363,6 +365,8 @@ RenderTarget::~RenderTarget() {
 
     if (window) delete window;
     window = nullptr;
+
+    if (DEFAULT_FONT_LOADED) delete DEFAULT_FONT_LOADED;
 }
 
 MPoint RenderTarget::getPosition() {
@@ -448,8 +452,7 @@ void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin
 }
 
 void RenderTarget::drawText(plugin::Vec2 pos, const char *content, uint16_t char_size, plugin::Color color) {
-    MFont defaultFont = MFont(DEFAULT_FONT);
-    drawText(MPoint(pos), content, MColor(color), &defaultFont, char_size);
+    drawText(MPoint(pos), content, MColor(color), DEFAULT_FONT_LOADED, char_size);
 }
 
 plugin::Texture* RenderTarget::getTexture() {
@@ -622,7 +625,7 @@ void RenderTarget::drawText(MPoint start,  const char* text, MColor color, MFont
     drawText.setPosition(start.toSfVector());
 
     texture->draw(drawText);
-    texture->display();
+    // texture->display();
     // window ->draw(*sprite);
 }
 
