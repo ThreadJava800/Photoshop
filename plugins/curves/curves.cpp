@@ -267,6 +267,13 @@ size_t CurvePolyLine::addPoint(plugin::Vec2 point) {
     return ret_ind;
 }
 
+bool CurvePolyLine::isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point) {
+    double vec_len  = sqrt((line_point2.y - line_point1.y) * (line_point2.y - line_point1.y) + (line_point2.x - line_point1.x) * (line_point2.x - line_point1.x));
+    double distance = abs((line_point2.y - line_point1.y) * check_point.x - (line_point2.x - line_point1.x) * check_point.y + line_point2.x * line_point1.y - line_point2.y * line_point1.x) / vec_len;
+
+    return distance < LINE_SHIFT;
+}
+
 CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color) :
     DefaultWidget(_app, _pos, _size), coord_plane(_coord_plane), line_color(_color) {
     points.pushBack({position.x, position.y + size.y});
@@ -291,12 +298,19 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
 }
 
 bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
-    if (is_active) {
+    if (is_active && active_point >= 0) {
         points[active_point] = context.position;
         return true;
     }
 
     return false;
+}
+
+void CurvePolyLine::move(plugin::Vec2 shift) {
+    for (size_t i = 0; i < points.getSize(); i++) {
+        points[i].x += shift.x;
+        points[i].y += shift.y;
+    }
 }
 
 void CurvePolyLine::render(plugin::RenderTargetI* rt) {
@@ -309,7 +323,10 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
 }
 
 bool CurvePolyLine::isInside(plugin::Vec2 pos) {
-    return true;
+    for (size_t i = 0; i < points.getSize() - 1; i++) {
+        if (isPointOnLine(points[i], points[i + 1], pos)) return true;
+    }
+    return false;
 }
 
 CurveCoordPlane::CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit) :

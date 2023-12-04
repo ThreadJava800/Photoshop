@@ -2,6 +2,7 @@
 #define _CURVE_FILTER_h_
 
 #include <string.h>
+#include <math.h>
 
 #include "../plugin.h"
 #include "list.h"
@@ -15,9 +16,9 @@ static plugin::Color RED         = {255, 0, 0, 255};
 static plugin::Color WHITE       = {255, 255, 255, 255};
 static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
 
-static const int TOP_PANE_SIZE = 30;
-static const int BTN_TXT_PT    = 23;
-
+static const int    TOP_PANE_SIZE = 30;
+static const int    BTN_TXT_PT    = 23;
+static const double LINE_SHIFT    = 5;
 
 class DefaultWidget : public plugin::WidgetI {
 protected:
@@ -113,7 +114,8 @@ private:
     bool is_active    = false;
     int  active_point = -1;
 
-    size_t addPoint(plugin::Vec2 point);
+    size_t addPoint     (plugin::Vec2 point);
+    bool   isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
 
 public:
     explicit CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color);
@@ -122,6 +124,7 @@ public:
     bool onMouseRelease(plugin::MouseContext context) override;
     bool onMouseMove   (plugin::MouseContext context) override;
     void render        (plugin::RenderTargetI*)       override;
+    void move          (plugin::Vec2 shift)           override;
 
     bool isInside(plugin::Vec2 pos) override;
 };
