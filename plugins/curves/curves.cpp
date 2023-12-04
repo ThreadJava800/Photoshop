@@ -255,6 +255,63 @@ bool TopPanel::onMouseMove(plugin::MouseContext context) {
     return false;
 }
 
+size_t CurvePolyLine::addPoint(plugin::Vec2 point) {
+    size_t ret_ind = -1;
+    for (size_t i = 0; i < points.getSize() - 1; i++) {
+        if (points[i].x < point.x && point.x < points[i + 1].x) {
+            points.insert(point, i + 1);
+            ret_ind = i + 1;
+            break;
+        }
+    }
+    return ret_ind;
+}
+
+CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color) :
+    DefaultWidget(_app, _pos, _size), coord_plane(_coord_plane), line_color(_color) {
+    points.pushBack({position.x, position.y + size.y});
+    points.pushBack({position.x + size.x, position.y});
+}
+
+bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
+    if (isInside(context.position)) {
+        is_active    = true;
+        active_point = std::max((long long)addPoint(context.position), (long long)active_point);
+
+        return true;
+    }
+    return false;
+}
+
+bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
+    is_active    = false;
+    active_point = -1;
+
+    return true;
+}
+
+bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
+    if (is_active) {
+        points[active_point] = context.position;
+        return true;
+    }
+
+    return false;
+}
+
+void CurvePolyLine::render(plugin::RenderTargetI* rt) {
+    for (int i = 0; i < points.getSize() - 1; i++) {
+        if (i != 0) {
+            rt->drawRect(points[i], {10, 10}, line_color);
+        }
+        rt->drawLine(points[i], points[i + 1], line_color);
+    }
+}
+
+bool CurvePolyLine::isInside(plugin::Vec2 pos) {
+    return true;
+}
+
 CurveCoordPlane::CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit) :
     DefaultWidget(_app, _pos, _size), unit(_unit), max_unit(_max_unit) {
 
@@ -280,6 +337,8 @@ void CurveCoordPlane::render(plugin::RenderTargetI* rt) {
         sprintf(axis_txt, "%d", (int(max_unit.y / unit.y) - i) * int(unit.y));
         rt->drawText({position.x - 5 * SHIFT_FROM_EDGES.x, position.y + i * shift_y - SHIFT_FROM_EDGES.y}, axis_txt, BTN_TXT_PT, BLACK);
     }
+
+    DefaultWidget::render(rt);
 }
 
 void CurveWindow::drawFrame(plugin::RenderTargetI* rt, plugin::Color color) {
@@ -312,7 +371,10 @@ void CurveWindow::createTopPanel() {
     plugin::Vec2 plane_size = {std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE), std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE)};
     plugin::Vec2 plane_pos  = {position.x + (size.x - plane_size.x) / 2, position.y + (size.y - plane_size.y) / 2};
 
-    CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {85, 85}, {255, 255});
+    CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
+    CurvePolyLine  * red_line  = new CurvePolyLine  (app, plane_pos, plane_size, red_plane, RED);
+
+    red_plane->registerSubWidget(red_line);
     registerSubWidget(red_plane);
 }
 

@@ -11,6 +11,7 @@ namespace ThreadJava800_Curve_FIlter {
 static plugin::Color TRANSPARENT = {0, 0, 0, 0};
 static plugin::Color GRAY        = {128, 128, 128, 255};
 static plugin::Color BLACK       = {0, 0, 0, 255};
+static plugin::Color RED         = {255, 0, 0, 255};
 static plugin::Color WHITE       = {255, 255, 255, 255};
 static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
 
@@ -100,6 +101,29 @@ public:
     bool onMousePress  (plugin::MouseContext context) override;
     bool onMouseRelease(plugin::MouseContext context) override;
     bool onMouseMove   (plugin::MouseContext context) override;
+};
+
+class CurveCoordPlane;
+class CurvePolyLine : public DefaultWidget {
+private:
+    ThreadJava800_List::List<plugin::Vec2> points      = {};
+    CurveCoordPlane*                       coord_plane = nullptr;
+    plugin::Color                          line_color  = {};
+
+    bool is_active    = false;
+    int  active_point = -1;
+
+    size_t addPoint(plugin::Vec2 point);
+
+public:
+    explicit CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color);
+
+    bool onMousePress  (plugin::MouseContext context) override;
+    bool onMouseRelease(plugin::MouseContext context) override;
+    bool onMouseMove   (plugin::MouseContext context) override;
+    void render        (plugin::RenderTargetI*)       override;
+
+    bool isInside(plugin::Vec2 pos) override;
 };
 
 class CurveCoordPlane : public DefaultWidget {
