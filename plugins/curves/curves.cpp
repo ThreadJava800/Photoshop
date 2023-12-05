@@ -180,11 +180,45 @@ void OnCloseClick::operator()() {
     widget->setAvailable(false);
 }
 
-OnTabChangeClick::OnTabChangeClick(CurveWindow* _curve_win, CurveWindow::ACTIVE_SUB_WIN _change_to) : 
-    curve_win(_curve_win), change_to_win(_change_to) {}
+OnTabChangeClick::OnTabChangeClick(CurveCoordPlane* _red_plane, TextButton* _red_tab, CurveCoordPlane* _green_plane, TextButton* _green_tab, CurveCoordPlane* _blue_plane, TextButton* _blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win) : 
+    red_plane  (_red_plane),   red_tab  (_red_tab),
+    green_plane(_green_plane), green_tab(_green_tab),
+    blue_plane (_blue_plane),  blue_tab (_blue_tab),
+    this_win(_this_win) {}
 
 void OnTabChangeClick::operator()() {
-    curve_win->setActiveTab(change_to_win);
+    switch (this_win)
+    {
+    case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
+        red_plane  ->setVisible(true);
+        green_plane->setVisible(false);
+        blue_plane ->setVisible(false);
+
+        red_tab  ->setColor(LIGHT_BLUE);
+        green_tab->setColor(WHITE);
+        blue_tab ->setColor(WHITE);
+        break;
+    case CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN:
+        red_plane  ->setVisible(false);
+        green_plane->setVisible(true);
+        blue_plane ->setVisible(false);
+
+        red_tab  ->setColor(WHITE);
+        green_tab->setColor(LIGHT_BLUE);
+        blue_tab ->setColor(WHITE);
+        break;
+    case CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN:
+        red_plane  ->setVisible(false);
+        green_plane->setVisible(false);
+        blue_plane ->setVisible(true);
+
+        red_tab  ->setColor(WHITE);
+        green_tab->setColor(WHITE);
+        blue_tab ->setColor(LIGHT_BLUE);
+        break;
+    default:
+        break;
+    }
 }
 
 Button::Button(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, OnClick* _on_click) : 
@@ -213,8 +247,16 @@ TextButton::~TextButton() {
     if (text) free(text);
 }
 
+void TextButton::setOnClick(OnClick* _on_click) {
+    on_click = _on_click;
+}
+
+void TextButton::setColor(plugin::Color _color) {
+    color = _color;
+}
+
 void TextButton::render(plugin::RenderTargetI* rt) {
-    rt->drawRect(position, size, WHITE);
+    rt->drawRect(position, size, color);
     rt->drawText(position, text, BTN_TXT_PT, BLACK);
 }
 
@@ -299,8 +341,10 @@ CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 
 }
 
 bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
+    if (!coord_plane->getVisible()) return false;
+
     if (isInside(context.position)) {
-        is_active    = true;
+        is_active = true;
 
         for (size_t i = 1; i < points.getSize() - 1; i++) {
             if (areSamePoints(points[i], context.position)) active_point = i;
@@ -320,6 +364,8 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
 }
 
 bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
+    if (!coord_plane->getVisible()) return false;
+
     if (is_active && active_point >= 0) {
         points[active_point] = context.position;
         active_point = trySwapPoint(active_point);
@@ -398,9 +444,11 @@ void CurveWindow::createTopPanel() {
 
     // tab section
     plugin::Vec2 tab_size = {size.x / 3, TOP_PANE_SIZE};
-    TextButton* red_tab   = new TextButton(app, {position.x                 , position.y + TOP_PANE_SIZE}, tab_size, new OnTabChangeClick(this, ACTIVE_SUB_WIN::RED_WIN), "Red");
-    TextButton* green_tab = new TextButton(app, {position.x +     tab_size.x, position.y + TOP_PANE_SIZE}, tab_size, new OnTabChangeClick(this, ACTIVE_SUB_WIN::GREEN_WIN), "Green");
-    TextButton* blue_tab  = new TextButton(app, {position.x + 2 * tab_size.x, position.y + TOP_PANE_SIZE}, tab_size, new OnTabChangeClick(this, ACTIVE_SUB_WIN::BLUE_WIN), "Blue");
+    red_tab   = new TextButton(app, {position.x                 , position.y + TOP_PANE_SIZE}, tab_size, nullptr, "Red");
+    green_tab = new TextButton(app, {position.x +     tab_size.x, position.y + TOP_PANE_SIZE}, tab_size, nullptr, "Green");
+    blue_tab  = new TextButton(app, {position.x + 2 * tab_size.x, position.y + TOP_PANE_SIZE}, tab_size, nullptr, "Blue");
+
+    red_tab->setColor(LIGHT_BLUE);
 
     registerSubWidget(red_tab);
     registerSubWidget(green_tab);
@@ -412,9 +460,24 @@ void CurveWindow::createTopPanel() {
 
     CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
     CurvePolyLine  * red_line  = new CurvePolyLine  (app, plane_pos, plane_size, red_plane, RED);
-
     red_plane->registerSubWidget(red_line);
     registerSubWidget(red_plane);
+
+    CurveCoordPlane* green_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
+    CurvePolyLine  * green_line  = new CurvePolyLine  (app, plane_pos, plane_size, green_plane, GREEN);
+    green_plane->registerSubWidget(green_line);
+    green_plane->setVisible(false);
+    registerSubWidget(green_plane);
+
+    CurveCoordPlane* blue_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
+    CurvePolyLine  * blue_line  = new CurvePolyLine  (app, plane_pos, plane_size, blue_plane, BLUE);
+    blue_plane->registerSubWidget(blue_line);
+    blue_plane->setVisible(false);
+    registerSubWidget(blue_plane);
+
+    red_tab  ->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::RED_WIN));
+    green_tab->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN));
+    blue_tab ->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN));
 }
 
 CurveWindow::CurveWindow(plugin::App* _app, const char* _window_name) : DefaultWidget(_app), app(_app) {
@@ -435,10 +498,6 @@ void CurveWindow::render(plugin::RenderTargetI* rt) {
 
     drawFrame(rt, GRAY);
     rt->drawText({position.x + 2 * TOP_PANE_SIZE, position.y}, window_name, BTN_TXT_PT, BLACK);
-}
-
-void CurveWindow::setActiveTab(ACTIVE_SUB_WIN _new_win) {
-    active_win = _new_win;
 }
 
 CurveWindow::~CurveWindow() {

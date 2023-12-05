@@ -13,6 +13,8 @@ static plugin::Color TRANSPARENT = {0, 0, 0, 0};
 static plugin::Color GRAY        = {128, 128, 128, 255};
 static plugin::Color BLACK       = {0, 0, 0, 255};
 static plugin::Color RED         = {255, 0, 0, 255};
+static plugin::Color GREEN       = {0, 255, 0, 255};
+static plugin::Color BLUE        = {0, 0, 255, 255};
 static plugin::Color WHITE       = {255, 255, 255, 255};
 static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
 
@@ -66,7 +68,7 @@ public:
 
 struct OnClick;
 class Button : public DefaultWidget {
-private:
+protected:
     OnClick* on_click = nullptr;
 
 public:
@@ -79,12 +81,16 @@ public:
 
 class TextButton : public Button {
 private:
-    char* text = nullptr;
+    plugin::Color color = WHITE;
+    char* text          = nullptr;
 
 public:
     explicit TextButton(plugin::App* _app, plugin::Vec2 pos, plugin::Vec2 size, OnClick* _on_click, const char* _text);
 
     ~TextButton();
+
+    void setColor  (plugin::Color _color);
+    void setOnClick(OnClick* _on_click);
 
     void render(plugin::RenderTargetI*) override;
 };
@@ -155,10 +161,11 @@ public:
 
 private:
     plugin::App*   app         = nullptr;
-    ACTIVE_SUB_WIN active_win  = ACTIVE_SUB_WIN::RED_WIN;
     char*          window_name = nullptr;
 
-
+    TextButton* red_tab   = nullptr;
+    TextButton* green_tab = nullptr;
+    TextButton* blue_tab  = nullptr;
 
     void drawFrame(plugin::RenderTargetI*, plugin::Color);
     void createTopPanel();
@@ -167,7 +174,6 @@ public:
     explicit CurveWindow(plugin::App* _app, const char* _window_name);
 
     void render      (plugin::RenderTargetI*) override;
-    void setActiveTab(ACTIVE_SUB_WIN _new_win);
 
     ~CurveWindow();
 };
@@ -203,11 +209,17 @@ public:
 
 struct OnTabChangeClick : OnClick {
 private:
-    CurveWindow*                curve_win     = nullptr;
-    CurveWindow::ACTIVE_SUB_WIN change_to_win = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
+    CurveCoordPlane* red_plane   = nullptr;
+    TextButton*      red_tab     = nullptr;
+    CurveCoordPlane* green_plane = nullptr;
+    TextButton*      green_tab   = nullptr;
+    CurveCoordPlane* blue_plane  = nullptr;
+    TextButton*      blue_tab    = nullptr;
+
+    CurveWindow::ACTIVE_SUB_WIN this_win = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
 
 public:
-    explicit OnTabChangeClick(CurveWindow* _curve_win, CurveWindow::ACTIVE_SUB_WIN _change_to);
+    explicit OnTabChangeClick(CurveCoordPlane* red_plane, TextButton* red_tab, CurveCoordPlane* green_plane, TextButton* green_tab, CurveCoordPlane* blue_plane, TextButton* blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win);
     void operator()() override;
 };
 
