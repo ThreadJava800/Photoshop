@@ -274,6 +274,24 @@ bool CurvePolyLine::isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_po
     return distance < LINE_SHIFT;
 }
 
+bool CurvePolyLine::areSamePoints(plugin::Vec2 point1, plugin::Vec2 point2) {
+    double distance = sqrt((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
+    return distance < LINE_SHIFT;
+}
+
+size_t CurvePolyLine::trySwapPoint(size_t point) {
+    if (points[point].x < points[point - 1].x) {
+        std::swap(points[point], points[point - 1]);
+        return point - 1;
+    }
+    if (points[point].x > points[point + 1].x) {
+        std::swap(points[point], points[point + 1]);
+        return point + 1;
+    }
+
+    return point;
+}
+
 CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color) :
     DefaultWidget(_app, _pos, _size), coord_plane(_coord_plane), line_color(_color) {
     points.pushBack({position.x, position.y + size.y});
@@ -283,7 +301,11 @@ CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 
 bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
     if (isInside(context.position)) {
         is_active    = true;
-        active_point = std::max((long long)addPoint(context.position), (long long)active_point);
+
+        for (size_t i = 1; i < points.getSize() - 1; i++) {
+            if (areSamePoints(points[i], context.position)) active_point = i;
+        }
+        if (active_point == -1) active_point = addPoint(context.position);
 
         return true;
     }
@@ -300,9 +322,9 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
 bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
     if (is_active && active_point >= 0) {
         points[active_point] = context.position;
+        active_point = trySwapPoint(active_point);
         return true;
     }
-
     return false;
 }
 

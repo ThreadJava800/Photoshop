@@ -116,6 +116,8 @@ private:
 
     size_t addPoint     (plugin::Vec2 point);
     bool   isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
+    bool   areSamePoints(plugin::Vec2 point1, plugin::Vec2 point2);
+    size_t trySwapPoint (size_t point);
 
 public:
     explicit CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color);
