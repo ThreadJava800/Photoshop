@@ -110,23 +110,55 @@ public:
     bool onMouseMove   (plugin::MouseContext context) override;
 };
 
+class CurveWindow : public DefaultWidget {
+public:
+    enum class ACTIVE_SUB_WIN {
+        RED_WIN,
+        GREEN_WIN,
+        BLUE_WIN
+    };
+
+private:
+    plugin::App*           app         = nullptr;
+    plugin::RenderTargetI* data        = nullptr;
+    char*                  window_name = nullptr;
+
+    TextButton* red_tab   = nullptr;
+    TextButton* green_tab = nullptr;
+    TextButton* blue_tab  = nullptr;
+
+    void drawFrame(plugin::RenderTargetI*, plugin::Color);
+    void createTopPanel();
+
+public:
+    explicit CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name);
+
+    void render      (plugin::RenderTargetI*) override;
+
+    ~CurveWindow();
+};
+
 class CurveCoordPlane;
 class CurvePolyLine : public DefaultWidget {
 private:
     ThreadJava800_List::List<plugin::Vec2> points      = {};
     CurveCoordPlane*                       coord_plane = nullptr;
     plugin::Color                          line_color  = {};
+    CurveWindow::ACTIVE_SUB_WIN            active_tab  = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
+    plugin::RenderTargetI*                 data        = nullptr;
+    
+    bool    is_active    = false;
+    int     active_point = -1;
 
-    bool is_active    = false;
-    int  active_point = -1;
-
-    size_t addPoint     (plugin::Vec2 point);
-    bool   isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
-    bool   areSamePoints(plugin::Vec2 point1, plugin::Vec2 point2);
-    size_t trySwapPoint (size_t point);
+    size_t       addPoint     (plugin::Vec2 point);
+    bool         isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
+    bool         areSamePoints(plugin::Vec2 point1, plugin::Vec2 point2);
+    size_t       trySwapPoint (size_t point);
+    void         doApply      (CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
+    plugin::Vec2 getLocalCoord(plugin::Vec2 global_coord);
 
 public:
-    explicit CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color);
+    explicit CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab);
 
     bool onMousePress  (plugin::MouseContext context) override;
     bool onMouseRelease(plugin::MouseContext context) override;
@@ -149,33 +181,8 @@ public:
     explicit CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit);
 
     void render(plugin::RenderTargetI*) override;
-};
 
-class CurveWindow : public DefaultWidget {
-public:
-    enum class ACTIVE_SUB_WIN {
-        RED_WIN,
-        GREEN_WIN,
-        BLUE_WIN
-    };
-
-private:
-    plugin::App*   app         = nullptr;
-    char*          window_name = nullptr;
-
-    TextButton* red_tab   = nullptr;
-    TextButton* green_tab = nullptr;
-    TextButton* blue_tab  = nullptr;
-
-    void drawFrame(plugin::RenderTargetI*, plugin::Color);
-    void createTopPanel();
-
-public:
-    explicit CurveWindow(plugin::App* _app, const char* _window_name);
-
-    void render      (plugin::RenderTargetI*) override;
-
-    ~CurveWindow();
+    plugin::Vec2 getMaxUnit();
 };
 
 class CurveFilter : public plugin::Plugin, public plugin::FilterI {

@@ -334,10 +334,63 @@ size_t CurvePolyLine::trySwapPoint(size_t point) {
     return point;
 }
 
-CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, plugin::Color _color) :
-    DefaultWidget(_app, _pos, _size), coord_plane(_coord_plane), line_color(_color) {
+void CurvePolyLine::doApply(CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col) {
+    plugin::Texture* pl_texture   = data->getTexture();
+    plugin::Vec2     texture_size = {pl_texture->width, pl_texture->height};
+
+    for (uint64_t i = 0; i < texture_size.x; i++) {
+        for (uint64_t j = 0; j < texture_size.y; j++) {
+            plugin::Color new_pixel = pl_texture->pixels[i * (int)texture_size.y + j];
+
+            switch (change_col) {
+            case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
+                if (new_pixel.r == old_col) new_pixel.r = new_col;
+                break;
+            case CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN:
+                if (new_pixel.g == old_col) new_pixel.g = new_col;
+                break;
+            case CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN:
+                if (new_pixel.b == old_col) new_pixel.b = new_col;
+                break;
+            default:
+                break;
+            }
+
+            pl_texture->pixels[i * (int)texture_size.y + j] = new_pixel;
+        }
+    }
+    data->drawTexture({0, 0}, texture_size, pl_texture);
+
+    delete[] pl_texture->pixels;
+    delete   pl_texture;
+}
+
+plugin::Vec2 CurvePolyLine::getLocalCoord(plugin::Vec2 global_coord) {
+    plugin::Vec2 max_unit = coord_plane->getMaxUnit();
+    int x_coord = (global_coord.x - position.x) * max_unit.x / size.x;
+    int y_coord = (size.y - (global_coord.y - position.y)) * max_unit.y / size.y;
+
+    return {x_coord, y_coord};
+}
+
+CurvePolyLine::CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab) :
+    DefaultWidget(_app, _pos, _size), data(_data), coord_plane(_coord_plane), active_tab(_active_tab) {
     points.pushBack({position.x, position.y + size.y});
     points.pushBack({position.x + size.x, position.y});
+
+    switch (active_tab) {
+    case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
+        line_color = RED;
+        break;
+    case CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN:
+        line_color = GREEN;
+        break;
+    case CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN:
+        line_color = BLUE;
+        break;
+    default:
+        break;
+    }
 }
 
 bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
@@ -357,6 +410,11 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
 }
 
 bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
+    if (is_active) {
+        plugin::Vec2 local_coord = getLocalCoord(points[active_point]);
+        doApply(active_tab, local_coord.x, local_coord.y);
+    }
+
     is_active    = false;
     active_point = -1;
 
@@ -426,6 +484,10 @@ void CurveCoordPlane::render(plugin::RenderTargetI* rt) {
     DefaultWidget::render(rt);
 }
 
+plugin::Vec2 CurveCoordPlane::getMaxUnit() {
+    return max_unit;
+}
+
 void CurveWindow::drawFrame(plugin::RenderTargetI* rt, plugin::Color color) {
     rt->drawLine(position, {position.x, position.y + size.y}, color);
     rt->drawLine(position, {position.x + size.x, position.y}, color);
@@ -459,18 +521,18 @@ void CurveWindow::createTopPanel() {
     plugin::Vec2 plane_pos  = {position.x + (size.x - plane_size.x) / 2, position.y + (size.y - plane_size.y) / 2};
 
     CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
-    CurvePolyLine  * red_line  = new CurvePolyLine  (app, plane_pos, plane_size, red_plane, RED);
+    CurvePolyLine  * red_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, red_plane, CurveWindow::ACTIVE_SUB_WIN::RED_WIN);
     red_plane->registerSubWidget(red_line);
     registerSubWidget(red_plane);
 
     CurveCoordPlane* green_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
-    CurvePolyLine  * green_line  = new CurvePolyLine  (app, plane_pos, plane_size, green_plane, GREEN);
+    CurvePolyLine  * green_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, green_plane, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN);
     green_plane->registerSubWidget(green_line);
     green_plane->setVisible(false);
     registerSubWidget(green_plane);
 
     CurveCoordPlane* blue_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
-    CurvePolyLine  * blue_line  = new CurvePolyLine  (app, plane_pos, plane_size, blue_plane, BLUE);
+    CurvePolyLine  * blue_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, blue_plane, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN);
     blue_plane->registerSubWidget(blue_line);
     blue_plane->setVisible(false);
     registerSubWidget(blue_plane);
@@ -480,7 +542,7 @@ void CurveWindow::createTopPanel() {
     blue_tab ->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN));
 }
 
-CurveWindow::CurveWindow(plugin::App* _app, const char* _window_name) : DefaultWidget(_app), app(_app) {
+CurveWindow::CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name) : DefaultWidget(_app), app(_app), data(_data) {
     window_name = strdup(_window_name);
 
     plugin::Vec2 root_size = app->root->getSize();
@@ -518,7 +580,7 @@ CurveFilter::CurveFilter(plugin::App* _app) : app(_app) {
 
 void CurveFilter::apply(plugin::RenderTargetI *data) {
     if (!win_created) {
-        app->root->getRoot()->registerSubWidget(new CurveWindow(app, "Test CurveWindow"));
+        app->root->getRoot()->registerSubWidget(new CurveWindow(data, app, "Test CurveWindow"));
         win_created = true;
     }
 }
