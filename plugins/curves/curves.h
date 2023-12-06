@@ -21,7 +21,7 @@ static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
 static const int    TOP_PANE_SIZE = 30;
 static const int    BTN_TXT_PT    = 23;
 static const double LINE_SHIFT    = 10;
-static const int    LINE_DIAM     = 1;
+static const int    LINE_DIAM     = 20;
 static const double CATMULL_ALPHA = 0.5;
 
 class DefaultWidget : public plugin::WidgetI {

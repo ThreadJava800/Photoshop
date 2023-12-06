@@ -348,7 +348,7 @@ void CurvePolyLine::drawCatmullOf3(plugin::RenderTargetI* perm, plugin::Color co
             _points[(int)(*draw_points)[i].x] = true;
 
             curve_points.pushBack((*draw_points)[i]);
-            perm->drawEllipse((*draw_points)[i], {20, 20}, color);
+            perm->drawEllipse((*draw_points)[i], {LINE_DIAM, LINE_DIAM}, color);
         }
     }
 
@@ -361,7 +361,7 @@ void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color
     curve_points.clear();
 
     if (point_cnt == 1) {
-        perm->drawEllipse(points[0], {50, 50}, color);
+        perm->drawEllipse(points[0], {LINE_DIAM, LINE_DIAM}, color);
     }
     if (point_cnt == 2) {
         perm->drawLine(points[0], points[1], color);
@@ -604,7 +604,7 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
 }
 
 bool CurvePolyLine::isInside(plugin::Vec2 pos) {
-    for (size_t i = 0; i < curve_points.getSize() - 1; i++) {
+    for (size_t i = 0; i < long(curve_points.getSize()) - 1; i++) {
         if (isPointOnLine(curve_points[i], curve_points[i + 1], pos)) return true;
     }
     return false;
