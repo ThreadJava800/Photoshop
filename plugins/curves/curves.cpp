@@ -315,7 +315,7 @@ ThreadJava800_List::List<plugin::Vec2>* CurvePolyLine::getCatmullCoeffs(plugin::
 
     ThreadJava800_List::List<plugin::Vec2>* coeffs = new ThreadJava800_List::List<plugin::Vec2>();
 
-    for (double i = 0; i < 1; i += 0.11) {
+    for (double i = 0; i < 1; i += 0.01) {
         double t  = lerp(t1, t2, i);
 
         if (t1 == t0 || t1 == t3 || t1 == t2 || t2 == t3 || t2 == t0) continue;
@@ -338,13 +338,18 @@ ThreadJava800_List::List<plugin::Vec2>* CurvePolyLine::getCatmullCoeffs(plugin::
     return coeffs;
 }
 
-void CurvePolyLine::drawCatmullOf3(plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3) {
+void CurvePolyLine::drawCatmullOf3(plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool* _points) {
     ThreadJava800_List::List<plugin::Vec2>* draw_points = getCatmullCoeffs(p1, p2, p3, {0, 0}, true);
     size_t draw_cnt = draw_points->getSize();
         
     for (long i = 0; i < long(draw_cnt); i++) {
-        curve_points.pushBack((*draw_points)[i]);
-        perm->drawEllipse((*draw_points)[i], {LINE_DIAM, LINE_DIAM}, color);
+        if (!_points[(int)(*draw_points)[i].x]) {
+
+            _points[(int)(*draw_points)[i].x] = true;
+
+            curve_points.pushBack((*draw_points)[i]);
+            perm->drawEllipse((*draw_points)[i], {20, 20}, color);
+        }
     }
 
     delete draw_points;
@@ -356,7 +361,7 @@ void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color
     curve_points.clear();
 
     if (point_cnt == 1) {
-        perm->drawEllipse(points[0], {LINE_DIAM, LINE_DIAM}, color);
+        perm->drawEllipse(points[0], {50, 50}, color);
     }
     if (point_cnt == 2) {
         perm->drawLine(points[0], points[1], color);
@@ -364,11 +369,27 @@ void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color
 
     if (point_cnt < 3) return;
 
-    drawCatmullOf3(perm, color, points[2], points[1], points[0]);
+    bool _points[1920];
+    for (int i = 0; i < 1920; i++) _points[i] = false;
+
+    drawCatmullOf3(perm, color, points[2], points[1], points[0], _points);
     for (size_t i = 0; i < points.getSize() - 2; i++) {
-        drawCatmullOf3(perm, color, points[i], points[i + 1], points[i + 2]);
+        drawCatmullOf3(perm, color, points[i], points[i + 1], points[i + 2], _points);
     }
-    drawCatmullOf3(perm, color, points[point_cnt - 3], points[point_cnt - 2], points[point_cnt - 1]);
+    drawCatmullOf3(perm, color, points[point_cnt - 3], points[point_cnt - 2], points[point_cnt - 1], _points);
+
+    bool swapped = false;
+    for (size_t i = 0; i < curve_points.getSize() - 1; i++) {
+        swapped = false;
+        for (size_t j = 0; j < curve_points.getSize() - i - 1; j++) {
+            if (curve_points[j].x > curve_points[j + 1].x) {
+                std::swap(curve_points[j], curve_points[j + 1]);
+                swapped = true;
+            }
+        }
+
+        if (!swapped) break;
+    }
 }
 
 size_t CurvePolyLine::addPoint(plugin::Vec2 point) {
@@ -496,43 +517,31 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
 
 bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
     if (is_active) {
-        bool used  [256];
-        int  points[256];
+        plugin::Texture* _text = nullptr;
+        if (main_rt) _text = main_rt->getTexture();
 
-        for (int i = 0; i < 256; i++) {
-            used  [i] = false;
-            points[i] = -1;
-        }
+        // printf("%p %p\n", main_rt, _text);
 
-        int pnt_cnt = 0;
+        int x_shift = size.x / coord_plane->getMaxUnit().x;
+        if (_text) {
 
-        for (size_t i = 0; i < curve_points.getSize(); i++) {
-            plugin::Vec2 local_coord = getLocalCoord(curve_points[i]);
-
-            int send_x = (int)local_coord.x;
-            int send_y = (int)local_coord.y;
-
-            // if (send_x < 0 || send_x > 255 || send_y < 0 || send_y > 255) {
-            //     std::cerr << send_x << ' ' << send_y << '\n';
-            // }
-
-            if (!used [send_x]) {
-                used  [send_x] = true;
-                points[send_x] = send_y;
-
-                doApply(active_tab, send_x, send_y);
-
-                pnt_cnt++;
+            for (int i = 0; i < 256; i++) {
+                double x_coord = position.x + i * x_shift;
+                for (int j = position.y + size.y; j >= position.y; j--) {
+                    plugin::Color _col = _text->pixels[int(j * _text->width + x_coord)];
+                    // if (_col.r == 255 && _col.g == 0 && _col.b == 0) {
+                    //     std::cerr << (int)_col.r << ' ' << (int)_col.g << ' ' << (int)_col.b << '\n';
+                    //     std::cerr << x_coord << ' ' << i << '\n';
+                    // }
+                    if (_col.r == line_color.r && _col.g == line_color.g && _col.b == line_color.b) {
+                        plugin::Vec2 loc_coord = getLocalCoord({x_coord, j});
+                        std::cout << "END " << i << ' ' << loc_coord.y << '\n';
+                        doApply(active_tab, i, loc_coord.y);
+                        break;
+                    }
+                }
             }
-        }
 
-        int last_active = points[0];
-        for (int i = 0; i < 256; i++) {
-            if (points[i] != -1) last_active = points[i];
-            if (!used[i]) {
-                doApply(active_tab, i, last_active);
-                pnt_cnt++;
-            }
         }
     }
 
@@ -580,15 +589,18 @@ void CurvePolyLine::move(plugin::Vec2 shift) {
 }
 
 void CurvePolyLine::render(plugin::RenderTargetI* rt) {
+    main_rt = rt;
+
     for (int i = 1; i < points.getSize() - 1; i++) {
         rt->drawRect(points[i], {10, 10}, line_color);
     }
 
-    for (int i = 0; i < curve_points.getSize() - 1; i++) {
-        rt->drawLine(curve_points[i], curve_points[i + 1], line_color);
-    }
-
     drawCatmull(rt, line_color);
+
+    // for (int i = 0; i < long(curve_points.getSize()) - 1; i++) {
+    //     rt->drawLine(curve_points[i], curve_points[i + 1], line_color);
+    // }
+
 }
 
 bool CurvePolyLine::isInside(plugin::Vec2 pos) {

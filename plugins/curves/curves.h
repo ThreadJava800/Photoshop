@@ -149,13 +149,14 @@ private:
     plugin::Color                          line_color   = {};
     CurveWindow::ACTIVE_SUB_WIN            active_tab   = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
     plugin::RenderTargetI*                 data         = nullptr;
+    plugin::RenderTargetI*                 main_rt      = nullptr;
     
     bool    is_active    = false;
     int     active_point = -1;
 
     double                                  getCatmullCoeff (double prev_coeff, plugin::Vec2 p1, plugin::Vec2 p2);
     ThreadJava800_List::List<plugin::Vec2>* getCatmullCoeffs(plugin::Vec2 p0, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool set_of_3 = false);
-    void                                    drawCatmullOf3  (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3);
+    void                                    drawCatmullOf3  (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool* _points);
     void                                    drawCatmull     (plugin::RenderTargetI* perm, plugin::Color color);
 
     size_t       addPoint     (plugin::Vec2 point);
