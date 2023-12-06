@@ -313,7 +313,7 @@ void CurvePolyLine::drawCatmullOf4(plugin::RenderTargetI* perm, plugin::Color co
     double t2 = getCatmullCoeff(t1, p1, p2);
     double t3 = getCatmullCoeff(t2, p2, p3);
 
-    for (double i = 0; i < 1; i += 0.01) {
+    for (double i = 0; i < 1; i += 0.001) {
         double t  = lerp(t1, t2, i);
 
         if (t1 == t0 || t1 == t3 || t1 == t2 || t2 == t3 || t2 == t0) continue;
@@ -339,7 +339,7 @@ void CurvePolyLine::drawCatmullOf3(plugin::RenderTargetI* perm, plugin::Color co
     double t1 = getCatmullCoeff(t0, p1, p2);
     double t2 = getCatmullCoeff(t1, p2, p3);
     
-    for (double i = 0; i <= 1; i += 0.01) {
+    for (double i = 0; i <= 1; i += 0.001) {
         double t = lerp(t1, t2, i);
 
         plugin::Vec2 a1 = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
@@ -355,7 +355,7 @@ void CurvePolyLine::drawCatmullOf2(plugin::RenderTargetI* perm, plugin::Color co
     double t0 = 0;
     double t1 = getCatmullCoeff(t0, p1, p2);
 
-    for (double i = 0; i <= 1; i += 0.01) {
+    for (double i = 0; i <= 1; i += 0.001) {
         double t = lerp(t0, t1, i);
         plugin::Vec2 drawPnt = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
         perm->drawEllipse(drawPnt, {LINE_DIAM, LINE_DIAM}, color);
@@ -528,13 +528,28 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
             int send_x = (int)local_coord.x;
             int send_y = (int)local_coord.y;
 
-            if (send_y < 0) send_y = 0;
+            if (send_y < 0) {
+                std::cerr << "Y: " << send_y << '\n';
+                send_y = 0;
+            }
+            if (send_x < 0) {
+                std::cerr << "Y: " << send_x << '\n';
+                send_y = 0;
+            }
+            if (send_y > 255) {
+                std::cerr << "Y: " << send_y << '\n';
+                send_y = 255;
+            }
+            if (send_x > 255) {
+                std::cerr << "Y: " << send_x << '\n';
+                send_y = 255;
+            }
 
             if (!used [send_x]) {
                 used  [send_x] = true;
                 points[send_x] = send_y;
-                std::cerr << "TEST 1 " << send_x << ' ' << send_y << '\n';
-                std::cerr << "TEST 2 " << curve_points[i].x << ' ' << curve_points[i].y << '\n';
+                // std::cerr << "TEST 1 " << send_x << ' ' << send_y << '\n';
+                // std::cerr << "TEST 2 " << curve_points[i].x << ' ' << curve_points[i].y << '\n';
                 doApply(active_tab, send_x, send_y);
 
                 pnt_cnt++;
