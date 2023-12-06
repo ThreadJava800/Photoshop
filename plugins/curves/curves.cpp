@@ -384,7 +384,10 @@ void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color
         return;
     }
 
-    drawCatmullOf4(perm, color, points[0], points[1], points[2], points[3]);
+    for (size_t i = 0; i < pointCnt - 3; i++) {
+        drawCatmullOf4(perm, color, points[i], points[i + 1], points[i + 2], points[i + 3]);
+    }
+    drawCatmullOf3(perm, color, points[2], points[1], points[0]);
 }
 
 size_t CurvePolyLine::addPoint(plugin::Vec2 point) {
@@ -500,7 +503,7 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
     if (isInside(context.position)) {
         is_active = true;
 
-        for (size_t i = 1; i < points.getSize() - 1; i++) {
+        for (size_t i = 1; i < long(points.getSize()) - 1; i++) {
             if (areSamePoints(points[i], context.position)) active_point = i;
         }
         if (active_point == -1) active_point = addPoint(context.position);
@@ -556,15 +559,15 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
             }
         }
 
-        int last_active = points[0];
-        for (int i = 0; i < 256; i++) {
-            if (points[i] != -1) last_active = points[i];
-            // else                 points[i] = last_active;
-            if (!used[i]) {
-                doApply(active_tab, i, last_active);
-                pnt_cnt++;
-            }
-        }
+        // int last_active = points[0];
+        // for (int i = 0; i < 256; i++) {
+        //     if (points[i] != -1) last_active = points[i];
+        //     // else                 points[i] = last_active;
+        //     if (!used[i]) {
+        //         doApply(active_tab, i, last_active);
+        //         pnt_cnt++;
+        //     }
+        // }
 
         // for (int i = 0; i < 256; i++) {
         //     std::cerr << i << ' ' << points[i] << '\n';
