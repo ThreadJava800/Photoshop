@@ -304,7 +304,7 @@ bool TopPanel::onMouseMove(plugin::MouseContext context) {
 double CurvePolyLine::getCatmullCoeff(double prev_coeff, plugin::Vec2 p1, plugin::Vec2 p2) {
     plugin::Vec2 diff_point = p2 - p1;
 
-    return std::pow((diff_point | diff_point), CATMULL_ALPHA * 0.5) + prev_coeff;
+    return std::pow((diff_point | diff_point), CATMULL_ALPHA) + prev_coeff;
 }
 
 ThreadJava800_List::List<plugin::Vec2>* CurvePolyLine::getCatmullCoeffs(plugin::Vec2 p0, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool set_of_3) {
@@ -315,7 +315,7 @@ ThreadJava800_List::List<plugin::Vec2>* CurvePolyLine::getCatmullCoeffs(plugin::
 
     ThreadJava800_List::List<plugin::Vec2>* coeffs = new ThreadJava800_List::List<plugin::Vec2>();
 
-    for (double i = 0; i < 1; i += 0.11) {
+    for (double i = 0; i < 1; i += 0.005) {
         double t  = lerp(t1, t2, i);
 
         if (t1 == t0 || t1 == t3 || t1 == t2 || t2 == t3 || t2 == t0) continue;
@@ -354,6 +354,8 @@ void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color
     size_t point_cnt = points.getSize();
 
     curve_points.clear();
+    curve_points.pushBack(points[0]);
+    curve_points.pushBack(points[point_cnt - 1]);
 
     if (point_cnt == 1) {
         perm->drawEllipse(points[0], {LINE_DIAM, LINE_DIAM}, color);
@@ -512,9 +514,7 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
             int send_x = (int)local_coord.x;
             int send_y = (int)local_coord.y;
 
-            // if (send_x < 0 || send_x > 255 || send_y < 0 || send_y > 255) {
-            //     std::cerr << send_x << ' ' << send_y << '\n';
-            // }
+            if (send_y < 0) send_y = 0;
 
             if (!used [send_x]) {
                 used  [send_x] = true;
@@ -529,11 +529,17 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
         int last_active = points[0];
         for (int i = 0; i < 256; i++) {
             if (points[i] != -1) last_active = points[i];
+            else                 points[i] = last_active;
             if (!used[i]) {
                 doApply(active_tab, i, last_active);
                 pnt_cnt++;
             }
         }
+
+        for (int i = 0; i < 256; i++) {
+            std::cerr << i << ' ' << points[i] << '\n';
+        }
+        std::cerr << pnt_cnt << '\n';
     }
 
     is_active    = false;
@@ -584,9 +590,9 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
         rt->drawRect(points[i], {10, 10}, line_color);
     }
 
-    for (int i = 0; i < curve_points.getSize() - 1; i++) {
-        rt->drawLine(curve_points[i], curve_points[i + 1], line_color);
-    }
+    // for (int i = 0; i < long(curve_points.getSize()) - 1; i++) {
+    //     rt->drawLine(curve_points[i], curve_points[i + 1], line_color);
+    // }
 
     drawCatmull(rt, line_color);
 }

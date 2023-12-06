@@ -24,10 +24,12 @@ class Brush : public Tool {
 protected:
     List<MPoint>* points = nullptr;
 
-    double        getCatmullCoeff (double prevCoeff, MPoint p1, MPoint p2);
-    List<MPoint>* getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3, bool setOf3 = false);
-    void          drawCatmullOf3  (plugin::RenderTargetI* perm, MColor color, MPoint p1, MPoint p2, MPoint p3);
-    void          drawCatmull     (plugin::RenderTargetI* perm, MColor color);
+    double getCatmullCoeff(double prevCoeff, MPoint p1, MPoint p2);
+    void   drawCatmullOf4 (plugin::RenderTargetI* perm, plugin::RenderTargetI* temp, MColor color, MPoint p0, MPoint p1, MPoint p2, MPoint p3);
+    void   drawCatmullOf3 (plugin::RenderTargetI* perm, MColor color, MPoint p1, MPoint p2, MPoint p3);
+    void   drawCatmullOf2 (plugin::RenderTargetI* perm, MColor color, MPoint p1, MPoint p2);
+    void   drawCatmull    (plugin::RenderTargetI* temp, plugin::RenderTargetI* perm, MColor color);
+    void   copyTmpToPerm  (plugin::RenderTargetI* temp, plugin::RenderTargetI* perm, MColor color);
 
 public:
     explicit Brush();

@@ -25,10 +25,10 @@ Brush::~Brush() {
 double Brush::getCatmullCoeff(double prevCoeff, MPoint p1, MPoint p2) {
     MPoint diffPoint = p2 - p1;
 
-    return std::pow((diffPoint | diffPoint), CATMULL_ALPHA * 0.5) + prevCoeff;
+    return std::pow((diffPoint | diffPoint), CATMULL_ALPHA) + prevCoeff;
 }
 
-List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3, bool setOf3) {
+void Brush::drawCatmullOf4(plugin::RenderTargetI* perm, plugin::RenderTargetI* temp, MColor color, MPoint p0, MPoint p1, MPoint p2, MPoint p3) {
     ON_ERROR(!points, "Point list ptr area was nullptr!", nullptr);
 
     double t0 = 0;
@@ -37,7 +37,7 @@ List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3
     double t3 = getCatmullCoeff(t2, p2, p3);
 
     List<MPoint>* coeffs = new List<MPoint>();
-
+    temp->clear();
     for (double i = 0; i < 1; i += 0.01) {
         double t  = lerp(t1, t2, i);
 
@@ -46,54 +46,86 @@ List<MPoint>* Brush::getCatmullCoeffs(MPoint p0, MPoint p1, MPoint p2, MPoint p3
         MPoint a1 = p0 * ((t1 - t) / (t1 - t0)) + p1 * ((t - t0) / (t1 - t0));
         MPoint a2 = p1 * ((t2 - t) / (t2 - t1)) + p2 * ((t - t1) / (t2 - t1));
         MPoint a3 = p2 * ((t3 - t) / (t3 - t2)) + p3 * ((t - t2) / (t3 - t2));
-        MPoint b1 = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
-        if (setOf3) {
-            coeffs->pushBack(b1);
-            continue;
-        }
 
+        MPoint b1 = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
         MPoint b2 = a2 * ((t3 - t) / (t3 - t1)) + a3 * ((t - t1) / (t3 - t1));
+
         MPoint c  = b1 * ((t2 - t) / (t2 - t1)) + b2 * ((t - t1) / (t2 - t1));
 
-        coeffs->pushBack(c);
+        perm->drawEllipse(c.toVec2(), {LINE_DIAM, LINE_DIAM}, color.toPlColor());
     }
-
-    return coeffs;
+    drawCatmullOf3(temp, color, p1, p2, p3);
 }
 
 void Brush::drawCatmullOf3(plugin::RenderTargetI* perm, MColor color, MPoint p1, MPoint p2, MPoint p3) {
     ON_ERROR(!perm, "RenderTarget was null!",);
-
-    List<MPoint>* drawPoints = getCatmullCoeffs(p1, p2, p3, MPoint(), true);
-    size_t drawCnt = drawPoints->getSize();
         
-    for (long i = 0; i < long(drawCnt); i++) {
-        perm->drawEllipse((*drawPoints)[i].toVec2(), {LINE_DIAM, LINE_DIAM}, color.toPlColor());
-    }
+    double t0 = 0;
+    double t1 = getCatmullCoeff(t0, p1, p2);
+    double t2 = getCatmullCoeff(t1, p2, p3);
+    
+    for (double i = 0; i <= 1; i += 0.01) {
+        double t = lerp(t1, t2, i);
 
-    delete drawPoints;
+        MPoint a1 = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
+        MPoint a2 = p2 * ((t2 - t) / (t2 - t1)) + p3 * ((t - t1) / (t2 - t1));
+        MPoint b  = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
+        perm->drawEllipse(b.toVec2(), {LINE_DIAM, LINE_DIAM}, color.toPlColor());
+    }
 }
 
-void Brush::drawCatmull(plugin::RenderTargetI* perm, MColor color) {
+void Brush::drawCatmullOf2  (plugin::RenderTargetI* perm, MColor color, MPoint p1, MPoint p2) {
+    double t0 = 0;
+    double t1 = getCatmullCoeff(t0, p1, p2);
+
+    for (double i = 0; i <= 1; i += 0.01) {
+        double t = lerp(t0, t1, i);
+        MPoint drawPnt = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
+        perm->drawEllipse(drawPnt.toVec2(), {LINE_DIAM, LINE_DIAM}, color.toPlColor());
+    }
+}
+
+void Brush::drawCatmull(plugin::RenderTargetI* temp, plugin::RenderTargetI* perm, MColor color) {
     ON_ERROR(!perm, "RenderTarget was null!",);
 
     size_t pointCnt = points->getSize();
 
     if (pointCnt == 1) {
         perm->drawEllipse((*points)[0].toVec2(), {LINE_DIAM, LINE_DIAM}, color.toPlColor());
+        return;
     }
     if (pointCnt == 2) {
-        perm->drawLine((*points)[0].toVec2(), (*points)[1].toVec2(), color.toPlColor());
+        drawCatmullOf2(temp, color, (*points)[0], (*points)[1]);
+        return;
     }
     if (pointCnt == 3) {
+        temp->clear();
+        drawCatmullOf3(temp, color, (*points)[0], (*points)[1], (*points)[2]);
         drawCatmullOf3(perm, color, (*points)[2], (*points)[1], (*points)[0]);
-        drawCatmullOf3(perm, color, (*points)[0], (*points)[1], (*points)[2]);
+        return;
     }
 
-    if (pointCnt < 4) return;
+    drawCatmullOf4(perm, temp, color, (*points)[0], (*points)[1], (*points)[2], (*points)[3]);
+}
 
-    drawCatmullOf3(perm, color, (*points)[2], (*points)[1], (*points)[0]);
-    drawCatmullOf3(perm, color, (*points)[pointCnt - 3], (*points)[pointCnt - 2], (*points)[pointCnt - 1]);
+void Brush::copyTmpToPerm(plugin::RenderTargetI* temp, plugin::RenderTargetI* perm, MColor color) {
+    size_t pointCnt = points->getSize();
+
+    temp->clear();
+    if (pointCnt == 1) {
+        return;
+    }
+    if (pointCnt == 2) {
+        drawCatmullOf2(perm, color, (*points)[0], (*points)[1]);
+        return;
+    }
+    if (pointCnt == 3) {
+        drawCatmullOf3(perm, color, (*points)[0], (*points)[1], (*points)[2]);
+        drawCatmullOf3(perm, color, (*points)[2], (*points)[1], (*points)[0]);
+        return;
+    }
+
+    drawCatmullOf3(perm, color, (*points)[1], (*points)[2], (*points)[3]);
 }
 
 plugin::Array<const char *> Brush::getParamNames() {
@@ -120,7 +152,7 @@ void Brush::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp
     if (points->getSize() > 4) points->popFront();
 
     points->pushBack(MPoint(context.position));
-    drawCatmull(data, MColor(color));
+    drawCatmull(tmp, data, MColor(color));
 }
 
 void Brush::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
@@ -136,7 +168,7 @@ void Brush::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp,
     if (points->getSize() > 4) points->popFront();
 
     points->pushBack(MPoint(context.position));
-    drawCatmull(data, MColor(color));
+    drawCatmull(tmp, data, MColor(color));
 }
 
 void Brush::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
@@ -173,17 +205,9 @@ void Spline::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tm
 
     if (context.button == plugin::MouseButton::Left) {
         points->pushBack(MPoint(context.position));
-
-        tmp->clear();
-        drawCatmull(tmp,  MColor(color));
-
-        if (points->getSize() > 3) {
-            MPoint notDrawPoint = points->pop();
-            drawCatmull(data, MColor(color));
-
-            points->pushBack(notDrawPoint);
-        }
-
+        if (points->getSize() >= 5) MPoint notDrawPoint = points->popFront();
+        
+        drawCatmull(tmp, data, MColor(color));
         return;
     }
 
@@ -201,9 +225,7 @@ void Spline::paintOnMove(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp
 void Spline::disable(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
     ON_ERROR(!data || !tmp, "RenderTarget was null!",);
 
-    tmp->clear();
-    drawCatmull(data, MColor(color));
-
+    copyTmpToPerm(tmp, data, MColor(color));
     points->clear();
 }
 
