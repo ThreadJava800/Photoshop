@@ -20,7 +20,9 @@ static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
 
 static const int    TOP_PANE_SIZE = 30;
 static const int    BTN_TXT_PT    = 23;
-static const double LINE_SHIFT    = 5;
+static const double LINE_SHIFT    = 10;
+static const int    LINE_DIAM     = 1;
+static const double CATMULL_ALPHA = 0.5;
 
 class DefaultWidget : public plugin::WidgetI {
 protected:
@@ -141,14 +143,20 @@ public:
 class CurveCoordPlane;
 class CurvePolyLine : public DefaultWidget {
 private:
-    ThreadJava800_List::List<plugin::Vec2> points      = {};
-    CurveCoordPlane*                       coord_plane = nullptr;
-    plugin::Color                          line_color  = {};
-    CurveWindow::ACTIVE_SUB_WIN            active_tab  = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
-    plugin::RenderTargetI*                 data        = nullptr;
+    ThreadJava800_List::List<plugin::Vec2> points       = {};
+    ThreadJava800_List::List<plugin::Vec2> curve_points = {};
+    CurveCoordPlane*                       coord_plane  = nullptr;
+    plugin::Color                          line_color   = {};
+    CurveWindow::ACTIVE_SUB_WIN            active_tab   = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
+    plugin::RenderTargetI*                 data         = nullptr;
     
     bool    is_active    = false;
     int     active_point = -1;
+
+    double                                  getCatmullCoeff (double prev_coeff, plugin::Vec2 p1, plugin::Vec2 p2);
+    ThreadJava800_List::List<plugin::Vec2>* getCatmullCoeffs(plugin::Vec2 p0, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool set_of_3 = false);
+    void                                    drawCatmullOf3  (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3);
+    void                                    drawCatmull     (plugin::RenderTargetI* perm, plugin::Color color);
 
     size_t       addPoint     (plugin::Vec2 point);
     bool         isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);

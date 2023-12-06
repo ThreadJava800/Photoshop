@@ -20,7 +20,7 @@ EXECUTABLE_SO=curves.so
  
 all: compile_debug
 
-release: compile_release_o compile_release_so clean
+release: compile_release_o compile_vec compile_release_vec_so clean
 
 erase:
 	clear
@@ -29,13 +29,20 @@ compile_debug:
 	@${CC} ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
 
 compile_release_o:
-	${CC} -c -fPIC -O3 -o $(EXECUTABLE) $(SOURCES)
+	${CC} -g -c -fPIC -O3 -o $(EXECUTABLE) $(SOURCES)
+
+compile_vec:
+	${CC} -g -c -fPIC -O3 -o vec.o vec.cpp
 
 compile_release_so:
 	gcc -shared -o ${EXECUTABLE_SO} ${EXECUTABLE}
+
+compile_release_vec_so:
+	gcc -shared -o ${EXECUTABLE_SO} ${EXECUTABLE} vec.o
 
 run:
 	@./${EXECUTABLE}
 
 clean:
 	@rm ${EXECUTABLE}
+	@rm vec.o

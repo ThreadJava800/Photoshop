@@ -33,6 +33,15 @@ namespace plugin {
     struct Vec2 {
         double x;
         double y;
+
+        void   operator+=(const Vec2&  b);
+        Vec2   operator+ (const Vec2&  b);
+        void   operator-=(const Vec2&  b);
+        Vec2   operator- (const Vec2&  b);
+        void   operator*=(const double b);
+        Vec2   operator* (const double b);
+        bool   operator==(const Vec2&  b);
+        double operator| (const Vec2&  b);
     };
 
     enum class MouseButton {
