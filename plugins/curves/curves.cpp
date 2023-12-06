@@ -535,7 +535,8 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
                     // }
                     if (_col.r == line_color.r && _col.g == line_color.g && _col.b == line_color.b) {
                         plugin::Vec2 loc_coord = getLocalCoord({x_coord, j});
-                        std::cout << "END " << i << ' ' << loc_coord.y << '\n';
+                        std::cout << "START " << i << ' ' << x_coord << ' ' << j << '\n';
+                        std::cout << "END "   << i << ' ' << loc_coord.y << '\n';
                         doApply(active_tab, i, loc_coord.y);
                         break;
                     }
