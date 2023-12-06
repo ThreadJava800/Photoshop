@@ -36,7 +36,6 @@ void Brush::drawCatmullOf4(plugin::RenderTargetI* perm, plugin::RenderTargetI* t
     double t2 = getCatmullCoeff(t1, p1, p2);
     double t3 = getCatmullCoeff(t2, p2, p3);
 
-    List<MPoint>* coeffs = new List<MPoint>();
     temp->clear();
     for (double i = 0; i < 1; i += 0.01) {
         double t  = lerp(t1, t2, i);

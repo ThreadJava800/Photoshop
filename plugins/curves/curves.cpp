@@ -301,21 +301,19 @@ bool TopPanel::onMouseMove(plugin::MouseContext context) {
     return false;
 }
 
-double CurvePolyLine::getCatmullCoeff(double prev_coeff, plugin::Vec2 p1, plugin::Vec2 p2) {
-    plugin::Vec2 diff_point = p2 - p1;
+double CurvePolyLine::getCatmullCoeff(double prevCoeff, plugin::Vec2 p1, plugin::Vec2 p2) {
+    plugin::Vec2 diffPoint = p2 - p1;
 
-    return std::pow((diff_point | diff_point), CATMULL_ALPHA) + prev_coeff;
+    return std::pow((diffPoint | diffPoint), CATMULL_ALPHA) + prevCoeff;
 }
 
-ThreadJava800_List::List<plugin::Vec2>* CurvePolyLine::getCatmullCoeffs(plugin::Vec2 p0, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool set_of_3) {
+void CurvePolyLine::drawCatmullOf4(plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p0, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3) {
     double t0 = 0;
     double t1 = getCatmullCoeff(t0, p0, p1);
     double t2 = getCatmullCoeff(t1, p1, p2);
     double t3 = getCatmullCoeff(t2, p2, p3);
 
-    ThreadJava800_List::List<plugin::Vec2>* coeffs = new ThreadJava800_List::List<plugin::Vec2>();
-
-    for (double i = 0; i < 1; i += 0.005) {
+    for (double i = 0; i < 1; i += 0.01) {
         double t  = lerp(t1, t2, i);
 
         if (t1 == t0 || t1 == t3 || t1 == t2 || t2 == t3 || t2 == t0) continue;
@@ -323,54 +321,70 @@ ThreadJava800_List::List<plugin::Vec2>* CurvePolyLine::getCatmullCoeffs(plugin::
         plugin::Vec2 a1 = p0 * ((t1 - t) / (t1 - t0)) + p1 * ((t - t0) / (t1 - t0));
         plugin::Vec2 a2 = p1 * ((t2 - t) / (t2 - t1)) + p2 * ((t - t1) / (t2 - t1));
         plugin::Vec2 a3 = p2 * ((t3 - t) / (t3 - t2)) + p3 * ((t - t2) / (t3 - t2));
-        plugin::Vec2 b1 = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
-        if (set_of_3) {
-            coeffs->pushBack(b1);
-            continue;
-        }
 
+        plugin::Vec2 b1 = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
         plugin::Vec2 b2 = a2 * ((t3 - t) / (t3 - t1)) + a3 * ((t - t1) / (t3 - t1));
+
         plugin::Vec2 c  = b1 * ((t2 - t) / (t2 - t1)) + b2 * ((t - t1) / (t2 - t1));
 
-        coeffs->pushBack(c);
-    }
+        perm->drawEllipse(c, {LINE_DIAM, LINE_DIAM}, color);
 
-    return coeffs;
+        curve_points.pushBack(c);
+    }
+    drawCatmullOf3(perm, color, p1, p2, p3);
 }
 
 void CurvePolyLine::drawCatmullOf3(plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3) {
-    ThreadJava800_List::List<plugin::Vec2>* draw_points = getCatmullCoeffs(p1, p2, p3, {0, 0}, true);
-    size_t draw_cnt = draw_points->getSize();
-        
-    for (long i = 0; i < long(draw_cnt); i++) {
-        curve_points.pushBack((*draw_points)[i]);
-        perm->drawEllipse((*draw_points)[i], {LINE_DIAM, LINE_DIAM}, color);
-    }
+    double t0 = 0;
+    double t1 = getCatmullCoeff(t0, p1, p2);
+    double t2 = getCatmullCoeff(t1, p2, p3);
+    
+    for (double i = 0; i <= 1; i += 0.01) {
+        double t = lerp(t1, t2, i);
 
-    delete draw_points;
+        plugin::Vec2 a1 = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
+        plugin::Vec2 a2 = p2 * ((t2 - t) / (t2 - t1)) + p3 * ((t - t1) / (t2 - t1));
+        plugin::Vec2 b  = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
+        perm->drawEllipse(b, {LINE_DIAM, LINE_DIAM}, color);
+
+        curve_points.pushBack(b);
+    }
+}
+
+void CurvePolyLine::drawCatmullOf2(plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2) {
+    double t0 = 0;
+    double t1 = getCatmullCoeff(t0, p1, p2);
+
+    for (double i = 0; i <= 1; i += 0.01) {
+        double t = lerp(t0, t1, i);
+        plugin::Vec2 drawPnt = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
+        perm->drawEllipse(drawPnt, {LINE_DIAM, LINE_DIAM}, color);
+
+        curve_points.pushBack(drawPnt);
+    }
 }
 
 void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color) {
-    size_t point_cnt = points.getSize();
+    size_t pointCnt = points.getSize();
 
     curve_points.clear();
-    curve_points.pushBack(points[0]);
-    curve_points.pushBack(points[point_cnt - 1]);
 
-    if (point_cnt == 1) {
+    if (pointCnt == 1) {
         perm->drawEllipse(points[0], {LINE_DIAM, LINE_DIAM}, color);
+        curve_points.pushBack(points[0]);
+        return;
     }
-    if (point_cnt == 2) {
-        perm->drawLine(points[0], points[1], color);
+    if (pointCnt == 2) {
+        drawCatmullOf2(perm, color, points[0], points[1]);
+        return;
+    }
+    if (pointCnt == 3) {
+        drawCatmullOf3(perm, color, points[0], points[1], points[2]);
+        drawCatmullOf3(perm, color, points[2], points[1], points[0]);
+        return;
     }
 
-    if (point_cnt < 3) return;
-
-    drawCatmullOf3(perm, color, points[2], points[1], points[0]);
-    for (size_t i = 0; i < points.getSize() - 2; i++) {
-        drawCatmullOf3(perm, color, points[i], points[i + 1], points[i + 2]);
-    }
-    drawCatmullOf3(perm, color, points[point_cnt - 3], points[point_cnt - 2], points[point_cnt - 1]);
+    drawCatmullOf4(perm, color, points[0], points[1], points[2], points[3]);
 }
 
 size_t CurvePolyLine::addPoint(plugin::Vec2 point) {
@@ -519,7 +533,8 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
             if (!used [send_x]) {
                 used  [send_x] = true;
                 points[send_x] = send_y;
-
+                std::cerr << "TEST 1 " << send_x << ' ' << send_y << '\n';
+                std::cerr << "TEST 2 " << curve_points[i].x << ' ' << curve_points[i].y << '\n';
                 doApply(active_tab, send_x, send_y);
 
                 pnt_cnt++;
@@ -529,16 +544,16 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
         int last_active = points[0];
         for (int i = 0; i < 256; i++) {
             if (points[i] != -1) last_active = points[i];
-            else                 points[i] = last_active;
+            // else                 points[i] = last_active;
             if (!used[i]) {
                 doApply(active_tab, i, last_active);
                 pnt_cnt++;
             }
         }
 
-        for (int i = 0; i < 256; i++) {
-            std::cerr << i << ' ' << points[i] << '\n';
-        }
+        // for (int i = 0; i < 256; i++) {
+        //     std::cerr << i << ' ' << points[i] << '\n';
+        // }
         std::cerr << pnt_cnt << '\n';
     }
 
