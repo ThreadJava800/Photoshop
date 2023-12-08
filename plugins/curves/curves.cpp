@@ -366,7 +366,6 @@ void CurvePolyLine::drawCatmullOf2(plugin::RenderTargetI* perm, plugin::Color co
 
 void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color) {
     size_t pointCnt = points.getSize();
-
     curve_points.clear();
 
     if (pointCnt == 1) {
@@ -434,8 +433,7 @@ size_t CurvePolyLine::trySwapPoint(size_t point) {
     return point;
 }
 
-void CurvePolyLine::doApply(CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col) {
-    plugin::Texture* pl_texture   = data->getTexture();
+void CurvePolyLine::doApply(plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col) {
     plugin::Vec2     texture_size = {pl_texture->width, pl_texture->height};
 
     for (uint64_t i = 0; i < texture_size.x; i++) {
@@ -460,15 +458,11 @@ void CurvePolyLine::doApply(CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_
         }
     }
     data->drawTexture({0, 0}, texture_size, pl_texture);
-
-    delete[] pl_texture->pixels;
-    delete   pl_texture;
 }
 
 plugin::Vec2 CurvePolyLine::getLocalCoord(plugin::Vec2 global_coord) {
     plugin::Vec2 max_unit = coord_plane->getMaxUnit();
     int x_coord = (global_coord.x - position.x) * max_unit.x / size.x;
-    // if (x_coord < 0) std::cerr << "COORDS: " << global_coord.x << ' ' << position.x << '\n';
     int y_coord = (size.y - (global_coord.y - position.y)) * max_unit.y / size.y;
 
     return {x_coord, y_coord};
@@ -501,7 +495,8 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
     if (!coord_plane->getVisible()) return false;
 
     if (isInside(context.position)) {
-        is_active = true;
+        is_active    = true;
+        need_catmull = true;
 
         for (size_t i = 1; i < long(points.getSize()) - 1; i++) {
             if (areSamePoints(points[i], context.position)) active_point = i;
@@ -515,15 +510,13 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
 
 bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
     if (is_active) {
-        bool used  [256];
-        int  points[256];
+        bool used[256];
 
         for (int i = 0; i < 256; i++) {
-            used  [i] = false;
-            points[i] = -1;
+            used[i] = false;
         }
 
-        int pnt_cnt = 0;
+        plugin::Texture* pl_texture   = data->getTexture();
 
         for (size_t i = 0; i < curve_points.getSize(); i++) {
             plugin::Vec2 local_coord = getLocalCoord(curve_points[i]);
@@ -531,48 +524,15 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
             int send_x = (int)local_coord.x;
             int send_y = (int)local_coord.y;
 
-            if (send_y < 0) {
-                std::cerr << "Y: " << send_y << '\n';
-                send_y = 0;
-            }
-            if (send_x < 0) {
-                std::cerr << "Y: " << send_x << '\n';
-                send_y = 0;
-            }
-            if (send_y > 255) {
-                std::cerr << "Y: " << send_y << '\n';
-                send_y = 255;
-            }
-            if (send_x > 255) {
-                std::cerr << "Y: " << send_x << '\n';
-                send_y = 255;
-            }
-
             if (!used [send_x]) {
                 used  [send_x] = true;
-                points[send_x] = send_y;
-                // std::cerr << "TEST 1 " << send_x << ' ' << send_y << '\n';
-                // std::cerr << "TEST 2 " << curve_points[i].x << ' ' << curve_points[i].y << '\n';
-                doApply(active_tab, send_x, send_y);
-
-                pnt_cnt++;
+                doApply(pl_texture, active_tab, send_x, send_y);
             }
         }
 
-        // int last_active = points[0];
-        // for (int i = 0; i < 256; i++) {
-        //     if (points[i] != -1) last_active = points[i];
-        //     // else                 points[i] = last_active;
-        //     if (!used[i]) {
-        //         doApply(active_tab, i, last_active);
-        //         pnt_cnt++;
-        //     }
-        // }
-
-        // for (int i = 0; i < 256; i++) {
-        //     std::cerr << i << ' ' << points[i] << '\n';
-        // }
-        std::cerr << pnt_cnt << '\n';
+        delete[] pl_texture->pixels;
+        delete   pl_texture;
+        need_catmull = false;
     }
 
     is_active    = false;
@@ -616,6 +576,12 @@ void CurvePolyLine::move(plugin::Vec2 shift) {
         points[i].x += shift.x;
         points[i].y += shift.y;
     }
+    for (size_t i = 0; i < curve_points.getSize(); i++) {
+        curve_points[i].x += shift.x;
+        curve_points[i].y += shift.y;
+    }
+
+    DefaultWidget::move(shift);
 }
 
 void CurvePolyLine::render(plugin::RenderTargetI* rt) {
@@ -623,18 +589,19 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
         rt->drawRect(points[i], {10, 10}, line_color);
     }
 
-    // for (int i = 0; i < long(curve_points.getSize()) - 1; i++) {
-    //     rt->drawLine(curve_points[i], curve_points[i + 1], line_color);
-    // }
-
-    drawCatmull(rt, line_color);
+    if (need_catmull) drawCatmull(rt, line_color);
+    else {
+        for (size_t i = 0; i < curve_points.getSize(); i += 10)
+            rt->drawEllipse(curve_points[i], {LINE_DIAM, LINE_DIAM}, line_color);
+    }
 }
 
 bool CurvePolyLine::isInside(plugin::Vec2 pos) {
-    for (size_t i = 0; i < curve_points.getSize() - 1; i++) {
-        if (isPointOnLine(curve_points[i], curve_points[i + 1], pos)) return true;
-    }
-    return false;
+    // for (size_t i = 0; i < curve_points.getSize() - 1; i++) {
+    //     if (isPointOnLine(curve_points[i], curve_points[i + 1], pos)) return true;
+    // }
+    // return false;
+    return DefaultWidget::isInside(pos);
 }
 
 CurveCoordPlane::CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit) :

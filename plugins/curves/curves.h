@@ -20,7 +20,7 @@ static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
 
 static const int    TOP_PANE_SIZE = 30;
 static const int    BTN_TXT_PT    = 23;
-static const double LINE_SHIFT    = 50;
+static const double LINE_SHIFT    = 10;
 static const int    LINE_DIAM     = 1;
 static const double CATMULL_ALPHA = 0.5;
 
@@ -149,6 +149,7 @@ private:
     plugin::Color                          line_color   = {};
     CurveWindow::ACTIVE_SUB_WIN            active_tab   = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
     plugin::RenderTargetI*                 data         = nullptr;
+    bool                                   need_catmull = true;
     
     bool    is_active    = false;
     int     active_point = -1;
@@ -163,7 +164,7 @@ private:
     bool         isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
     bool         areSamePoints(plugin::Vec2 point1, plugin::Vec2 point2);
     size_t       trySwapPoint (size_t point);
-    void         doApply      (CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
+    void         doApply      (plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
     plugin::Vec2 getLocalCoord(plugin::Vec2 global_coord);
 
 public:

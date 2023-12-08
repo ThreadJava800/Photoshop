@@ -148,7 +148,7 @@ public:
     void insert(T value, size_t index) {
         pushBack(value);
         for (long i = long(size) - 1; i >= index + 1; i--) {
-            T tmp         = values[i];
+            T tmp         = values[i];  
             values[i]     = values[i - 1];
             values[i - 1] = tmp;
         }
