@@ -591,7 +591,7 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
 
     if (need_catmull) drawCatmull(rt, line_color);
     else {
-        for (size_t i = 0; i < curve_points.getSize(); i += 10)
+        for (size_t i = 0; i < curve_points.getSize(); i += (curve_points.getSize() >> 9))
             rt->drawEllipse(curve_points[i], {LINE_DIAM, LINE_DIAM}, line_color);
     }
 }
