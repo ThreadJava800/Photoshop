@@ -152,6 +152,7 @@ private:
     plugin::Color                          line_color             = {};
     CurveWindow::ACTIVE_SUB_WIN            active_tab             = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
     plugin::RenderTargetI*                 data                   = nullptr;
+    plugin::Texture*                       start_texture          = nullptr;
     bool                                   need_catmull           = true;
     bool                                   hooked_border          = false;
     int                                    prev_colors[256]       = {};
@@ -192,6 +193,8 @@ public:
     bool onMouseMove   (plugin::MouseContext context) override;
     void render        (plugin::RenderTargetI*)       override;
     void move          (plugin::Vec2 shift)           override;
+
+    ~CurvePolyLine();
 
     bool isInside(plugin::Vec2 pos) override;
 };

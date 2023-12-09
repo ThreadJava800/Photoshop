@@ -433,20 +433,7 @@ void RenderTarget::drawEllipse(plugin::Vec2 pos, plugin::Vec2 size, plugin::Colo
     drawEllipse(MPoint(pos), scaleX, scaleY, std::max(height, length), MColor(color));
 }
 
-void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture) {
-    // plugin::Texture* copy = new plugin::Texture;
-    // *copy = *texture;
-    // copy->width  = 3000;
-    // copy->height = 3000;
-
-    // std::cerr << "SIZEOF: " << sizeof(plugin::Vec2) << '\n';
-
-    // std::cerr << "TEMP1: " << temp1 << " TEMP LAST " << temp << '\n';
-    
-    // std::cerr << "DRAW_TEXT_SIZ: "     << size.x << ' ' << size.y << '\n';
-    // std::cerr << "DRAW_TEXT_POS: "     << pos.x  << ' ' << pos.y << '\n';
-    // std::cerr << "DRAW_TEXT_SIZ_TXT: " << texture->width << ' ' << texture->height << '\n';
-    
+void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin::Texture *texture) {    
     MImage sf_texture = MImage(texture);
     drawSprite(MPoint(pos), MPoint(size), &sf_texture);
 }

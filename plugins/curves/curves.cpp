@@ -439,30 +439,36 @@ size_t CurvePolyLine::trySwapPoint(size_t point) {
 }
 
 void CurvePolyLine::doApply(plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col) {
-    plugin::Vec2     texture_size = {pl_texture->width, pl_texture->height};
+    plugin::Vec2 texture_size = {pl_texture->width, pl_texture->height};
 
     for (uint64_t i = 0; i < texture_size.x; i++) {
         for (uint64_t j = 0; j < texture_size.y; j++) {
-            plugin::Color new_pixel = pl_texture->pixels[i * (int)texture_size.y + j];
-
+            plugin::Color new_pixel = start_texture->pixels[i * (int)texture_size.y + j];
+            
             switch (change_col) {
             case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
-                if (new_pixel.r == old_col) new_pixel.r = new_col;
+                if (new_pixel.r == old_col) {
+                    new_pixel.r = new_col;
+                    pl_texture->pixels[i * (int)texture_size.y + j] = new_pixel;
+                }
                 break;
             case CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN:
-                if (new_pixel.g == old_col) new_pixel.g = new_col;
+                if (new_pixel.g == old_col) {
+                    new_pixel.g = new_col;
+                    pl_texture->pixels[i * (int)texture_size.y + j] = new_pixel;
+                }
                 break;
             case CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN:
-                if (new_pixel.b == old_col) new_pixel.b = new_col;
+                if (new_pixel.b == old_col) {
+                    new_pixel.b = new_col;
+                    pl_texture->pixels[i * (int)texture_size.y + j] = new_pixel;
+                }
                 break;
             default:
                 break;
             }
-
-            pl_texture->pixels[i * (int)texture_size.y + j] = new_pixel;
         }
     }
-    data->drawTexture({0, 0}, texture_size, pl_texture);
 }
 
 plugin::Vec2 CurvePolyLine::getLocalCoord(plugin::Vec2 global_coord) {
@@ -481,35 +487,6 @@ plugin::Vec2 CurvePolyLine::getLocalToGlobal(plugin::Vec2 local_coord) {
     return {x_coord, y_coord};
 }
 
-// bool CurvePolyLine::isPointSafe(plugin::Vec2 point) {
-//     for (int i = 0; i < points.getSize() - 1; i++) {
-//         if (points[i].x <= point.x && point.x <= points[i + 1].x) {
-//             points.insert(point, i + 1);
-//         }
-//     }
-
-//     ThreadJava800_List::List<plugin::Vec2>* curve_point_cpy = curve_points.createCopy();
-//     drawCatmull(nullptr, TRANSPARENT, false);
-
-//     for (int i = 0; i < curve_points.getSize(); i++) {
-//         if (curve_points[i].x < position.x || position.x + size.x < curve_points[i].x ||
-//             curve_points[i].y < position.y || position.y + size.y < curve_points[i].y) {
-
-//             curve_points.clear();
-//             for (size_t j = 0; j < curve_point_cpy->getSize(); j++) {
-//                 curve_points.pushBack((*curve_point_cpy)[i]);
-//             }
-
-//             points.pop();
-//             delete curve_point_cpy;
-//             return false;
-//         }
-//     }
-
-//     delete curve_point_cpy;
-//     return true;
-// }
-
 CurvePolyLine::CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab) :
     DefaultWidget(_app, _pos, _size), data(_data), coord_plane(_coord_plane), active_tab(_active_tab) {
     points.pushBack({position.x, position.y + size.y});
@@ -520,6 +497,8 @@ CurvePolyLine::CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, pl
 
     draw_curve_points[0]   = 0;
     draw_curve_points[255] = 255;
+
+    start_texture = data->getTexture();
 
     switch (active_tab) {
     case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
@@ -564,18 +543,30 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
 
 bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
     if (is_active) {
-        plugin::Texture* pl_texture = data->getTexture();
+        plugin::Texture pl_texture = {
+            .height = start_texture->height,
+            .width  = start_texture->width,
+            .pixels = new plugin::Color[start_texture->height * start_texture->width]
+        };
+
+        for (uint64_t i = 0; i < start_texture->height; i++) {
+            for (uint64_t j = 0; j < start_texture->width; j++) {
+                plugin::Color new_pixel = start_texture->pixels[i * (int)start_texture->width + j];
+                pl_texture.pixels[i * (int)start_texture->width + j] = new_pixel;
+            }
+        }
 
         int last_present = 0;
         for (int i = 0; i < sizeof(draw_curve_points) / sizeof(int); i++) {
             if (draw_curve_points[i] == -1) draw_curve_points[i] = last_present;
             else                            last_present         = draw_curve_points[i];
 
-            doApply(pl_texture, active_tab, i, draw_curve_points[i]);
+            doApply(&pl_texture, active_tab, i, draw_curve_points[i]);
         }
 
-        delete[] pl_texture->pixels;
-        delete   pl_texture;
+        data->drawTexture({0, 0}, {(double)pl_texture.width, (double)pl_texture.height}, &pl_texture);
+
+        delete[] pl_texture.pixels;
         need_catmull = false;
     }
 
@@ -668,6 +659,11 @@ void CurvePolyLine::move(plugin::Vec2 shift) {
     DefaultWidget::move(shift);
 }
 
+CurvePolyLine::~CurvePolyLine() {
+    delete[] start_texture->pixels;
+    delete   start_texture;
+}
+
 void CurvePolyLine::render(plugin::RenderTargetI* rt) {
     for (int i = 0; i < points.getSize(); i++) {
         rt->drawRect({points[i].x - 5, points[i].y - 5}, {10, 10}, line_color);
@@ -675,8 +671,16 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
 
     drawCatmull(rt, line_color);
     for (int i = 0; i < sizeof(draw_curve_points) / sizeof(int); i++) {
+        if (draw_curve_points[i] == -1) continue;
+
         plugin::Vec2 global_coord = getLocalToGlobal({i, draw_curve_points[i]});
         rt->drawEllipse(global_coord, {LINE_DIAM, LINE_DIAM}, line_color);
+        
+        if (i != sizeof(draw_curve_points) / sizeof(int) - 1) {
+            if (draw_curve_points[i + 1] == -1) continue;
+            plugin::Vec2 global_coord_2 = getLocalToGlobal({i + 1, draw_curve_points[i + 1]});
+            rt->drawLine(global_coord, global_coord_2, line_color);
+        }
     }
 }
 
