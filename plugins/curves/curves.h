@@ -230,6 +230,7 @@ struct OnClick {
 struct OnCloseClick : OnClick {
 private:
     DefaultWidget* widget = nullptr;
+    plugin::App*   app    = nullptr;
 
 public:
     explicit OnCloseClick(DefaultWidget* _widget);

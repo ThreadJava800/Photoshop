@@ -12,24 +12,12 @@ plugin::Plugin* getInstance(plugin::App* app) {
 
 DefaultWidget::DefaultWidget(plugin::App* _app) : app(_app) {
     children = new ThreadJava800_List::List<DefaultWidget*>();
-
-    _app->event_manager->registerObject(this);
-
-    _app->event_manager->setPriority(plugin::EventType::MousePress, 1);
-    _app->event_manager->setPriority(plugin::EventType::MouseMove, 1);
-    _app->event_manager->setPriority(plugin::EventType::MouseRelease, 1);
 }
 
 DefaultWidget::DefaultWidget(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size) :
     position(_pos), size(_size), app(_app) {
 
     children = new ThreadJava800_List::List<DefaultWidget*>();
-
-    _app->event_manager->registerObject(this);
-
-    _app->event_manager->setPriority(plugin::EventType::MousePress, 1);
-    _app->event_manager->setPriority(plugin::EventType::MouseMove, 1);
-    _app->event_manager->setPriority(plugin::EventType::MouseRelease, 1);
 }
 
 bool DefaultWidget::getVisible() {
@@ -175,17 +163,12 @@ bool DefaultWidget::isInside(plugin::Vec2 pos) {
 }
 
 DefaultWidget::~DefaultWidget() {
-    // size_t list_size = children->getSize();
-    // for (size_t i = 0; i < list_size; i++) {
-    //     DefaultWidget* widget = (*children)[i];
-    //     fprintf(stderr, "%d %p\n", i, widget);
-    //     delete widget;
-    // }
-
-    app->event_manager->setPriority(plugin::EventType::MousePress, 0);
-    app->event_manager->setPriority(plugin::EventType::MouseMove, 0);
-    app->event_manager->setPriority(plugin::EventType::MouseRelease, 0);
-    app->event_manager->unregisterObject(this);
+    size_t list_size = children->getSize();
+    for (size_t i = 0; i < list_size; i++) {
+        DefaultWidget* widget = (*children)[i];
+        fprintf(stderr, "%d %p\n", i, widget);
+        delete widget;
+    }
 
     delete children;
 }
@@ -293,7 +276,7 @@ bool TopPanel::onMousePress(plugin::MouseContext context) {
     is_clicked = true;
     last_pos   = context.position;
 
-    return true;
+    return DefaultWidget::onMousePress(context);
 }
 
 bool TopPanel::onMouseRelease(plugin::MouseContext context) {
@@ -769,6 +752,12 @@ void CurveWindow::createTopPanel() {
 CurveWindow::CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name) : DefaultWidget(_app), app(_app), data(_data) {
     window_name = strdup(_window_name);
 
+    _app->event_manager->registerObject(this);
+
+    _app->event_manager->setPriority(plugin::EventType::MousePress, 1);
+    _app->event_manager->setPriority(plugin::EventType::MouseMove, 1);
+    _app->event_manager->setPriority(plugin::EventType::MouseRelease, 1);
+
     plugin::Vec2 root_size = app->root->getSize();
 
     size     = {root_size.x / 2, root_size.y / 2};
@@ -788,6 +777,10 @@ void CurveWindow::render(plugin::RenderTargetI* rt) {
 
 CurveWindow::~CurveWindow() {
     if (window_name) free(window_name);
+    app->event_manager->setPriority(plugin::EventType::MousePress, 0);
+    app->event_manager->setPriority(plugin::EventType::MouseMove, 0);
+    app->event_manager->setPriority(plugin::EventType::MouseRelease, 0);
+    app->event_manager->unregisterObject(this);
 }
 
 CurveFilter::CurveFilter(plugin::App* _app) : app(_app) {
