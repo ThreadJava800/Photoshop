@@ -12,16 +12,12 @@
 
 List<plugin::Plugin*> plugins;
 
-// TODO:
-// p^2, phi + rand(0, 1)^2 => числа будут тяготеть к границу (из плотности вероятности возникновения корня)
-
 static const char* PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
     "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
     "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
     "/home/vladimir/Projects/Photoshop/plugins/plug1.so",
     "/home/vladimir/Projects/Photoshop/plugins/libsphere_filter.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libfill_tool_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
     "/home/vladimir/Projects/Photoshop/plugins/Brush.so",
     "/home/vladimir/Projects/Photoshop/plugins/balloon.so",
@@ -267,8 +263,8 @@ SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs)
     ModalWindowArgs* splineArgs  = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new Spline());
     TextButton* splineBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
 
-    // ModalWindowArgs* fillArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new FillTool());
-    // TextButton* fillBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+    ModalWindowArgs* fillArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new FillTool());
+    TextButton* fillBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
 
     modArgs.pushBack(brushArgs);
     modArgs.pushBack(lineArgs);
@@ -276,7 +272,7 @@ SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs)
     modArgs.pushBack(ellipseArgs);
     modArgs.pushBack(curveArgs);
     modArgs.pushBack(splineArgs);
-    // modArgs.pushBack(fillArgs);
+    modArgs.pushBack(fillArgs);
 
     toolMenu->registerObject(brushBtn);
     toolMenu->registerObject(lineBtn);
@@ -284,7 +280,7 @@ SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs)
     toolMenu->registerObject(ellipseBtn);
     toolMenu->registerObject(curveBtn);
     toolMenu->registerObject(splineBtn);
-    // toolMenu->registerObject(fillBtn);
+    toolMenu->registerObject(fillBtn);
 
     return toolMenu;
 }
@@ -351,7 +347,7 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
         if (plugin->type == plugin::InterfaceType::Filter) {
             ModalWindowArgs* modWinArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, plugin->getInterface());
 
-            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_ind.x + filter_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
+            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_ind.y + filter_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
             filtMenu->registerObject(text_label);
 
             modArgs.pushBack(modWinArg);
@@ -362,7 +358,7 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
 
         if (plugin->type == plugin::InterfaceType::Tool) {
             ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
-            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + tool_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
+            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.x + tool_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
 
             modArgs.pushBack(modWinArg2);
@@ -452,7 +448,7 @@ Menu* createActionMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, pl
     SubMenu* colMenu    = createColorPicker(arg, modArgs);
     SubMenu* filtMenu   = createFilterMenu (arg, modArgs, _app);
 
-    loadPlugins(filtMenu, toolMenu, arg, modArgs, _app, MPoint(7, 4), start, size, color);
+    loadPlugins(filtMenu, toolMenu, arg, modArgs, _app, MPoint(9, 7), start, size, color);
 
     TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "File",   actionMenu, openToolMenu, fileMenu);
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);

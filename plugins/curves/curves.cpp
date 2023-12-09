@@ -166,7 +166,6 @@ DefaultWidget::~DefaultWidget() {
     size_t list_size = children->getSize();
     for (size_t i = 0; i < list_size; i++) {
         DefaultWidget* widget = (*children)[i];
-        fprintf(stderr, "%d %p\n", i, widget);
         delete widget;
     }
 
@@ -476,7 +475,6 @@ bool CurvePolyLine::isPointSafe(plugin::Vec2 point) {
     for (int i = 0; i < curve_points.getSize(); i++) {
         if (curve_points[i].x < position.x || position.x + size.x < curve_points[i].x ||
             curve_points[i].y < position.y || position.y + size.y < curve_points[i].y) {
-                std::cerr << "IN BLYA\n";
 
             curve_points.clear();
             for (size_t j = 0; j < curve_point_cpy->getSize(); j++) {
@@ -514,6 +512,10 @@ CurvePolyLine::CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, pl
     default:
         break;
     }
+
+    for (int i = 0; i < 256; i++) {
+        prev_colors[i] = i;
+    }
 }
 
 bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
@@ -527,9 +529,7 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
             if (areSamePoints(points[i], context.position)) active_point = i;
         }
         if (active_point == -1) {
-            // if (isPointSafe(context.position)) {
-                active_point = addPoint(context.position);
-            // }
+            active_point = addPoint(context.position);
         }
 
         return true;
@@ -555,7 +555,8 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
 
             if (!used [send_x]) {
                 used  [send_x] = true;
-                doApply(pl_texture, active_tab, send_x, send_y);
+                doApply(pl_texture, active_tab, prev_colors[send_x], send_y);
+                prev_colors[send_x] = send_y;
             }
         }
 
@@ -655,11 +656,11 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
 }
 
 bool CurvePolyLine::isInside(plugin::Vec2 pos) {
-    // for (size_t i = 0; i < curve_points.getSize() - 1; i++) {
-    //     if (isPointOnLine(curve_points[i], curve_points[i + 1], pos)) return true;
-    // }
-    // return false;
-    return DefaultWidget::isInside(pos);
+    for (size_t i = 0; i < curve_points.getSize() - 1; i++) {
+        if (isPointOnLine(curve_points[i], curve_points[i + 1], pos)) return true;
+    }
+    return false;
+    // return DefaultWidget::isInside(pos);
 }
 
 CurveCoordPlane::CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit) :

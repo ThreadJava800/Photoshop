@@ -24,7 +24,7 @@ static const int       LINE_DIAM          = 1;
 static const int       SUB_MENU_LEN       = 300;
 static const int       BTN_TXT_PT         = 23;
 
-static const int       CANVAS_SIZE        = 3000;
+static const int       CANVAS_SIZE        = 1500;
 static const int       CANV_SHIFT         = 5;
 static const double    SATURATION_SHIFT   = 0.05;
 

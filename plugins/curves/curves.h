@@ -22,7 +22,7 @@ static const int    TOP_PANE_SIZE = 30;
 static const int    BTN_TXT_PT    = 23;
 static const double LINE_SHIFT    = 10;
 static const int    LINE_DIAM     = 1;
-static const double CATMULL_ALPHA = 1;
+static const double CATMULL_ALPHA = 0.5;
 
 class DefaultWidget : public plugin::WidgetI {
 protected:
@@ -145,13 +145,14 @@ public:
 class CurveCoordPlane;
 class CurvePolyLine : public DefaultWidget {
 private:
-    ThreadJava800_List::List<plugin::Vec2> points       = {};
-    ThreadJava800_List::List<plugin::Vec2> curve_points = {};
-    CurveCoordPlane*                       coord_plane  = nullptr;
-    plugin::Color                          line_color   = {};
-    CurveWindow::ACTIVE_SUB_WIN            active_tab   = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
-    plugin::RenderTargetI*                 data         = nullptr;
-    bool                                   need_catmull = true;
+    ThreadJava800_List::List<plugin::Vec2> points            = {};
+    ThreadJava800_List::List<plugin::Vec2> curve_points      = {};
+    CurveCoordPlane*                       coord_plane       = nullptr;
+    plugin::Color                          line_color        = {};
+    CurveWindow::ACTIVE_SUB_WIN            active_tab        = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
+    plugin::RenderTargetI*                 data              = nullptr;
+    bool                                   need_catmull      = true;
+    int                                    prev_colors[256]  = {};
     
     bool    is_active    = false;
     int     active_point = -1;
