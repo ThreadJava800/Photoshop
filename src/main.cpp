@@ -337,6 +337,8 @@ SubMenu* createColorPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs
 }
 
 void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app, MPoint start_ind, MPoint start, MPoint size, MColor color) {
+    int tool_cnt = 0, filter_cnt = 0;
+
     for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
         void* filt_lib            = dlopen(PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
@@ -349,19 +351,22 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
         if (plugin->type == plugin::InterfaceType::Filter) {
             ModalWindowArgs* modWinArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, plugin->getInterface());
 
-            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_ind.x + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
+            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_ind.x + filter_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
             filtMenu->registerObject(text_label);
 
             modArgs.pushBack(modWinArg);
+
+            filter_cnt++;
             continue;
         }
 
         if (plugin->type == plugin::InterfaceType::Tool) {
             ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
-            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + i) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
+            TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.y + tool_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
 
             modArgs.pushBack(modWinArg2);
+            tool_cnt++;
         }
     }
 }

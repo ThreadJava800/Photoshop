@@ -22,10 +22,12 @@ static const int    TOP_PANE_SIZE = 30;
 static const int    BTN_TXT_PT    = 23;
 static const double LINE_SHIFT    = 10;
 static const int    LINE_DIAM     = 1;
-static const double CATMULL_ALPHA = 0.5;
+static const double CATMULL_ALPHA = 1;
 
 class DefaultWidget : public plugin::WidgetI {
 protected:
+    plugin::App* app = nullptr;
+
     ThreadJava800_List::List<DefaultWidget*>* children   = {};
     plugin::Vec2                              size       = {0, 0};
     plugin::Vec2                              position   = {0, 0};
@@ -155,10 +157,10 @@ private:
     int     active_point = -1;
 
     double getCatmullCoeff(double prevCoeff, plugin::Vec2 p1, plugin::Vec2 p2);
-    void   drawCatmullOf4 (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p0, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3);
-    void   drawCatmullOf3 (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3);
-    void   drawCatmullOf2 (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2);
-    void   drawCatmull    (plugin::RenderTargetI* perm, plugin::Color color);
+    void   drawCatmullOf4 (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p0, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool drawing = true);
+    void   drawCatmullOf3 (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, plugin::Vec2 p3, bool drawing = true);
+    void   drawCatmullOf2 (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, bool drawing = true);
+    void   drawCatmull    (plugin::RenderTargetI* perm, plugin::Color color, bool drawing = true);
 
     size_t       addPoint     (plugin::Vec2 point);
     bool         isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
@@ -166,6 +168,17 @@ private:
     size_t       trySwapPoint (size_t point);
     void         doApply      (plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
     plugin::Vec2 getLocalCoord(plugin::Vec2 global_coord);
+    bool         isPointSafe  (plugin::Vec2 point);
+
+    enum class MoveDir {
+        DOWN,
+        UP,
+        LEFT,
+        RIGHT,
+        NONE
+    };
+
+    MoveDir move_dir = MoveDir::NONE;
 
 public:
     explicit CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab);
@@ -198,7 +211,6 @@ public:
 class CurveFilter : public plugin::Plugin, public plugin::FilterI {
 private:
     plugin::App* app         = nullptr;
-    bool         win_created = false;
 
 public:
     explicit CurveFilter(plugin::App* _app);

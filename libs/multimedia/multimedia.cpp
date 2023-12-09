@@ -321,13 +321,13 @@ sf::Texture* MImage::getSfTexture() {
     return img;
 }
 
-MFont* RenderTarget::DEFAULT_FONT_LOADED = new MFont(DEFAULT_FONT);
-
 RenderTarget::RenderTarget(MPoint _position, MPoint _size, bool needWindow, int winX, int winY, int posX, int posY, WindowType winType) :
     position(_position)    {
         texture = new sf::RenderTexture();
         ON_ERROR(!texture, "Cannot allocate memory!",);
         texture->create(_size.x, _size.y);
+
+        font = new MFont(DEFAULT_FONT);
 
         if (needWindow) {
             window = new sf::RenderWindow(sf::VideoMode(winX, winY), MAIN_WINDOW_NAME, winType);
@@ -366,7 +366,7 @@ RenderTarget::~RenderTarget() {
     if (window) delete window;
     window = nullptr;
 
-    if (DEFAULT_FONT_LOADED) delete DEFAULT_FONT_LOADED;
+    if (font) delete font;
 }
 
 MPoint RenderTarget::getPosition() {
@@ -452,7 +452,7 @@ void RenderTarget::drawTexture(plugin::Vec2 pos, plugin::Vec2 size, const plugin
 }
 
 void RenderTarget::drawText(plugin::Vec2 pos, const char *content, uint16_t char_size, plugin::Color color) {
-    drawText(MPoint(pos), content, MColor(color), DEFAULT_FONT_LOADED, char_size);
+    drawText(MPoint(pos), content, MColor(color), font, char_size);
 }
 
 plugin::Texture* RenderTarget::getTexture() {

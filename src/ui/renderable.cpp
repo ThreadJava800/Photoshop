@@ -77,14 +77,14 @@ bool WidgetPtr::getAvailable() {
 }
 
 RegionSet* WidgetPtr::getDefaultRegSet() {
-    if (is_extern) {
-        if (!plugin_widget) return nullptr;
+    // if (is_extern) {
+    //     if (!plugin_widget) return nullptr;
 
-        RegionSet* reg_set = new RegionSet();
-        reg_set->addRegion(MathRectangle(MPoint(plugin_widget->getPos()), MPoint(plugin_widget->getSize())));
+    //     RegionSet* reg_set = new RegionSet();
+    //     reg_set->addRegion(MathRectangle(MPoint(plugin_widget->getPos()), MPoint(plugin_widget->getSize())));
 
-        return reg_set;
-    }
+    //     return reg_set;
+    // }
 
     if (!program_widget) return nullptr;
     return program_widget->getDefaultRegSet();
@@ -143,6 +143,7 @@ Widget::~Widget() {
     for (size_t i = 0; i < listSize; i++) {
         WidgetPtr widget = (*subWindows)[i];
         if (!widget.is_extern) delete widget.program_widget;
+        if (widget.is_extern)  delete widget.plugin_widget;
     }
 
     delete subWindows;
@@ -228,6 +229,17 @@ void Widget::setAvailable(bool _available) {
 }
 
 void Widget::render(plugin::RenderTargetI* rt) {
+    long listSize = long(subWindows->getSize());
+    for (long i = listSize - 1; i >= 0; i--) {
+        WidgetPtr widget = (*subWindows)[i];
+        if (!widget.getAvailable()) {
+            if(!widget.is_extern) delete widget.program_widget;
+            else                  delete widget.plugin_widget;
+            subWindows->remove(i);
+            listSize--;
+        }
+    }
+
     if (getAvailable()) {
         size_t listSize = subWindows->getSize();
         for (size_t i = 0; i < listSize; i++) {

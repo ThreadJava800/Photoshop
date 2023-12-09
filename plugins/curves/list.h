@@ -37,6 +37,13 @@ public:
         values   = nullptr;
     }
 
+    // List<T> createCopy() {
+    //     List<T> copy = List<T>(size);
+    //     for (size_t i = 0; i < size; i++) copy.pushBack(values[i]);
+
+    //     return copy;
+    // }
+
     size_t getCapacity() {
         return capacity;
     }
