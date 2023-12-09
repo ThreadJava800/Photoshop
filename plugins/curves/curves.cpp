@@ -547,14 +547,15 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
         is_active    = true;
         need_catmull = true;
 
-        for (size_t i = 0; i < long(points.getSize()); i++) {
+        for (size_t i = 0; i < points.getSize(); i++) {
             if (areSamePoints(points[i], context.position)) active_point = i;
         }
+
         if (active_point == -1) {
             active_point = addPoint(context.position);
         }
 
-        if (active_point == 0 || active_point == 255) hooked_border = true;
+        if (active_point == 0 || active_point == points.getSize() - 1) hooked_border = true;
 
         return true;
     }
@@ -750,7 +751,7 @@ void CurveWindow::createTopPanel() {
 
     // create coord planes
     plugin::Vec2 plane_size = {std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE), std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE)};
-    plugin::Vec2 plane_pos  = {position.x + (size.x - plane_size.x) / 2, position.y + (size.y - plane_size.y) / 2};
+    plugin::Vec2 plane_pos  = {position.x + (size.x - plane_size.x) / 2, position.y + (size.y - plane_size.y) / 2 + LINE_SHIFT};
 
     CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
     CurvePolyLine  * red_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, red_plane, CurveWindow::ACTIVE_SUB_WIN::RED_WIN);
