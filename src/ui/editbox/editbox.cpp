@@ -103,6 +103,11 @@ bool EditBox::onMousePress(plugin::MouseContext context) {
     return true;
 }
 
+bool EditBox::onMouseRelease(plugin::MouseContext context) {
+    if (!isInside(MPoint(context.position))) is_active = false;
+    return true;
+}
+
 bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
     ON_ERROR(!text, "Text pointer was null!", false);
 

@@ -43,6 +43,7 @@ public:
 
     void render         (RenderTarget* renderTarget)      override;
     bool onMousePress   (plugin::MouseContext context)    override;
+    bool onMouseRelease (plugin::MouseContext context)    override;
     bool onKeyboardPress(plugin::KeyboardContext context) override;
     bool onClock        (uint64_t delta)                  override;
 };
