@@ -321,9 +321,10 @@ void CurvePolyLine::drawCatmullOf4(plugin::RenderTargetI* perm, plugin::Color co
 
         plugin::Vec2 c  = b1 * ((t2 - t) / (t2 - t1)) + b2 * ((t - t1) / (t2 - t1));
 
-        if (drawing) perm->drawEllipse(c, {LINE_DIAM, LINE_DIAM}, color);
-
         curve_points.pushBack(c);
+
+        plugin::Vec2 loc_coord = getLocalCoord(c);
+        draw_curve_points[(int)loc_coord.x] = loc_coord.y;
     }
     drawCatmullOf3(perm, color, p1, p2, p3, drawing);
 }
@@ -339,9 +340,12 @@ void CurvePolyLine::drawCatmullOf3(plugin::RenderTargetI* perm, plugin::Color co
         plugin::Vec2 a1 = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
         plugin::Vec2 a2 = p2 * ((t2 - t) / (t2 - t1)) + p3 * ((t - t1) / (t2 - t1));
         plugin::Vec2 b  = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
-        if (drawing) perm->drawEllipse(b, {LINE_DIAM, LINE_DIAM}, color);
 
         curve_points.pushBack(b);
+
+        plugin::Vec2 loc_coord = getLocalCoord(b);
+        if (loc_coord.x >= 0 && loc_coord.x <= 255)
+            draw_curve_points[(int)loc_coord.x] = loc_coord.y;
     }
 }
 
@@ -352,19 +356,26 @@ void CurvePolyLine::drawCatmullOf2(plugin::RenderTargetI* perm, plugin::Color co
     for (double i = 0; i <= 1; i += 0.001) {
         double t = lerp(t0, t1, i);
         plugin::Vec2 drawPnt = p1 * ((t1 - t) / (t1 - t0)) + p2 * ((t - t0) / (t1 - t0));
-        if (drawing) perm->drawEllipse(drawPnt, {LINE_DIAM, LINE_DIAM}, color);
 
         curve_points.pushBack(drawPnt);
+
+        plugin::Vec2 loc_coord = getLocalCoord(drawPnt);
+        if (loc_coord.x >= 0 && loc_coord.x <= 255)
+            draw_curve_points[(int)loc_coord.x] = loc_coord.y;
     }
 }
 
 void CurvePolyLine::drawCatmull(plugin::RenderTargetI* perm, plugin::Color color, bool drawing) {
     size_t pointCnt = points.getSize();
     curve_points.clear();
+    for (int i = 0; i < sizeof(draw_curve_points) / sizeof(int); i++) draw_curve_points[i] = -1;
 
     if (pointCnt == 1) {
-        if (drawing) perm->drawEllipse(points[0], {LINE_DIAM, LINE_DIAM}, color);
         curve_points.pushBack(points[0]);
+
+        plugin::Vec2 loc_coord = getLocalCoord(points[0]);
+        if (loc_coord.x >= 0 && loc_coord.x <= 255)
+            draw_curve_points[(int)loc_coord.x] = loc_coord.y;
         return;
     }
     if (pointCnt == 2) {
@@ -462,34 +473,42 @@ plugin::Vec2 CurvePolyLine::getLocalCoord(plugin::Vec2 global_coord) {
     return {x_coord, y_coord};
 }
 
-bool CurvePolyLine::isPointSafe(plugin::Vec2 point) {
-    for (int i = 0; i < points.getSize() - 1; i++) {
-        if (points[i].x <= point.x && point.x <= points[i + 1].x) {
-            points.insert(point, i + 1);
-        }
-    }
+plugin::Vec2 CurvePolyLine::getLocalToGlobal(plugin::Vec2 local_coord) {
+    plugin::Vec2 max_unit = coord_plane->getMaxUnit();
+    double x_coord = position.x + local_coord.x * size.x / max_unit.x;
+    double y_coord = position.y + size.y - local_coord.y * size.y / max_unit.y;
 
-    ThreadJava800_List::List<plugin::Vec2>* curve_point_cpy = curve_points.createCopy();
-    drawCatmull(nullptr, TRANSPARENT, false);
-
-    for (int i = 0; i < curve_points.getSize(); i++) {
-        if (curve_points[i].x < position.x || position.x + size.x < curve_points[i].x ||
-            curve_points[i].y < position.y || position.y + size.y < curve_points[i].y) {
-
-            curve_points.clear();
-            for (size_t j = 0; j < curve_point_cpy->getSize(); j++) {
-                curve_points.pushBack((*curve_point_cpy)[i]);
-            }
-
-            points.pop();
-            delete curve_point_cpy;
-            return false;
-        }
-    }
-
-    delete curve_point_cpy;
-    return true;
+    return {x_coord, y_coord};
 }
+
+// bool CurvePolyLine::isPointSafe(plugin::Vec2 point) {
+//     for (int i = 0; i < points.getSize() - 1; i++) {
+//         if (points[i].x <= point.x && point.x <= points[i + 1].x) {
+//             points.insert(point, i + 1);
+//         }
+//     }
+
+//     ThreadJava800_List::List<plugin::Vec2>* curve_point_cpy = curve_points.createCopy();
+//     drawCatmull(nullptr, TRANSPARENT, false);
+
+//     for (int i = 0; i < curve_points.getSize(); i++) {
+//         if (curve_points[i].x < position.x || position.x + size.x < curve_points[i].x ||
+//             curve_points[i].y < position.y || position.y + size.y < curve_points[i].y) {
+
+//             curve_points.clear();
+//             for (size_t j = 0; j < curve_point_cpy->getSize(); j++) {
+//                 curve_points.pushBack((*curve_point_cpy)[i]);
+//             }
+
+//             points.pop();
+//             delete curve_point_cpy;
+//             return false;
+//         }
+//     }
+
+//     delete curve_point_cpy;
+//     return true;
+// }
 
 CurvePolyLine::CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab) :
     DefaultWidget(_app, _pos, _size), data(_data), coord_plane(_coord_plane), active_tab(_active_tab) {
@@ -498,6 +517,9 @@ CurvePolyLine::CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, pl
 
     curve_points.pushBack({position.x, position.y + size.y});
     curve_points.pushBack({position.x + size.x, position.y});
+
+    draw_curve_points[0]   = 0;
+    draw_curve_points[255] = 255;
 
     switch (active_tab) {
     case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
@@ -532,6 +554,8 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
             active_point = addPoint(context.position);
         }
 
+        if (active_point == 0 || active_point == 255) hooked_border = true;
+
         return true;
     }
     return false;
@@ -539,25 +563,14 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
 
 bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
     if (is_active) {
-        bool used[256];
-
-        for (int i = 0; i < 256; i++) {
-            used[i] = false;
-        }
-
         plugin::Texture* pl_texture = data->getTexture();
 
-        for (size_t i = 0; i < curve_points.getSize(); i++) {
-            plugin::Vec2 local_coord = getLocalCoord(curve_points[i]);
+        int last_present = 0;
+        for (int i = 0; i < sizeof(draw_curve_points) / sizeof(int); i++) {
+            if (draw_curve_points[i] == -1) draw_curve_points[i] = last_present;
+            else                            last_present         = draw_curve_points[i];
 
-            int send_x = (int)local_coord.x;
-            int send_y = (int)local_coord.y;
-
-            if (!used [send_x]) {
-                used  [send_x] = true;
-                doApply(pl_texture, active_tab, prev_colors[send_x], send_y);
-                prev_colors[send_x] = send_y;
-            }
+            doApply(pl_texture, active_tab, i, draw_curve_points[i]);
         }
 
         delete[] pl_texture->pixels;
@@ -565,8 +578,9 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
         need_catmull = false;
     }
 
-    is_active    = false;
-    active_point = -1;
+    is_active     = false;
+    hooked_border = false;
+    active_point  = -1;
 
     return true;
 }
@@ -575,22 +589,32 @@ bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
     if (!coord_plane->getVisible()) return false;
 
     if (is_active && active_point >= 0) {
+        if (hooked_border) {
+            if     (context.position.y > position.y + size.y) points[active_point].y = position.y + size.y;
+            else if(context.position.y < position.y)          points[active_point].y = position.y;
+            else                                              points[active_point].y = context.position.y;
+            return true;
+        }
 
         if (move_dir == MoveDir::NONE) {
             for (int i = 0; i < curve_points.getSize(); i++) {
                 if (curve_points[i].x < position.x) {
+                    curve_points[i].x = position.x;
                     move_dir   = MoveDir::RIGHT;
                     return false;
                 }
                 if (position.x + size.x < curve_points[i].x) {
+                    curve_points[i].x = position.x + size.x;
                     move_dir   = MoveDir::LEFT;
                     return false;
                 }
                 if (curve_points[i].y < position.y) {
+                    curve_points[i].y = position.y;
                     move_dir   = MoveDir::DOWN;
                     return false;
                 }
                 if (position.y + size.y < curve_points[i].y) {
+                    curve_points[i].y = position.y + size.y;
                     move_dir   = MoveDir::UP;
                     return false;
                 }
@@ -645,13 +669,13 @@ void CurvePolyLine::move(plugin::Vec2 shift) {
 
 void CurvePolyLine::render(plugin::RenderTargetI* rt) {
     for (int i = 0; i < points.getSize(); i++) {
-        rt->drawRect(points[i], {10, 10}, line_color);
+        rt->drawRect({points[i].x - 5, points[i].y - 5}, {10, 10}, line_color);
     }
 
-    if (need_catmull) drawCatmull(rt, line_color);
-    else {
-        for (size_t i = 0; i < curve_points.getSize(); i += (curve_points.getSize() >> 9))
-            rt->drawEllipse(curve_points[i], {LINE_DIAM, LINE_DIAM}, line_color);
+    drawCatmull(rt, line_color);
+    for (int i = 0; i < sizeof(draw_curve_points) / sizeof(int); i++) {
+        plugin::Vec2 global_coord = getLocalToGlobal({i, draw_curve_points[i]});
+        rt->drawEllipse(global_coord, {LINE_DIAM, LINE_DIAM}, line_color);
     }
 }
 

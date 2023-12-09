@@ -145,14 +145,16 @@ public:
 class CurveCoordPlane;
 class CurvePolyLine : public DefaultWidget {
 private:
-    ThreadJava800_List::List<plugin::Vec2> points            = {};
-    ThreadJava800_List::List<plugin::Vec2> curve_points      = {};
-    CurveCoordPlane*                       coord_plane       = nullptr;
-    plugin::Color                          line_color        = {};
-    CurveWindow::ACTIVE_SUB_WIN            active_tab        = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
-    plugin::RenderTargetI*                 data              = nullptr;
-    bool                                   need_catmull      = true;
-    int                                    prev_colors[256]  = {};
+    ThreadJava800_List::List<plugin::Vec2> points                 = {};
+    ThreadJava800_List::List<plugin::Vec2> curve_points           = {};
+    int                                    draw_curve_points[256] = {};
+    CurveCoordPlane*                       coord_plane            = nullptr;
+    plugin::Color                          line_color             = {};
+    CurveWindow::ACTIVE_SUB_WIN            active_tab             = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
+    plugin::RenderTargetI*                 data                   = nullptr;
+    bool                                   need_catmull           = true;
+    bool                                   hooked_border          = false;
+    int                                    prev_colors[256]       = {};
     
     bool    is_active    = false;
     int     active_point = -1;
@@ -163,13 +165,14 @@ private:
     void   drawCatmullOf2 (plugin::RenderTargetI* perm, plugin::Color color, plugin::Vec2 p1, plugin::Vec2 p2, bool drawing = true);
     void   drawCatmull    (plugin::RenderTargetI* perm, plugin::Color color, bool drawing = true);
 
-    size_t       addPoint     (plugin::Vec2 point);
-    bool         isPointOnLine(plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
-    bool         areSamePoints(plugin::Vec2 point1, plugin::Vec2 point2);
-    size_t       trySwapPoint (size_t point);
-    void         doApply      (plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
-    plugin::Vec2 getLocalCoord(plugin::Vec2 global_coord);
-    bool         isPointSafe  (plugin::Vec2 point);
+    size_t       addPoint        (plugin::Vec2 point);
+    bool         isPointOnLine   (plugin::Vec2 line_point1, plugin::Vec2 line_point2, plugin::Vec2 check_point);
+    bool         areSamePoints   (plugin::Vec2 point1, plugin::Vec2 point2);
+    size_t       trySwapPoint    (size_t point);
+    void         doApply         (plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
+    plugin::Vec2 getLocalCoord   (plugin::Vec2 global_coord);
+    plugin::Vec2 getLocalToGlobal(plugin::Vec2 local_coord);
+    // bool         isPointSafe  (plugin::Vec2 point);
 
     enum class MoveDir {
         DOWN,
