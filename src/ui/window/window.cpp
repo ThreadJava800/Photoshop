@@ -191,17 +191,12 @@ EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _si
 EditBoxModal::~EditBoxModal() {
     if (onDestroyFunc) onDestroyFunc(onDestroyArgs);
 
-    delete   editBoxes;
-    // if (paramNames.data) delete[] paramNames.data;
+    delete editBoxes;
 }
 
 plugin::Array<double> EditBoxModal::getParams() {
-    plugin::Array<double> doubleArgs;
-
     size_t editBoxesCnt = editBoxes->getSize();
-
-    doubleArgs.size = editBoxesCnt;
-    doubleArgs.data = new double[editBoxesCnt];
+    plugin::Array<double> doubleArgs(editBoxesCnt);
 
     for (size_t i = 0; i < editBoxesCnt; i++) {
         double doubleArg = atof((*editBoxes)[i]->getText());

@@ -6,7 +6,7 @@ EventProcessable::EventProcessable() :
 EventProcessable::EventProcessable(uint8_t _priority) :
     priority(_priority) {}
 
-uint8_t EventProcessable::getPriority() {
+uint8_t EventProcessable::getPriority() const {
     return priority;
 }
 

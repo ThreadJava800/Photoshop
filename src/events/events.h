@@ -16,7 +16,7 @@ public:
     EventProcessable();
     EventProcessable(uint8_t _priority);
 
-    uint8_t getPriority() override;
+    uint8_t getPriority() const override;
 };
 
 class EventManager : public EventProcessable, public plugin::EventManagerI {

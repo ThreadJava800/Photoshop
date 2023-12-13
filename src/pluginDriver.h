@@ -15,10 +15,10 @@ private:
 public:
     explicit MGUI(EventManager* _ev_man, plugin::Vec2, Widget*);
 
-    plugin::Vec2           getSize          ()                                                                  override;
-    plugin::RenderTargetI* getRenderTarget  (plugin::Vec2 size, plugin::Vec2 pos, plugin::Plugin *self)         override;
-    void                   createParamWindow(plugin::Array<const char *> param_names, plugin::Interface * self) override;
-    plugin::WidgetI*       getRoot          ()                                                                  override;
+    virtual plugin::WidgetI* getRoot            () const                        override;
+    virtual void             createWidgetI      (plugin::PluginWidgetI* widget) override;
+    virtual plugin::Plugin*  queryPlugin        (uint64_t id)                   override;
+    virtual plugin::Texture* loadTextureFromFile(const char *filename)          override;
 };
 
 #endif

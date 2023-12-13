@@ -3,19 +3,18 @@
 MGUI::MGUI(EventManager* _ev_man, plugin::Vec2 _size, Widget* _root) : 
     ev_manager(_ev_man), size(_size), root(_root) {} 
 
-plugin::Vec2 MGUI::getSize() {
-    return size;
-}
-
-plugin::RenderTargetI* MGUI::getRenderTarget(plugin::Vec2 size, plugin::Vec2 pos, plugin::Plugin *self) {
-    return new RenderTarget(MPoint(pos), MPoint(size));
-}
-
-void MGUI::createParamWindow(plugin::Array<const char *> param_names, plugin::Interface * self) {
-    PluginParamWindow* param_win = new PluginParamWindow(ev_manager, root, param_names, self);
-    ((Widget*)root)->registerSubWidget(param_win);
-}
-
-plugin::WidgetI* MGUI::getRoot() {
+plugin::WidgetI* MGUI::getRoot() const {
     return root;
+}
+
+void MGUI::createWidgetI(plugin::PluginWidgetI* widget) {
+
+}
+
+plugin::Plugin* MGUI::queryPlugin(uint64_t id) {
+
+}
+
+plugin::Texture* MGUI::loadTextureFromFile(const char *filename) {
+
 }

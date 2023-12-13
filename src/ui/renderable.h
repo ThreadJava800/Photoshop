@@ -4,48 +4,16 @@
 #include "../includes.h"
 #include "../events/events.h"
 
-class Widget;
-struct WidgetPtr {
-    union {
-        Widget*          program_widget;
-        plugin::WidgetI* plugin_widget;
-    };
-    bool          is_extern;
-
-    explicit WidgetPtr();
-    explicit WidgetPtr(plugin::WidgetI* _widget);
-    explicit WidgetPtr(Widget* _widget);
-
-    plugin::Vec2 getSize();
-    plugin::Vec2 getPos ();
-
-    bool       onKeyboardPress  (plugin::KeyboardContext key);
-    bool       onKeyboardRelease(plugin::KeyboardContext key);
-    bool       onMousePress     (plugin::MouseContext mouse);
-    bool       onMouseRelease   (plugin::MouseContext mouse);
-    bool       onMouseMove      (plugin::MouseContext mouse);
-    bool       onClock          (size_t delta);
-    void       move             (plugin::Vec2 shift);
-    bool       isInside         (plugin::Vec2 position);
-    void       setAvailable     (bool value);
-    bool       getAvailable     ();
-    RegionSet* getDefaultRegSet ();
-    void       recalcRegion     ();
-    void       render           (plugin::RenderTargetI* rt);
-
-    friend bool operator==(const WidgetPtr& a, const WidgetPtr& b);
-};
-
-class Renderable {
+class Renderable : public plugin::RenderableI {
 public:
     virtual void render(RenderTarget* renderTarget) = 0;
 };
 
-class Widget : public Renderable, public plugin::WidgetI {
+class Widget : public Renderable, public plugin::EventProcessableI, public plugin::WidgetI {
 protected:
-    MPoint           position   = MPoint();
-    MPoint           size       = MPoint();
-    List<WidgetPtr>* subWindows = nullptr;
+    MPoint         position   = MPoint();
+    MPoint         size       = MPoint();
+    List<Widget*>* subWindows = nullptr;
 
     RegionSet* regSet = nullptr;
 
@@ -61,14 +29,15 @@ public:
     MColor debColor;
 
     explicit Widget(MPoint _position, MPoint _size, Widget* _parent, uint8_t _priority = 0);
-    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, List<WidgetPtr>* subWindows, uint8_t _priority = 0);
+    explicit Widget(MPoint _position, MPoint _size, Widget* _parent, List<Widget*>* subWindows, uint8_t _priority = 0);
     virtual ~Widget();
 
-    List<WidgetPtr>* getWindows     ();
-    bool             getVisible     ();
-    RegionSet*       getRegSet      ();
+    List<Widget*>* getWindows();
+    bool           getVisible();
+    RegionSet*     getRegSet ();
 
-    void setVisible(bool _visible);
+    void setVisible  (bool _visible);
+    void recalcRegion();
 
     bool onKeyboardPress  (plugin::KeyboardContext context) override;
     bool onKeyboardRelease(plugin::KeyboardContext context) override;
@@ -79,24 +48,22 @@ public:
 
     void             registerSubWidget  (WidgetI* object)            override;
     void             unregisterSubWidget(WidgetI* object)            override;
-    plugin::Vec2     getSize            ()                           override;
+    plugin::Vec2     getSize            ()                   const   override;
     void             setSize            (plugin::Vec2 _size)         override;
-    plugin::Vec2     getPos             ()                           override;
+    plugin::Vec2     getPos             ()                   const   override;
     void             setPos             (plugin::Vec2 _pos)          override;
-    bool             isExtern           ()                           override;
     void             setParent          (WidgetI *root)              override;
-    plugin::WidgetI* getParent          ()                           override;
+    plugin::WidgetI* getParent          ()                   const   override;
     void             move               (plugin::Vec2 shift)         override;
-    bool             getAvailable       ()                           override;
+    bool             getAvailable       ()                   const   override;
     void             setAvailable       (bool _available)            override;
-    void             render             (plugin::RenderTargetI* rt)  override;
-    void             recalcRegion       ()                           override;
-    uint8_t          getPriority        ()                           override;
+    uint8_t          getPriority        ()                   const   override;
 
     virtual bool       isInside        (MPoint point);
     virtual RegionSet* getDefaultRegSet();
 
-    void render        (RenderTarget* renderTarget) override;
+    void render(RenderTarget* renderTarget) override;
+    void render(plugin::RenderTargetI* rt)  override;
 
     void registerObject    (Widget* widget);
     void unregisterObject  ();

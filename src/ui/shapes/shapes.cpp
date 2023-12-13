@@ -12,7 +12,7 @@ Rectangle::~Rectangle() {
     outColor   = MColor();
 }
 
-plugin::Vec2 Rectangle::getSize() {
+plugin::Vec2 Rectangle::getSize() const {
     return size.toVec2();
 }
 

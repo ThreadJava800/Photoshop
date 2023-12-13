@@ -127,19 +127,19 @@ void Brush::copyTmpToPerm(plugin::RenderTargetI* temp, plugin::RenderTargetI* pe
     drawCatmullOf3(perm, color, (*points)[1], (*points)[2], (*points)[3]);
 }
 
-plugin::Array<const char *> Brush::getParamNames() {
-    return {};
+plugin::Array<const char *> Brush::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> Brush::getParams() {
-    return {};
+plugin::Array<double> Brush::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void Brush::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *Brush::getIcon() {
+const plugin::Texture *Brush::getIcon() const {
     return nullptr;
 }
 
@@ -181,19 +181,19 @@ Spline::Spline() :
 Spline::Spline(MPoint _start, MPoint _end) :
     Brush(_start, _end) {}
 
-plugin::Array<const char *> Spline::getParamNames() {
-    return {};
+plugin::Array<const char *> Spline::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> Spline::getParams() {
-    return {};
+plugin::Array<double> Spline::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void Spline::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *Spline::getIcon() {
+const plugin::Texture *Spline::getIcon() const {
     return nullptr;
 }
 
@@ -234,19 +234,19 @@ FillTool::FillTool() :
 FillTool::FillTool(MPoint _start, MPoint _end) :
     Tool(_start, _end)  {}
 
-plugin::Array<const char *> FillTool::getParamNames() {
-    return {};
+plugin::Array<const char *> FillTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> FillTool::getParams() {
-    return {};
+plugin::Array<double> FillTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void FillTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *FillTool::getIcon() {
+const plugin::Texture *FillTool::getIcon() const {
     return nullptr;
 }
 
@@ -347,19 +347,19 @@ StraightTool::StraightTool(MPoint _start, MPoint _end) :
     Tool(_start, _end),
     rectStart(MPoint()) {}
 
-plugin::Array<const char *> StraightTool::getParamNames() {
-    return {};
+plugin::Array<const char *> StraightTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> StraightTool::getParams() {
-    return {};
+plugin::Array<double> StraightTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void StraightTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *StraightTool::getIcon() {
+const plugin::Texture *StraightTool::getIcon() const {
     return nullptr;
 }
 
@@ -388,19 +388,17 @@ SquareTool::SquareTool() :
 SquareTool::SquareTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end) {}
 
-plugin::Array<const char *> SquareTool::getParamNames() {
-    return {};
+plugin::Array<const char *> SquareTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> SquareTool::getParams() {
-    return {};
+plugin::Array<double> SquareTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
-void SquareTool::setParams(plugin::Array<double> params) {
+void SquareTool::setParams(plugin::Array<double> params) {}
 
-}
-
-const plugin::Texture *SquareTool::getIcon() {
+const plugin::Texture *SquareTool::getIcon() const {
     return nullptr;
 }
 
@@ -439,19 +437,19 @@ EllipseTool::EllipseTool() :
 EllipseTool::EllipseTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
-plugin::Array<const char *> EllipseTool::getParamNames() {
-    return {};
+plugin::Array<const char *> EllipseTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> EllipseTool::getParams() {
-    return {};
+plugin::Array<double> EllipseTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void EllipseTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *EllipseTool::getIcon() {
+const plugin::Texture *EllipseTool::getIcon() const {
     return nullptr;
 }
 
@@ -493,19 +491,19 @@ LineTool::LineTool() :
 LineTool::LineTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
-plugin::Array<const char *> LineTool::getParamNames() {
-    return {};
+plugin::Array<const char *> LineTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> LineTool::getParams() {
-    return {};
+plugin::Array<double> LineTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void LineTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *LineTool::getIcon() {
+const plugin::Texture *LineTool::getIcon() const {
     return nullptr;
 }
 
@@ -555,19 +553,19 @@ void CurveTool::drawCurve(MColor color, plugin::RenderTargetI *drawTarget) {
     }
 }
 
-plugin::Array<const char *> CurveTool::getParamNames() {
-    return {};
+plugin::Array<const char *> CurveTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> CurveTool::getParams() {
-    return {};
+plugin::Array<double> CurveTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void CurveTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *CurveTool::getIcon() {
+const plugin::Texture *CurveTool::getIcon() const {
     return nullptr;
 }
 

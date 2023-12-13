@@ -34,10 +34,10 @@ RegionSet* SubMenu::getDefaultRegSet() {
     createEmptyRegionSet();
 
     for (size_t i = 0; i < childrenCnt; i++) {
-        WidgetPtr child = (*subWindows)[i];
+        Widget* child = (*subWindows)[i];
 
-        if (!child.is_extern && child.program_widget->getVisible()) {
-            regSet->merge(child.program_widget->getRegSet());
+        if (child->getVisible()) {
+            regSet->merge(child->getRegSet());
         }
     } 
 

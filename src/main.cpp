@@ -13,16 +13,16 @@
 List<plugin::Plugin*> plugins;
 
 static const char* PLUGINS[] = {
-    "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
-    "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
-    "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
-    "/home/vladimir/Projects/Photoshop/plugins/plug1.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libsphere_filter.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
-    "/home/vladimir/Projects/Photoshop/plugins/Brush.so",
-    "/home/vladimir/Projects/Photoshop/plugins/balloon.so",
-    "/home/vladimir/Projects/Photoshop/plugins/curves.so",
-    "/home/vladimir/Projects/Photoshop/plugins/SymCurve.so"
+    // "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/plug1.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/libsphere_filter.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/Brush.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/balloon.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/curves.so",
+    // "/home/vladimir/Projects/Photoshop/plugins/SymCurve.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
@@ -128,8 +128,7 @@ void createCanvasFromTxt(void* arg) {
     main_win->registerObject(canv_win);
     canv_win->getCanvas()->setTexture(draw_img);
 
-    delete[] draw_img->pixels;
-    delete   draw_img;
+    delete draw_img;
 }
 
 void openFile(void* arg) {
@@ -137,10 +136,8 @@ void openFile(void* arg) {
 
     ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
 
-    plugin::Array<const char*> paramNames;
-    paramNames.size    = 1;
-    paramNames.data    = new const char*[paramNames.size];
-    paramNames.data[0] = "Enter filename";
+    const char* param_names_arr[1] = {"Enter filename"};
+    plugin::Array<const char*> paramNames(1, param_names_arr);
     EditBoxModal* modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
     
     modalWinArgs->editBoxModal = modalWindow;
@@ -165,8 +162,11 @@ void saveCanvas(void* arg) {
     List<EditBox*>* editBoxes = modWindow->getEditBoxes();
     char*     fileName  = (*editBoxes)[0]->getText();
 
-    MImage texture = MImage(modWinArgs->curWindow->getCanvas()->getTexture());
+    plugin::Texture* plugin_texture = modWinArgs->curWindow->getCanvas()->getTexture();
+    MImage texture = MImage(plugin_texture);
     bool res = texture.saveToFile(fileName);
+
+    delete plugin_texture;
     if (!res) return;
 
     modWinArgs->curWindow->setName(fileName);
@@ -177,10 +177,8 @@ void saveBtnFunc(void* arg) {
 
     ModalWindowArgs*   modalWinArgs = (ModalWindowArgs*) arg;
 
-    plugin::Array<const char*> paramNames;
-    paramNames.size    = 1;
-    paramNames.data    = new const char*[paramNames.size];
-    paramNames.data[0] = "Enter filename";
+    const char* param_names_arr[1] = {"Enter filename"};
+    plugin::Array<const char*> paramNames(1, param_names_arr);
     EditBoxModal* modalWindow  = new EditBoxModal(modalWinArgs->evManager, MPoint(300, 300), MPoint(500, 500), "Choose filename", nullptr, modalWinArgs->filtManager, modalWinArgs->drawZone, paramNames);
     
     modalWinArgs->editBoxModal = modalWindow;
@@ -517,8 +515,6 @@ void runMainCycle() {
     plugin::App app_instance;
     app_instance.root           = &gui_i;
     app_instance.event_manager  = &eventBoy;
-    app_instance.filter_manager = &filtManager;
-    app_instance.tool_manager   = &manager;
 
     // create bar with tool picker, color picker, and new window creator
     List<ModalWindowArgs*> modArgs;
@@ -532,7 +528,10 @@ void runMainCycle() {
 
     runEventCycle(renderTarget, eventBoy, drawWidget);
 
-    for (size_t i = 0; i < modArgs.getSize(); i++) delete modArgs [i];
+    for (size_t i = 0; i < modArgs.getSize(); i++) {
+        delete modArgs[i]->plugin;
+        delete modArgs[i];
+    }
     for (size_t i = 0; i < plugins.getSize(); i++) delete plugins [i];
 }
 

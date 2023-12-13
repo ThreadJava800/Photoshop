@@ -2,10 +2,9 @@
 
 BrightnessFilter::BrightnessFilter(bool _need_argument) : need_argument(_need_argument) {
     if (need_argument) {
-        param_names.size = 1;
-        param_names.data = BRIGHTNESS_PARAM_NAMES;
+        param_names = plugin::Array<const char*>(1, BRIGHTNESS_PARAM_NAMES);
     } else {
-        param_names.size = 0;
+        param_names = plugin::Array<const char*>(0, nullptr);
     }
 }
 
@@ -30,26 +29,20 @@ void BrightnessFilter::apply(plugin::RenderTargetI *data) {
     plugin::Texture* drawable_texture = pixelData.toPluginTexture();
     data->drawTexture({0, 0}, textureSize.toVec2(), drawable_texture);
 
-    delete[] drawable_texture->pixels;
-    delete   drawable_texture;
-
-    delete[] plTexture->pixels;
-    delete   plTexture;
+    delete drawable_texture;
+    delete plTexture;
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
 }
 
-plugin::Array<const char *> BrightnessFilter::getParamNames() {
+plugin::Array<const char *> BrightnessFilter::getParamNames() const {
     return param_names;
 }
 
-plugin::Array<double> BrightnessFilter::getParams() {
-    plugin::Array<double> param_arr;
-    param_arr.size = 1;
-    param_arr.data = new double[param_arr.size];
-
-    param_arr.data[0] = changeValue;
+plugin::Array<double> BrightnessFilter::getParams() const {
+    double values[1] = {changeValue};
+    plugin::Array<double> param_arr(1, values);
 
     return param_arr;
 }
@@ -58,9 +51,7 @@ void BrightnessFilter::setParams(plugin::Array<double> params) {
     if (need_argument)  changeValue = params.data[0];
 }
 
-ColorfulnessFilter::ColorfulnessFilter(double _satur_coeff) : saturCoeff(_satur_coeff) {
-    param_names.size = 0;
-}
+ColorfulnessFilter::ColorfulnessFilter(double _satur_coeff) : saturCoeff(_satur_coeff) {}
 
 void ColorfulnessFilter::apply(plugin::RenderTargetI *data) {
     if (!data) return;
@@ -96,22 +87,19 @@ void ColorfulnessFilter::apply(plugin::RenderTargetI *data) {
     plugin::Texture* drawable_texture = pixelData.toPluginTexture();
     data->drawTexture({0, 0}, textureSize.toVec2(), drawable_texture);
 
-    delete[] drawable_texture->pixels;
-    delete   drawable_texture;
-
-    delete[] plTexture->pixels;
-    delete   plTexture;
+    delete drawable_texture;
+    delete plTexture;
 
     for (size_t i = 0; i < pixelArr->getSize(); i++) delete (*pixelArr)[i];
     delete pixelArr;
 }
 
-plugin::Array<const char *> ColorfulnessFilter::getParamNames() {
+plugin::Array<const char *> ColorfulnessFilter::getParamNames() const {
     return param_names;
 }
 
-plugin::Array<double> ColorfulnessFilter::getParams() {
-    return {};
+plugin::Array<double> ColorfulnessFilter::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void ColorfulnessFilter::setParams(plugin::Array<double> params) {}

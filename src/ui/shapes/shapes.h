@@ -13,7 +13,7 @@ public:
     explicit Rectangle(MPoint _position, MPoint _size, MColor _fillColor, MColor _outColor, Widget* _parent);
     ~Rectangle();
 
-    plugin::Vec2 getSize() override;
+    plugin::Vec2 getSize() const override;
 
     void render(RenderTarget* renderTarget) override;
 };
