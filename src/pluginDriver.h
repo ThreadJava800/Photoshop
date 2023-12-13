@@ -7,18 +7,23 @@
 
 class MGUI : public plugin::GuiI {
 private:
-    plugin::Vec2 size;
-    Widget*      root;
-
+    plugin::Vec2   size;
+    Widget*        root;
     EventManager*  ev_manager;
+
+    List<plugin::Plugin*>* plugin_list;
 
 public:
     explicit MGUI(EventManager* _ev_man, plugin::Vec2, Widget*);
+
+    void addPlugin(plugin::Plugin*);
 
     virtual plugin::WidgetI* getRoot            () const                        override;
     virtual void             createWidgetI      (plugin::PluginWidgetI* widget) override;
     virtual plugin::Plugin*  queryPlugin        (uint64_t id)                   override;
     virtual plugin::Texture* loadTextureFromFile(const char *filename)          override;
+
+    ~MGUI();
 };
 
 #endif

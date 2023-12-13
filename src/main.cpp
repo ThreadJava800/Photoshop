@@ -23,6 +23,7 @@ static const char* PLUGINS[] = {
     // "/home/vladimir/Projects/Photoshop/plugins/balloon.so",
     // "/home/vladimir/Projects/Photoshop/plugins/curves.so",
     // "/home/vladimir/Projects/Photoshop/plugins/SymCurve.so"
+    "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
