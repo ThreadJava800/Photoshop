@@ -29,7 +29,7 @@ class DefaultWidget : public plugin::PluginWidgetI {
 protected:
     plugin::Vec2                              size       = {0, 0};
     plugin::Vec2                              position   = {0, 0};
-    plugin::WidgetI*                          parent     = nullptr;
+    DefaultWidget*                            parent     = nullptr;
     bool                                      is_alive   = true;
     bool                                      is_visible = true;
 
@@ -41,6 +41,8 @@ public:
 
     bool getVisible();
     void setVisible(bool _vis);
+
+    void setParent(DefaultWidget* _parent) {parent = _parent; };
 
     plugin::Vec2 getSize() {return size;};
     plugin::Vec2 getPos () {return position;};
@@ -54,6 +56,8 @@ public:
     bool    onKeyboardRelease(plugin::KeyboardContext context)       override {return false;};
     bool    onClock          (uint64_t delta)                        override {return false;};
     uint8_t getPriority      ()                                const override;
+
+    void move(plugin::Vec2 shift);
 
     virtual bool isInside(plugin::Vec2 pos);
 

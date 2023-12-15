@@ -100,6 +100,7 @@ void Widget::move(plugin::Vec2 shift) {
 
     size_t listSize = subWindows->getSize();
     position += MPoint(shift);
+    std::cerr << "FUCKING MOVE " << typeid(*this).name() << ' ' << listSize << '\n';
     for (size_t i = 0; i < listSize; i++) {
         plugin::WidgetI* widget = (*subWindows)[i];
 
@@ -199,9 +200,9 @@ bool Widget::onMousePress(plugin::MouseContext context) {
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
-
         if (widget->getAvailable()) {
             wasClick = widget->onMousePress(context);
+            std::cerr << "TEST: " << typeid(*widget).name() << ' ' << wasClick << '\n';
             if (wasClick) return wasClick;
         }
     }

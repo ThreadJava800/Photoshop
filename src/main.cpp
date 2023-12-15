@@ -517,7 +517,7 @@ void runMainCycle() {
     EventManager eventBoy = EventManager();
     eventBoy.registerObject(mainWindow);
 
-    MGUI gui_i = MGUI(&eventBoy, drawWidget.getSize(), &drawWidget);
+    MGUI gui_i = MGUI(&eventBoy, drawWidget.getSize(), mainWindow);
     plugin::App app_instance;
     app_instance.root           = &gui_i;
     app_instance.event_manager  = &eventBoy;

@@ -34,6 +34,10 @@ bool DefaultWidget::isInside(plugin::Vec2 pos) {
            (position.y <= pos.y && pos.y <= position.y + size.y);
 }
 
+void DefaultWidget::move(plugin::Vec2 shift) {
+    position += shift;
+}
+
 DefaultWidget::~DefaultWidget() {
     // size_t list_size = children->getSize();
     // for (size_t i = 0; i < list_size; i++) {
@@ -126,6 +130,7 @@ void TextButton::setColor(plugin::Color _color) {
 }
 
 void TextButton::render(plugin::RenderTargetI* rt) {
+    position = host->getPos();
     rt->drawRect(position, size, color);
     rt->drawText(position, text, BTN_TXT_PT, BLACK);
 }
@@ -137,6 +142,7 @@ TopPanel::TopPanel(plugin::App* _app, plugin::Color _color, plugin::Vec2 _positi
 }
 
 void TopPanel::render(plugin::RenderTargetI* rt) {
+    position = host->getPos();
     rt->drawRect(position, size, color);
     DefaultWidget::render(rt);
 }
@@ -147,18 +153,21 @@ bool TopPanel::onMousePress(plugin::MouseContext context) {
     is_clicked = true;
     last_pos   = context.position;
 
-    return DefaultWidget::onMousePress(context);
+    return true;
 }
 
 bool TopPanel::onMouseRelease(plugin::MouseContext context) {
-    is_clicked = false;
+    if (is_clicked) {
+        is_clicked = false;
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 bool TopPanel::onMouseMove(plugin::MouseContext context) {
     if (is_clicked) {
-        parent->move({context.position.x - last_pos.x, context.position.y - last_pos.y});
+        parent->host->move({context.position.x - last_pos.x, context.position.y - last_pos.y});
         last_pos = context.position;
 
         return true;
@@ -437,14 +446,15 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
 
         data->drawTexture({0, 0}, {(double)pl_texture.width, (double)pl_texture.height}, &pl_texture);
 
-        need_catmull = false;
+        need_catmull  = false;
+        is_active     = false;
+        hooked_border = false;
+        active_point  = -1;
+
+        return true;
     }
 
-    is_active     = false;
-    hooked_border = false;
-    active_point  = -1;
-
-    return true;
+    return false;
 }
 
 bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
@@ -535,6 +545,20 @@ CurvePolyLine::~CurvePolyLine() {
 }
 
 void CurvePolyLine::render(plugin::RenderTargetI* rt) {
+    if (!coord_plane->getVisible()) return;
+
+    plugin::Vec2 new_pos = host->getPos();
+    if (!(new_pos == position)) {
+        for (size_t i = 0; i < points.getSize(); i++) {
+            points[i] += (new_pos - position);
+        }
+        for (size_t i = 0; i < curve_points.getSize(); i++) {
+            curve_points[i] += (new_pos - position);
+        }
+    }
+
+    position = new_pos;
+
     for (int i = 0; i < points.getSize(); i++) {
         rt->drawRect({points[i].x - 5, points[i].y - 5}, {10, 10}, line_color);
     }
@@ -568,6 +592,9 @@ CurveCoordPlane::CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::V
 }
 
 void CurveCoordPlane::render(plugin::RenderTargetI* rt) {
+    if (!is_visible) return;
+
+    position = host->getPos();
     // draw vertical axis
     int shift_x = size.x * unit.x / max_unit.x;
     for (int i = 0; i <= max_unit.x / unit.x; i++) {
@@ -605,6 +632,7 @@ void CurveWindow::drawFrame(plugin::RenderTargetI* rt, plugin::Color color) {
 void CurveWindow::createTopPanel() {
     // panel with close button
     TopPanel* top_panel = new TopPanel(app, LIGHT_BLUE, position, size.x);
+    top_panel->setParent(this);
     registerNewWidget(this, top_panel);
 
     TextButton* on_close = new TextButton(app, position, {TOP_PANE_SIZE, TOP_PANE_SIZE}, new OnCloseClick(this), "X");
@@ -651,11 +679,6 @@ void CurveWindow::createTopPanel() {
 CurveWindow::CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name) : DefaultWidget(_app), app(_app), data(_data) {
     window_name = strdup(_window_name);
 
-    _app->event_manager->registerObject(this);
-    _app->event_manager->setPriority(plugin::EventType::MousePress, 1);
-    _app->event_manager->setPriority(plugin::EventType::MouseMove, 1);
-    _app->event_manager->setPriority(plugin::EventType::MouseRelease, 1);
-
     plugin::Vec2 root_size = app->root->getRoot()->getSize();
 
     size     = {root_size.x / 2, root_size.y / 2};
@@ -663,6 +686,7 @@ CurveWindow::CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const 
 }
 
 void CurveWindow::render(plugin::RenderTargetI* rt) {
+    position = host->getPos();
     rt->drawRect(position, size, WHITE);
 
     DefaultWidget::render(rt);
@@ -673,11 +697,6 @@ void CurveWindow::render(plugin::RenderTargetI* rt) {
 
 CurveWindow::~CurveWindow() {
     if (window_name) free(window_name);
-    fprintf(stderr, "Hello world\n");
-    app->event_manager->setPriority(plugin::EventType::MousePress, 0);
-    app->event_manager->setPriority(plugin::EventType::MouseMove, 0);
-    app->event_manager->setPriority(plugin::EventType::MouseRelease, 0);
-    app->event_manager->unregisterObject(this);
 }
 
 CurveFilter::CurveFilter(plugin::App* _app) : app(_app) {
