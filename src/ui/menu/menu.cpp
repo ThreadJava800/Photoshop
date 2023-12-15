@@ -64,9 +64,11 @@ bool Menu::onMouseMove(plugin::MouseContext context) {
         if (window && onMove) {
             onMove(window, MPoint(context.position), prevPos);
             prevPos = MPoint(context.position);
+
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 bool Menu::isInside(MPoint point) {

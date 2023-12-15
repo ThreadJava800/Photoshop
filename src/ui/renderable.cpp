@@ -162,27 +162,33 @@ bool Widget::onKeyboardPress(plugin::KeyboardContext context) {
 bool Widget::onKeyboardRelease(plugin::KeyboardContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
+    bool wasClick = false;
+
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget->getAvailable()) widget->onKeyboardRelease(context);
+        if (widget->getAvailable()) wasClick = widget->onKeyboardRelease(context);
+        if (wasClick) return true;
     }
 
-    return true;
+    return false;
 }
 
 bool Widget::onClock(uint64_t delta) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
+    bool wasClick = false;
+
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget->getAvailable()) widget->onClock(delta);
+        if (widget->getAvailable()) wasClick = widget->onClock(delta);
+        if (wasClick) return true;
     }
 
-    return true;
+    return false;
 }
 
 bool Widget::onMousePress(plugin::MouseContext context) {
@@ -206,27 +212,33 @@ bool Widget::onMousePress(plugin::MouseContext context) {
 bool Widget::onMouseRelease(plugin::MouseContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
+    bool wasClick = false;
+
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget->getAvailable()) widget->onMouseRelease(context);
+        if (widget->getAvailable()) wasClick = widget->onMouseRelease(context);
+        if (wasClick) return true;
     }
 
-    return true;
+    return false;
 }
 
 bool Widget::onMouseMove(plugin::MouseContext context) {
     ON_ERROR(!subWindows, "List pointer was null!", false);
 
+    bool wasClick = false;
+
     long listSize = long(subWindows->getSize());
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
 
-        if (widget->getAvailable()) widget->onMouseMove(context);
+        if (widget->getAvailable()) wasClick = widget->onMouseMove(context);
+        if (wasClick) return true;
     }
 
-    return true;
+    return false;
 }
 
 bool Widget::isInside(MPoint point) {
@@ -253,6 +265,7 @@ void Widget::unregisterObject() {
     for (long i = listSize - 1; i >= 0; i--) {
         Widget* widget = (*subWindows)[i];
         if (!widget->getAvailable()) {
+            fprintf(stderr, "CALL DEST: %s\n", typeid(*widget).name());
             delete widget;
 
             subWindows->remove(i);
@@ -274,16 +287,6 @@ void Widget::render(RenderTarget* renderTarget) {
         }
 
         // regSet->visualize(renderTarget, debColor);
-    }
-}
-
-void Widget::render(plugin::RenderTargetI* rt) {
-    if (visible && getAvailable()) {
-        size_t listSize = subWindows->getSize();
-        for (size_t i = 0; i < listSize; i++) {
-            Widget* widget = (*subWindows)[i];
-            widget->render(rt);
-        }
     }
 }
 

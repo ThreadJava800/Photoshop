@@ -11,13 +11,10 @@ plugin::Plugin* getInstance(plugin::App* app) {
 }
 
 DefaultWidget::DefaultWidget(plugin::App* _app) : app(_app) {
-    children = new ThreadJava800_List::List<DefaultWidget*>();
 }
 
 DefaultWidget::DefaultWidget(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size) :
     position(_pos), size(_size), app(_app) {
-
-    children = new ThreadJava800_List::List<DefaultWidget*>();
 }
 
 bool DefaultWidget::getVisible() {
@@ -28,132 +25,7 @@ void DefaultWidget::setVisible(bool _vis) {
     is_visible = _vis;
 }
 
-void DefaultWidget::registerSubWidget(plugin::WidgetI* object) {
-    object->setParent(this);
-
-    (*children).pushBack((DefaultWidget*)object);
-}
-
-void DefaultWidget::unregisterSubWidget(plugin::WidgetI* object) {
-    for (size_t i = 0; i < (*children).getSize(); i++) {
-        if (object == (*children)[i]) {
-            (*children).remove(i);
-            break;
-        }
-    }
-}
-
-plugin::Vec2 DefaultWidget::getSize() {
-    return size;
-}
-
-void DefaultWidget::setSize(plugin::Vec2 _size) {
-    size = _size;
-}
-
-plugin::Vec2 DefaultWidget::getPos() {
-    return position;
-}
-
-void DefaultWidget::setPos(plugin::Vec2 _pos) {
-    position = _pos;
-}
-
-bool DefaultWidget::isExtern() {
-    return true;
-}
-
-void DefaultWidget::setParent(WidgetI *root) {
-    parent = root;
-}
-
-plugin::WidgetI* DefaultWidget::getParent() {
-    return parent;
-}
-
-void DefaultWidget::move(plugin::Vec2 shift) {
-    size_t listSize = (*children).getSize();
-    position = {position.x + shift.x, position.y + shift.y};
-
-    for (size_t i = 0; i < listSize; i++) {
-        plugin::WidgetI* widget = (*children)[i];
-
-        if (widget->getAvailable()) {
-            widget->move(shift);
-        }
-    }
-}
-
-bool DefaultWidget::getAvailable() {
-    return is_alive;
-}
-
-void DefaultWidget::setAvailable(bool _available) {
-    is_alive = _available;
-}
-
-void DefaultWidget::render(plugin::RenderTargetI* rt) {
-    if (is_alive) {
-        size_t list_size = (*children).getSize();
-        for (size_t i = 0; i < list_size; i++) {
-            DefaultWidget* widget = (*children)[i];
-            if (widget->getVisible()) widget->render(rt);
-        }
-    }
-}
-
-void DefaultWidget::recalcRegion() {}
-
-bool DefaultWidget::onMouseMove(plugin::MouseContext context) {
-    long list_size = long((*children).getSize());
-    for (long i = list_size - 1; i >= 0; i--) {
-        DefaultWidget* widget = (*children)[i];
-
-        if (widget->getAvailable() && widget->getVisible()) widget->onMouseMove(context);
-    }
-
-    return true;
-}
-
-bool DefaultWidget::onMouseRelease(plugin::MouseContext context) {
-    long list_size = long((*children).getSize());
-    for (long i = list_size - 1; i >= 0; i--) {
-        DefaultWidget* widget = (*children)[i];
-
-        if (widget->getAvailable() && widget->getVisible()) widget->onMouseRelease(context);
-    }
-
-    return true;
-}
-
-bool DefaultWidget::onMousePress(plugin::MouseContext context) {
-    bool was_click = false;
-
-    long list_size = long((*children).getSize());
-    for (long i = list_size - 1; i >= 0; i--) {
-        DefaultWidget* widget = (*children)[i];
-        if (widget->getAvailable() && widget->getVisible()) {
-            was_click = widget->onMousePress(context);
-            if (was_click) return was_click;
-        }
-    }
-
-    return was_click;
-}
-
-bool DefaultWidget::onKeyboardPress(plugin::KeyboardContext context) {
-    return false;
-}
-
-bool DefaultWidget::onKeyboardRelease(plugin::KeyboardContext context) {
-    return false;
-}
-
-bool DefaultWidget::onClock(uint64_t delta) {
-    return false;
-}
-
-uint8_t DefaultWidget::getPriority() {
+uint8_t DefaultWidget::getPriority() const {
     return 1;
 }
 
@@ -163,19 +35,19 @@ bool DefaultWidget::isInside(plugin::Vec2 pos) {
 }
 
 DefaultWidget::~DefaultWidget() {
-    size_t list_size = children->getSize();
-    for (size_t i = 0; i < list_size; i++) {
-        DefaultWidget* widget = (*children)[i];
-        delete widget;
-    }
+    // size_t list_size = children->getSize();
+    // for (size_t i = 0; i < list_size; i++) {
+    //     DefaultWidget* widget = (*children)[i];
+    //     delete widget;
+    // }
 
-    delete children;
+    // delete children;
 }
 
 OnCloseClick::OnCloseClick(DefaultWidget* _widget) : widget(_widget) {}
 
 void OnCloseClick::operator()() {
-    widget->setAvailable(false);
+    // widget->setAvailable(false);
 }
 
 OnTabChangeClick::OnTabChangeClick(CurveCoordPlane* _red_plane, TextButton* _red_tab, CurveCoordPlane* _green_plane, TextButton* _green_tab, CurveCoordPlane* _blue_plane, TextButton* _blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win) : 
@@ -543,11 +415,10 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
 
 bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
     if (is_active) {
-        plugin::Texture pl_texture = {
-            .height = start_texture->height,
-            .width  = start_texture->width,
-            .pixels = new plugin::Color[start_texture->height * start_texture->width]
-        };
+        plugin::Texture pl_texture;
+        pl_texture.height = start_texture->height;
+        pl_texture.width  = start_texture->width;
+        pl_texture.pixels = new plugin::Color[start_texture->height * start_texture->width];
 
         for (uint64_t i = 0; i < start_texture->height; i++) {
             for (uint64_t j = 0; j < start_texture->width; j++) {
@@ -566,7 +437,6 @@ bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
 
         data->drawTexture({0, 0}, {(double)pl_texture.width, (double)pl_texture.height}, &pl_texture);
 
-        delete[] pl_texture.pixels;
         need_catmull = false;
     }
 
@@ -646,18 +516,18 @@ bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
     return false;
 }
 
-void CurvePolyLine::move(plugin::Vec2 shift) {
-    for (size_t i = 0; i < points.getSize(); i++) {
-        points[i].x += shift.x;
-        points[i].y += shift.y;
-    }
-    for (size_t i = 0; i < curve_points.getSize(); i++) {
-        curve_points[i].x += shift.x;
-        curve_points[i].y += shift.y;
-    }
+// void CurvePolyLine::move(plugin::Vec2 shift) {
+//     for (size_t i = 0; i < points.getSize(); i++) {
+//         points[i].x += shift.x;
+//         points[i].y += shift.y;
+//     }
+//     for (size_t i = 0; i < curve_points.getSize(); i++) {
+//         curve_points[i].x += shift.x;
+//         curve_points[i].y += shift.y;
+//     }
 
-    DefaultWidget::move(shift);
-}
+//     DefaultWidget::move(shift);
+// }
 
 CurvePolyLine::~CurvePolyLine() {
     delete[] start_texture->pixels;
@@ -735,11 +605,10 @@ void CurveWindow::drawFrame(plugin::RenderTargetI* rt, plugin::Color color) {
 void CurveWindow::createTopPanel() {
     // panel with close button
     TopPanel* top_panel = new TopPanel(app, LIGHT_BLUE, position, size.x);
+    registerNewWidget(this, top_panel);
 
     TextButton* on_close = new TextButton(app, position, {TOP_PANE_SIZE, TOP_PANE_SIZE}, new OnCloseClick(this), "X");
-    top_panel->registerSubWidget(on_close);
-
-    registerSubWidget(top_panel);
+    registerNewWidget(top_panel, on_close);
 
     // tab section
     plugin::Vec2 tab_size = {size.x / 3, TOP_PANE_SIZE};
@@ -749,9 +618,9 @@ void CurveWindow::createTopPanel() {
 
     red_tab->setColor(LIGHT_BLUE);
 
-    registerSubWidget(red_tab);
-    registerSubWidget(green_tab);
-    registerSubWidget(blue_tab);
+    registerNewWidget(this, red_tab);
+    registerNewWidget(this, green_tab);
+    registerNewWidget(this, blue_tab);
 
     // create coord planes
     plugin::Vec2 plane_size = {std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE), std::min(size.x - 4 * TOP_PANE_SIZE, size.y - 4 * TOP_PANE_SIZE)};
@@ -759,20 +628,20 @@ void CurveWindow::createTopPanel() {
 
     CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
     CurvePolyLine  * red_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, red_plane, CurveWindow::ACTIVE_SUB_WIN::RED_WIN);
-    red_plane->registerSubWidget(red_line);
-    registerSubWidget(red_plane);
+    registerNewWidget(this, red_plane);
+    registerNewWidget(red_plane, red_line);
 
     CurveCoordPlane* green_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
     CurvePolyLine  * green_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, green_plane, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN);
-    green_plane->registerSubWidget(green_line);
+    registerNewWidget(this, green_plane);
+    registerNewWidget(green_plane, green_line);
     green_plane->setVisible(false);
-    registerSubWidget(green_plane);
 
     CurveCoordPlane* blue_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
     CurvePolyLine  * blue_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, blue_plane, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN);
-    blue_plane->registerSubWidget(blue_line);
+    registerNewWidget(this, blue_plane);
+    registerNewWidget(blue_plane, blue_line);
     blue_plane->setVisible(false);
-    registerSubWidget(blue_plane);
 
     red_tab  ->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::RED_WIN));
     green_tab->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN));
@@ -783,17 +652,14 @@ CurveWindow::CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const 
     window_name = strdup(_window_name);
 
     _app->event_manager->registerObject(this);
-
     _app->event_manager->setPriority(plugin::EventType::MousePress, 1);
     _app->event_manager->setPriority(plugin::EventType::MouseMove, 1);
     _app->event_manager->setPriority(plugin::EventType::MouseRelease, 1);
 
-    plugin::Vec2 root_size = app->root->getSize();
+    plugin::Vec2 root_size = app->root->getRoot()->getSize();
 
     size     = {root_size.x / 2, root_size.y / 2};
     position = {root_size.x / 4, root_size.y / 4};
-
-    createTopPanel();
 }
 
 void CurveWindow::render(plugin::RenderTargetI* rt) {
@@ -807,6 +673,7 @@ void CurveWindow::render(plugin::RenderTargetI* rt) {
 
 CurveWindow::~CurveWindow() {
     if (window_name) free(window_name);
+    fprintf(stderr, "Hello world\n");
     app->event_manager->setPriority(plugin::EventType::MousePress, 0);
     app->event_manager->setPriority(plugin::EventType::MouseMove, 0);
     app->event_manager->setPriority(plugin::EventType::MouseRelease, 0);
@@ -820,17 +687,24 @@ CurveFilter::CurveFilter(plugin::App* _app) : app(_app) {
 }
 
 void CurveFilter::apply(plugin::RenderTargetI *data) {
-    app->root->getRoot()->registerSubWidget(new CurveWindow(data, app, "Curves"));
+    CurveWindow* _win = new CurveWindow(data, app, "Curves");
+
+    app->root->createWidgetI(_win);
+    _win->host->setSize(_win->getSize());
+    _win->host->setPos (_win->getPos());
+    app->root->getRoot()->registerSubWidget(_win->host);
+
+    _win->createTopPanel();
 }
 
-plugin::Array<const char *> CurveFilter::getParamNames() {
+plugin::Array<const char *> CurveFilter::getParamNames() const {
     plugin::Array<const char*> arr;
     arr.size = 0;
 
     return arr;
 }
 
-plugin::Array<double> CurveFilter::getParams() {
+plugin::Array<double> CurveFilter::getParams() const {
     plugin::Array<double> arr;
     arr.size = 0;
 
@@ -839,6 +713,8 @@ plugin::Array<double> CurveFilter::getParams() {
 
 void CurveFilter::setParams(plugin::Array<double> params) {}
 
-plugin::Interface* CurveFilter::getInterface () {
-    return this;
+plugin::Interface* CurveFilter::getInterface() const {
+    return (plugin::Interface*)this;
 }
+
+void CurveFilter::selectPlugin() {}

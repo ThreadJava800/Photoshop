@@ -5,6 +5,24 @@
 #include "../libs/multimedia/multimedia.h"
 #include "../src/ui/window/window.h"
 
+class PluginWidget : public Widget {
+private:
+    plugin::PluginWidgetI* plugin_widget;
+
+public:
+    explicit PluginWidget(Widget* _parent, plugin::PluginWidgetI* _plugin_widget);
+
+    ~PluginWidget();
+
+    bool onKeyboardPress  (plugin::KeyboardContext context) override;
+    bool onKeyboardRelease(plugin::KeyboardContext context) override;
+    bool onClock          (uint64_t delta)                  override;
+    bool onMousePress     (plugin::MouseContext context)    override;
+    bool onMouseRelease   (plugin::MouseContext context)    override;
+    bool onMouseMove      (plugin::MouseContext context)    override;
+    void render           (RenderTarget* rt)                override;
+};
+
 class MGUI : public plugin::GuiI {
 private:
     plugin::Vec2   size;

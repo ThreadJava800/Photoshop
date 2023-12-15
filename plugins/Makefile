@@ -12,11 +12,11 @@ CFLAGS  = -g -D _DEBUG -ggdb3 -std=c++17 -Ofast -w -Wall -Wextra -Weffc++ -Waggr
 -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 
 
-SOURCES=ver2/monochrome_param/monoParam.cpp
+SOURCES=ver2/curves/curves.cpp
 
-EXECUTABLE=monoParam.o
+EXECUTABLE=curves.o
 
-EXECUTABLE_SO=monoParam.so
+EXECUTABLE_SO=curves.so
  
 all: compile_debug
 

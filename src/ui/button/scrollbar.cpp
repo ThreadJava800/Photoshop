@@ -74,8 +74,11 @@ bool ScrollBar::onMousePress(plugin::MouseContext context) {
 }
 
 bool ScrollBar::onMouseRelease(plugin::MouseContext context) {
-    isMoving = false;
-    return true;
+    if (isMoving) {
+        isMoving = false;
+        return true;
+    }
+    return false;
 }
 
 bool ScrollBar::onMouseMove(plugin::MouseContext context) {

@@ -24,11 +24,9 @@ static const double LINE_SHIFT    = 20;
 static const int    LINE_DIAM     = 1;
 static const double CATMULL_ALPHA = 0.5;
 
-class DefaultWidget : public plugin::WidgetI {
-protected:
-    plugin::App* app = nullptr;
 
-    ThreadJava800_List::List<DefaultWidget*>* children   = {};
+class DefaultWidget : public plugin::PluginWidgetI {
+protected:
     plugin::Vec2                              size       = {0, 0};
     plugin::Vec2                              position   = {0, 0};
     plugin::WidgetI*                          parent     = nullptr;
@@ -36,39 +34,39 @@ protected:
     bool                                      is_visible = true;
 
 public:
+    plugin::App* app = nullptr;
+
     explicit DefaultWidget(plugin::App* _app);
     explicit DefaultWidget(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size);
 
     bool getVisible();
     void setVisible(bool _vis);
 
-    void             registerSubWidget  (plugin::WidgetI* object) override;
-    void             unregisterSubWidget(plugin::WidgetI* object) override;
-    plugin::Vec2     getSize            ()                        override;
-    void             setSize            (plugin::Vec2)            override;
-    plugin::Vec2     getPos             ()                        override;
-    void             setPos             (plugin::Vec2)            override;
-    bool             isExtern           ()                        override;
-    void             setParent          (WidgetI *root)           override;
-    plugin::WidgetI* getParent          ()                        override;
-    void             move               (plugin::Vec2 shift)      override;
-    bool             getAvailable       ()                        override;
-    void             setAvailable       (bool)                    override;
-    void             render             (plugin::RenderTargetI*)  override;
-    void             recalcRegion       ()                        override;
+    plugin::Vec2 getSize() {return size;};
+    plugin::Vec2 getPos () {return position;};
 
-    bool    onMouseMove      (plugin::MouseContext context)    override;
-    bool    onMouseRelease   (plugin::MouseContext context)    override;
-    bool    onMousePress     (plugin::MouseContext context)    override;
-    bool    onKeyboardPress  (plugin::KeyboardContext context) override;
-    bool    onKeyboardRelease(plugin::KeyboardContext context) override;
-    bool    onClock          (uint64_t delta)                  override;
-    uint8_t getPriority      ()                                override;
+    void render(plugin::RenderTargetI*) override {};
+
+    bool    onMouseMove      (plugin::MouseContext context)          override {return false;};
+    bool    onMouseRelease   (plugin::MouseContext context)          override {return false;};
+    bool    onMousePress     (plugin::MouseContext context)          override {return false;};
+    bool    onKeyboardPress  (plugin::KeyboardContext context)       override {return false;};
+    bool    onKeyboardRelease(plugin::KeyboardContext context)       override {return false;};
+    bool    onClock          (uint64_t delta)                        override {return false;};
+    uint8_t getPriority      ()                                const override;
 
     virtual bool isInside(plugin::Vec2 pos);
 
     virtual ~DefaultWidget(); 
 };
+
+void registerNewWidget(DefaultWidget* parent, DefaultWidget* child) {
+    parent->app->root->createWidgetI(child);
+    child->host->setPos (child->getPos());
+    child->host->setSize(child->getSize());
+    fprintf(stderr, "HOST %p %p\n", parent, parent->host);
+    parent->host->registerSubWidget(child->host);
+}
 
 struct OnClick;
 class Button : public DefaultWidget {
@@ -132,12 +130,12 @@ private:
     TextButton* blue_tab  = nullptr;
 
     void drawFrame(plugin::RenderTargetI*, plugin::Color);
-    void createTopPanel();
 
 public:
     explicit CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name);
 
-    void render      (plugin::RenderTargetI*) override;
+    void render        (plugin::RenderTargetI*) override;
+    void createTopPanel();
 
     ~CurveWindow();
 };
@@ -192,7 +190,6 @@ public:
     bool onMouseRelease(plugin::MouseContext context) override;
     bool onMouseMove   (plugin::MouseContext context) override;
     void render        (plugin::RenderTargetI*)       override;
-    void move          (plugin::Vec2 shift)           override;
 
     ~CurvePolyLine();
 
@@ -222,11 +219,12 @@ private:
 public:
     explicit CurveFilter(plugin::App* _app);
 
-    void                        apply        (plugin::RenderTargetI *data)  override;
-    plugin::Array<const char *> getParamNames()                             override;
-    plugin::Array<double>       getParams    ()                             override;
-    void                        setParams    (plugin::Array<double> params) override; 
-    plugin::Interface*          getInterface ()                             override;
+    void                        apply        (plugin::RenderTargetI *data)        override;
+    plugin::Array<const char *> getParamNames()                             const override;
+    plugin::Array<double>       getParams    ()                             const override;
+    void                        setParams    (plugin::Array<double> params)       override; 
+    plugin::Interface*          getInterface ()                             const override;
+    void                        selectPlugin ()                                   override;
 };
 
 struct OnClick {

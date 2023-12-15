@@ -4,7 +4,7 @@
 #include "../includes.h"
 #include "../events/events.h"
 
-class Renderable : public plugin::RenderableI {
+class Renderable {
 public:
     virtual void render(RenderTarget* renderTarget) = 0;
 };
@@ -63,7 +63,6 @@ public:
     virtual RegionSet* getDefaultRegSet();
 
     void render(RenderTarget* renderTarget) override;
-    void render(plugin::RenderTargetI* rt)  override;
 
     void registerObject    (Widget* widget);
     void unregisterObject  ();
