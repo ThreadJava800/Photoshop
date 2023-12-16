@@ -13,16 +13,16 @@
 List<plugin::Plugin*> plugins;
 
 static const char* PLUGINS[] = {
-    "/home/vladimir/Projects/Photoshop/plugins/Lol.so",
-    "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
-    "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
-    "/home/vladimir/Projects/Photoshop/plugins/plug1.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libsphere_filter.so",
-    "/home/vladimir/Projects/Photoshop/plugins/libconst_fill_plugin.so",
-    "/home/vladimir/Projects/Photoshop/plugins/Brush.so",
-    "/home/vladimir/Projects/Photoshop/plugins/balloon.so",
-    "/home/vladimir/Projects/Photoshop/plugins/curves.so",
-    "/home/vladimir/Projects/Photoshop/plugins/SymCurve.so"
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/Lol.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/monochrome.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/monoParam.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/plug1.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/libsphere_filter.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/libconst_fill_plugin.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/Brush.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/balloon.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/curves.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver1/SymCurve.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
