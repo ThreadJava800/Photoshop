@@ -81,7 +81,6 @@ bool EventManager::onMousePress(plugin::MouseContext context)    {
     for (size_t i = 0; i < childCnt; i++) {
         if ((*children)[i]->getPriority() >= priorities[(int)(plugin::EventType::MousePress)]) {
             (*children)[i]->onMousePress(context);
-            std::cerr << "PRESS " << typeid(*(*children)[i]).name() << '\n';
         }
     }
 

@@ -541,7 +541,9 @@ void runMainCycle() {
         delete modArgs[i]->plugin;
         delete modArgs[i];
     }
-    for (size_t i = 0; i < plugins.getSize(); i++) delete plugins [i];
+    // for (size_t i = 0; i < plugins.getSize(); i++) {
+    //     delete plugins[i];
+    // }
 }
 
 int main() {

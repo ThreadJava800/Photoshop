@@ -51,7 +51,7 @@ DefaultWidget::~DefaultWidget() {
 OnCloseClick::OnCloseClick(DefaultWidget* _widget) : widget(_widget) {}
 
 void OnCloseClick::operator()() {
-    // widget->setAvailable(false);
+    widget->host->setAvailable(false);
 }
 
 OnTabChangeClick::OnTabChangeClick(CurveFilter* _filter, CurveCoordPlane* _red_plane, TextButton* _red_tab, CurveCoordPlane* _green_plane, TextButton* _green_tab, CurveCoordPlane* _blue_plane, TextButton* _blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win) : 

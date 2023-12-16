@@ -68,7 +68,6 @@ void registerNewWidget(DefaultWidget* parent, DefaultWidget* child) {
     parent->app->root->createWidgetI(child);
     child->host->setPos (child->getPos());
     child->host->setSize(child->getSize());
-    fprintf(stderr, "HOST %p %p\n", parent, parent->host);
     parent->host->registerSubWidget(child->host);
 }
 
