@@ -43,6 +43,7 @@ struct ModalWindowArgs {
     Window           *   curWindow;
     EditBoxModal     *   editBoxModal;
     plugin::Interface*   plugin;
+    plugin::Plugin   *   plugin_instance = nullptr;
 
     double saturCoeff;
     MColor color;
@@ -102,6 +103,7 @@ void addPluginFilter(void* arg) {
         modalWinArgs->drawZone->registerObject(modalWindow);
     }
 
+    if (modalWinArgs->plugin_instance) modalWinArgs->plugin_instance->selectPlugin();
     modalWinArgs->filtManager->setFilter(filter);
     modalWinArgs->filtManager->setNeedFree(false);
     modalWinArgs->filtManager->setActive(true);
@@ -227,6 +229,7 @@ void chooseTool(void* arg) {
 
     // delete modWinArgs->toolManager->getTool();
 
+    if (modWinArgs->plugin_instance) modWinArgs->plugin_instance->selectPlugin();
     modWinArgs->toolManager->setTool((plugin::ToolI*)modWinArgs->plugin);
     modWinArgs->subMenu->changeActivity();
     modWinArgs->filtManager->setActive(false);
@@ -340,17 +343,15 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
     for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
         void* filt_lib            = dlopen(PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
-        fprintf(stderr, "OPEN: %p %s\n", filt_lib, dlerror());
         getInstFunc get_inst_func = (getInstFunc)(dlsym(filt_lib, "getInstance"));
-        fprintf(stderr, "GET_INST: %p %s\n", get_inst_func, dlerror());
         plugin::Plugin* plugin    = get_inst_func(_app);
-        fprintf(stderr, "GET_PLUGIN: %p %s\n", plugin, dlerror());
         dlclose(filt_lib);
 
         plugins.pushBack(plugin);
 
         if (plugin->type == plugin::InterfaceType::Filter) {
             ModalWindowArgs* modWinArg = new ModalWindowArgs(arg.drawZone, filtMenu, arg.evManager, arg.filtManager, nullptr, nullptr, plugin->getInterface());
+            modWinArg->plugin_instance = plugin;
 
             TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, (start_ind.y + filter_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, filtMenu, addPluginFilter, modWinArg);
             filtMenu->registerObject(text_label);
@@ -363,6 +364,8 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
 
         if (plugin->type == plugin::InterfaceType::Tool) {
             ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
+            modWinArg2->plugin_instance = plugin;
+            
             TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.x + tool_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
 
