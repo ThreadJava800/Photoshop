@@ -25,7 +25,10 @@ static const char* PLUGINS[] = {
     // "/home/vladimir/Projects/Photoshop/plugins/SymCurve.so"
     // "/home/vladimir/Projects/Photoshop/plugins/monochrome.so",
     // "/home/vladimir/Projects/Photoshop/plugins/monoParam.so",
-    "/home/vladimir/Projects/Photoshop/plugins/curves.so"
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/curves.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/balloon.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/monochrome.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/monoParam.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
@@ -343,8 +346,11 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
     for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
         void* filt_lib            = dlopen(PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
+        // fprintf(stderr, "OPEN: %s\n", dlerror());
         getInstFunc get_inst_func = (getInstFunc)(dlsym(filt_lib, "getInstance"));
+        // fprintf(stderr, "OPEN: %s\n", dlerror());
         plugin::Plugin* plugin    = get_inst_func(_app);
+        // fprintf(stderr, "OPEN: %s\n", dlerror());
         dlclose(filt_lib);
 
         plugins.pushBack(plugin);
@@ -541,9 +547,6 @@ void runMainCycle() {
         delete modArgs[i]->plugin;
         delete modArgs[i];
     }
-    // for (size_t i = 0; i < plugins.getSize(); i++) {
-    //     delete plugins[i];
-    // }
 }
 
 int main() {
