@@ -115,7 +115,6 @@ public:
     bool onMouseMove   (plugin::MouseContext context) override;
 };
 
-class CurveFilter;
 class CurveWindow : public DefaultWidget {
 public:
     enum class ACTIVE_SUB_WIN {
@@ -125,9 +124,9 @@ public:
     };
 
 private:
-    plugin::App* app         = nullptr;
-    char*        window_name = nullptr;
-    CurveFilter* filter      = nullptr;
+    plugin::App*           app         = nullptr;
+    plugin::RenderTargetI* data        = nullptr;
+    char*                  window_name = nullptr;
 
     TextButton* red_tab   = nullptr;
     TextButton* green_tab = nullptr;
@@ -136,7 +135,7 @@ private:
     void drawFrame(plugin::RenderTargetI*, plugin::Color);
 
 public:
-    explicit CurveWindow(plugin::App* _app, const char* _window_name, CurveFilter* _filter);
+    explicit CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name);
 
     void render        (plugin::RenderTargetI*) override;
     void createTopPanel();
@@ -144,16 +143,17 @@ public:
     ~CurveWindow();
 };
 
-int draw_curve_points[256] = {};
-
 class CurveCoordPlane;
 class CurvePolyLine : public DefaultWidget {
 private:
     ThreadJava800_List::List<plugin::Vec2> points                 = {};
     ThreadJava800_List::List<plugin::Vec2> curve_points           = {};
+    int                                    draw_curve_points[256] = {};
     CurveCoordPlane*                       coord_plane            = nullptr;
     plugin::Color                          line_color             = {};
     CurveWindow::ACTIVE_SUB_WIN            active_tab             = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
+    plugin::RenderTargetI*                 data                   = nullptr;
+    plugin::Texture*                       start_texture          = nullptr;
     bool                                   need_catmull           = true;
     bool                                   hooked_border          = false;
     int                                    prev_colors[256]       = {};
@@ -174,6 +174,7 @@ private:
     void         doApply         (plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
     plugin::Vec2 getLocalCoord   (plugin::Vec2 global_coord);
     plugin::Vec2 getLocalToGlobal(plugin::Vec2 local_coord);
+    // bool         isPointSafe  (plugin::Vec2 point);
 
     enum class MoveDir {
         DOWN,
@@ -186,7 +187,7 @@ private:
     MoveDir move_dir = MoveDir::NONE;
 
 public:
-    explicit CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab);
+    explicit CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab);
 
     bool onMousePress  (plugin::MouseContext context) override;
     bool onMouseRelease(plugin::MouseContext context) override;
@@ -216,18 +217,10 @@ public:
 
 class CurveFilter : public plugin::Plugin, public plugin::FilterI {
 private:
-    plugin::App*                app           = nullptr;
-    plugin::Texture*            start_texture = nullptr;
-    CurveWindow::ACTIVE_SUB_WIN active_tab    = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
-
-    void doApply(plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col);
+    plugin::App* app         = nullptr;
 
 public:
     explicit CurveFilter(plugin::App* _app);
-
-    void setActiveTab(CurveWindow::ACTIVE_SUB_WIN _active_tab) {
-        active_tab = _active_tab;
-    }
 
     void                        apply        (plugin::RenderTargetI *data)        override;
     plugin::Array<const char *> getParamNames()                             const override;
@@ -261,11 +254,10 @@ private:
     CurveCoordPlane* blue_plane  = nullptr;
     TextButton*      blue_tab    = nullptr;
 
-    CurveFilter*                filter   = nullptr;
     CurveWindow::ACTIVE_SUB_WIN this_win = CurveWindow::ACTIVE_SUB_WIN::RED_WIN;
 
 public:
-    explicit OnTabChangeClick(CurveFilter* _filter, CurveCoordPlane* red_plane, TextButton* red_tab, CurveCoordPlane* green_plane, TextButton* green_tab, CurveCoordPlane* blue_plane, TextButton* blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win);
+    explicit OnTabChangeClick(CurveCoordPlane* red_plane, TextButton* red_tab, CurveCoordPlane* green_plane, TextButton* green_tab, CurveCoordPlane* blue_plane, TextButton* blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win);
     void operator()() override;
 };
 

@@ -106,7 +106,10 @@ void addPluginFilter(void* arg) {
         modalWinArgs->drawZone->registerObject(modalWindow);
     }
 
-    if (modalWinArgs->plugin_instance) modalWinArgs->plugin_instance->selectPlugin();
+    if (modalWinArgs->plugin_instance 
+     && modalWinArgs->plugin_instance->type == plugin::InterfaceType::System) 
+        modalWinArgs->plugin_instance->selectPlugin();
+
     modalWinArgs->filtManager->setFilter(filter);
     modalWinArgs->filtManager->setNeedFree(false);
     modalWinArgs->filtManager->setActive(true);
@@ -346,11 +349,11 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
     for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
         void* filt_lib            = dlopen(PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
-        // fprintf(stderr, "OPEN: %s\n", dlerror());
+        fprintf(stderr, "OPEN: %s\n", dlerror());
         getInstFunc get_inst_func = (getInstFunc)(dlsym(filt_lib, "getInstance"));
-        // fprintf(stderr, "OPEN: %s\n", dlerror());
+        fprintf(stderr, "OPEN: %s\n", dlerror());
         plugin::Plugin* plugin    = get_inst_func(_app);
-        // fprintf(stderr, "OPEN: %s\n", dlerror());
+        fprintf(stderr, "OPEN: %s\n", dlerror());
         dlclose(filt_lib);
 
         plugins.pushBack(plugin);

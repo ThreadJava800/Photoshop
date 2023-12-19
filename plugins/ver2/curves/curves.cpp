@@ -54,15 +54,13 @@ void OnCloseClick::operator()() {
     widget->host->setAvailable(false);
 }
 
-OnTabChangeClick::OnTabChangeClick(CurveFilter* _filter, CurveCoordPlane* _red_plane, TextButton* _red_tab, CurveCoordPlane* _green_plane, TextButton* _green_tab, CurveCoordPlane* _blue_plane, TextButton* _blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win) : 
-    filter     (_filter),
+OnTabChangeClick::OnTabChangeClick(CurveCoordPlane* _red_plane, TextButton* _red_tab, CurveCoordPlane* _green_plane, TextButton* _green_tab, CurveCoordPlane* _blue_plane, TextButton* _blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win) : 
     red_plane  (_red_plane),   red_tab  (_red_tab),
     green_plane(_green_plane), green_tab(_green_tab),
     blue_plane (_blue_plane),  blue_tab (_blue_tab),
-    this_win   (_this_win) {}
+    this_win(_this_win) {}
 
 void OnTabChangeClick::operator()() {
-    filter->setActiveTab(this_win);
     switch (this_win)
     {
     case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
@@ -321,7 +319,7 @@ size_t CurvePolyLine::trySwapPoint(size_t point) {
     return point;
 }
 
-void CurveFilter::doApply(plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col) {
+void CurvePolyLine::doApply(plugin::Texture* pl_texture, CurveWindow::ACTIVE_SUB_WIN change_col, uint8_t old_col, uint8_t new_col) {
     plugin::Vec2 texture_size = {pl_texture->width, pl_texture->height};
 
     for (uint64_t i = 0; i < texture_size.x; i++) {
@@ -370,8 +368,8 @@ plugin::Vec2 CurvePolyLine::getLocalToGlobal(plugin::Vec2 local_coord) {
     return {x_coord, y_coord};
 }
 
-CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab) :
-    DefaultWidget(_app, _pos, _size), coord_plane(_coord_plane), active_tab(_active_tab) {
+CurvePolyLine::CurvePolyLine(plugin::RenderTargetI* _data, plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, CurveCoordPlane* _coord_plane, CurveWindow::ACTIVE_SUB_WIN _active_tab) :
+    DefaultWidget(_app, _pos, _size), data(_data), coord_plane(_coord_plane), active_tab(_active_tab) {
     points.pushBack({position.x, position.y + size.y});
     points.pushBack({position.x + size.x, position.y});
 
@@ -380,6 +378,8 @@ CurvePolyLine::CurvePolyLine(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 
 
     draw_curve_points[0]   = 0;
     draw_curve_points[255] = 255;
+
+    start_texture = data->getTexture();
 
     switch (active_tab) {
     case CurveWindow::ACTIVE_SUB_WIN::RED_WIN:
@@ -424,15 +424,27 @@ bool CurvePolyLine::onMousePress(plugin::MouseContext context) {
 
 bool CurvePolyLine::onMouseRelease(plugin::MouseContext context) {
     if (is_active) {
+        plugin::Texture pl_texture;
+        pl_texture.height = start_texture->height;
+        pl_texture.width  = start_texture->width;
+        pl_texture.pixels = new plugin::Color[start_texture->height * start_texture->width];
+
+        for (uint64_t i = 0; i < start_texture->height; i++) {
+            for (uint64_t j = 0; j < start_texture->width; j++) {
+                plugin::Color new_pixel = start_texture->pixels[i * (int)start_texture->width + j];
+                pl_texture.pixels[i * (int)start_texture->width + j] = new_pixel;
+            }
+        }
+
         int last_present = 0;
         for (int i = 0; i < sizeof(draw_curve_points) / sizeof(int); i++) {
             if (draw_curve_points[i] == -1) draw_curve_points[i] = last_present;
             else                            last_present         = draw_curve_points[i];
 
-            // doApply(&pl_texture, active_tab, i, draw_curve_points[i]);
+            doApply(&pl_texture, active_tab, i, draw_curve_points[i]);
         }
 
-        // data->drawTexture({0, 0}, {(double)pl_texture.width, (double)pl_texture.height}, &pl_texture);
+        data->drawTexture({0, 0}, {(double)pl_texture.width, (double)pl_texture.height}, &pl_texture);
 
         need_catmull  = false;
         is_active     = false;
@@ -514,7 +526,21 @@ bool CurvePolyLine::onMouseMove(plugin::MouseContext context) {
     return false;
 }
 
+// void CurvePolyLine::move(plugin::Vec2 shift) {
+//     for (size_t i = 0; i < points.getSize(); i++) {
+//         points[i].x += shift.x;
+//         points[i].y += shift.y;
+//     }
+//     for (size_t i = 0; i < curve_points.getSize(); i++) {
+//         curve_points[i].x += shift.x;
+//         curve_points[i].y += shift.y;
+//     }
+
+//     DefaultWidget::move(shift);
+// }
+
 CurvePolyLine::~CurvePolyLine() {
+    delete start_texture;
 }
 
 void CurvePolyLine::render(plugin::RenderTargetI* rt) {
@@ -556,6 +582,7 @@ bool CurvePolyLine::isInside(plugin::Vec2 pos) {
         if (isPointOnLine(curve_points[i], curve_points[i + 1], pos)) return true;
     }
     return false;
+    // return DefaultWidget::isInside(pos);
 }
 
 CurveCoordPlane::CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit) :
@@ -627,28 +654,28 @@ void CurveWindow::createTopPanel() {
     plugin::Vec2 plane_pos  = {position.x + (size.x - plane_size.x) / 2, position.y + (size.y - plane_size.y) / 2 + LINE_SHIFT};
 
     CurveCoordPlane* red_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
-    CurvePolyLine  * red_line  = new CurvePolyLine  (app, plane_pos, plane_size, red_plane, CurveWindow::ACTIVE_SUB_WIN::RED_WIN);
+    CurvePolyLine  * red_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, red_plane, CurveWindow::ACTIVE_SUB_WIN::RED_WIN);
     registerNewWidget(this, red_plane);
     registerNewWidget(red_plane, red_line);
 
     CurveCoordPlane* green_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
-    CurvePolyLine  * green_line  = new CurvePolyLine  (app, plane_pos, plane_size, green_plane, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN);
+    CurvePolyLine  * green_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, green_plane, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN);
     registerNewWidget(this, green_plane);
     registerNewWidget(green_plane, green_line);
     green_plane->setVisible(false);
 
     CurveCoordPlane* blue_plane = new CurveCoordPlane(app, plane_pos, plane_size, {51, 51}, {255, 255});
-    CurvePolyLine  * blue_line  = new CurvePolyLine  (app, plane_pos, plane_size, blue_plane, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN);
+    CurvePolyLine  * blue_line  = new CurvePolyLine  (data, app, plane_pos, plane_size, blue_plane, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN);
     registerNewWidget(this, blue_plane);
     registerNewWidget(blue_plane, blue_line);
     blue_plane->setVisible(false);
 
-    red_tab  ->setOnClick(new OnTabChangeClick(filter, red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::RED_WIN));
-    green_tab->setOnClick(new OnTabChangeClick(filter, red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN));
-    blue_tab ->setOnClick(new OnTabChangeClick(filter, red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN));
+    red_tab  ->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::RED_WIN));
+    green_tab->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN));
+    blue_tab ->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN));
 }
 
-CurveWindow::CurveWindow(plugin::App* _app, const char* _window_name, CurveFilter* _filter) : DefaultWidget(_app), app(_app), filter(_filter) {
+CurveWindow::CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name) : DefaultWidget(_app), app(_app), data(_data) {
     window_name = strdup(_window_name);
 
     plugin::Vec2 root_size = app->root->getRoot()->getSize();
@@ -678,16 +705,14 @@ CurveFilter::CurveFilter(plugin::App* _app) : app(_app) {
 }
 
 void CurveFilter::apply(plugin::RenderTargetI *data) {
-    start_texture               = data->getTexture();
-    plugin::Texture* pl_texture = data->getTexture();
-    for (int i = 0; i < sizeof(draw_curve_points) / sizeof(int); i++) {
-        doApply(pl_texture, active_tab, i, draw_curve_points[i]);
-    }
+    CurveWindow* _win = new CurveWindow(data, app, "Curves");
 
-    data->drawTexture({0, 0}, {(double)pl_texture->width, (double)pl_texture->height}, pl_texture);
+    app->root->createWidgetI(_win);
+    _win->host->setSize(_win->getSize());
+    _win->host->setPos (_win->getPos());
+    app->root->getRoot()->registerSubWidget(_win->host);
 
-    delete pl_texture;
-    delete start_texture;
+    _win->createTopPanel();
 }
 
 plugin::Array<const char *> CurveFilter::getParamNames() const {
@@ -710,13 +735,4 @@ plugin::Interface* CurveFilter::getInterface() const {
     return (plugin::Interface*)this;
 }
 
-void CurveFilter::selectPlugin() {
-    CurveWindow* _win = new CurveWindow(app, "Curves", this);
-
-    app->root->createWidgetI(_win);
-    _win->host->setSize(_win->getSize());
-    _win->host->setPos (_win->getPos());
-    app->root->getRoot()->registerSubWidget(_win->host);
-
-    _win->createTopPanel();
-}
+void CurveFilter::selectPlugin() {}
