@@ -210,6 +210,35 @@ void saveBtnFunc(void* arg) {
     modalWinArgs->subMenu     ->changeActivity();
 }
 
+void priorWindow(void* args) {
+    ModalWindowArgs* to_prior = (ModalWindowArgs*) args;
+    to_prior->curWindow->prioritizeWindow();
+    to_prior->subMenu->changeActivity();
+}
+
+void openWindowsMenu(void* arg) {
+    if (!arg) return;
+
+    ModalWindowArgs* mod_win_arg = (ModalWindowArgs*) arg;
+
+    WindowManager* winManager = mod_win_arg->winManager;
+    size_t         winCnt     = winManager->getCanvasWindows()->getSize();
+
+    for (size_t i = 0; i < winCnt; i++) {
+        const char* winName = (*(winManager)->getCanvasWindows())[i]->getName();
+
+        ModalWindowArgs* fileBtnArgs = new ModalWindowArgs();
+        fileBtnArgs->curWindow    = (*(winManager)->getCanvasWindows())[i];
+        fileBtnArgs->subMenu = mod_win_arg->subMenu;
+        mod_win_arg->modArgs->pushBack(fileBtnArgs);
+        
+        TextButton* fileBtn = new TextButton(mod_win_arg->subMenuStart + MPoint(0, i * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT), DEFAULT_BACK_COL, new MFont(DEFAULT_FONT), winName, mod_win_arg->subMenu, priorWindow, fileBtnArgs);
+        mod_win_arg->subMenu->registerObject(fileBtn);
+    }
+
+    mod_win_arg->subMenu->changeActivity();
+}
+
 void openSaveMenu(void* arg) {
     if (!arg) return;
 
@@ -474,6 +503,18 @@ SubMenu* createFileMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
     return fileMenu;
 }
 
+SubMenu* createMenuWindow(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
+    MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
+    MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
+    MColor color = MColor(DEFAULT_BACK_COL);
+
+    List<Window*>* windows = arg.winManager->getCanvasWindows();
+    size_t   winCnt        = windows->getSize();
+    SubMenu* menu          = new SubMenu(start + MPoint(ACTION_BTN_LEN * 4, 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, winCnt * TOP_PANE_SIZE), arg.drawZone);
+
+    return menu;
+}
+
 Menu* createActionMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app, ChooseToolWindow* tool_win) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
@@ -484,6 +525,7 @@ Menu* createActionMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, pl
     SubMenu* toolMenu   = createToolPicker (arg, modArgs, tool_win);
     SubMenu* colMenu    = createColorPicker(arg, modArgs);
     SubMenu* filtMenu   = createFilterMenu (arg, modArgs, _app);
+    SubMenu* menuMenu   = createMenuWindow (arg, modArgs);
 
     loadPlugins(tool_win, filtMenu, toolMenu, arg, modArgs, _app, MPoint(9, 7), start, size, color);
 
@@ -491,39 +533,27 @@ Menu* createActionMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, pl
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);
     TextButton* colBtn    = new TextButton(start + MPoint(ACTION_BTN_LEN * 2, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Color",  actionMenu, openToolMenu, colMenu);
     TextButton* filterBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 3, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Filter", actionMenu, openToolMenu, filtMenu);
+    
+    ModalWindowArgs* window_args = new ModalWindowArgs();
+    window_args->winManager   = arg.winManager;
+    window_args->subMenu      = menuMenu;
+    window_args->modArgs      = &modArgs;
+    window_args->subMenuStart = MPoint(menuMenu->getPos());
+    TextButton* windowBtn = new TextButton(start + MPoint(ACTION_BTN_LEN * 4, TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Windows", actionMenu, openWindowsMenu, window_args);
 
     actionMenu->registerObject(fileBtn);
     actionMenu->registerObject(toolBtn);
     actionMenu->registerObject(colBtn);
     actionMenu->registerObject(filterBtn);
+    actionMenu->registerObject(windowBtn);
 
     actionMenu->registerObject(fileMenu);
     actionMenu->registerObject(toolMenu);
     actionMenu->registerObject(colMenu);
     actionMenu->registerObject(filtMenu);
+    actionMenu->registerObject(menuMenu);
 
     return actionMenu;
-}
-
-Window* createPickerWindow(Window* _parent, ToolManager* _toolMan, FilterManager* _filtManager) {
-    MPoint start = MPoint(2 * MAIN_WIN_BRD_SHIFT, 2 * MAIN_WIN_BRD_SHIFT);
-    MPoint size  = MPoint(400, 400);
-    MColor color = MColor(DEFAULT_COLOR);
-
-    MPoint btnSize = MPoint(PICKER_BTN_SIZE, PICKER_BTN_SIZE);
-
-    Window* window = new Window(start, size, "Choose tool", _toolMan, _filtManager, nullptr, false, _parent);
-
-    MImage     * brLogo   = new MImage(BRUSH_BTN); 
-    ImageButton* brush    = new ImageButton(start + MPoint(10, 40), btnSize, brLogo, window);
-
-    MImage     * rectLogo = new MImage(RECT_BTN); 
-    ImageButton* rect     = new ImageButton(start + MPoint(70, 40), btnSize, rectLogo, window);
-
-    window->registerObject(brush);
-    window->registerObject(rect);
-
-    return window;
 }
 
 void runMainCycle() {
