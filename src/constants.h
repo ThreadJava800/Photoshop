@@ -12,8 +12,8 @@ static const char*     BRUSH_BTN          = "assets/brush_logo.png";
 static const char*     RECT_BTN           = "assets/rect_tool.png";
 static const char*     LEFT_ARROW         = "assets/left.png";
 static const char*     RIGHT_ARROW        = "assets/right.png";
-static const char*     DOWN_ARROW         = "assets/down.png";
-static const char*     UP_ARROW           = "assets/up.png";
+static const char*     DOWN_ARROW         = "assets/minimize.png";
+static const char*     UP_ARROW           = "assets/restore.png";
 static const char*     DEFAULT_LOGO       = "assets/default.jpg";
 
 static const char*     MAIN_WINDOW_NAME   = "Photoshop";
@@ -33,7 +33,8 @@ static const double    SATURATION_SHIFT   = 0.05;
 static const int       OUTLINE_THICKNESS  = 2;
 static const int       MAIN_WIN_BRD_SHIFT = 10;
 static const int       TOP_PANE_SIZE      = 30;
-static const int       SCROLLBAR_BTN_H    = 10;
+static const int       SCROLLBAR_BTN_H    = 30;
+static const int       SCROLLBAR_BTN_W    = 30;
 
 static const double    CATMULL_ALPHA      = 0.5;
 static const int       BRIGHTNESS_SHIFT   = 10;
