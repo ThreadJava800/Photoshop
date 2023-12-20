@@ -134,6 +134,7 @@ private:
     TextButton* blue_tab  = nullptr;
 
     void drawFrame(plugin::RenderTargetI*, plugin::Color);
+    void createDownPanel();
 
 public:
     explicit CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name);

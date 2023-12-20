@@ -628,6 +628,10 @@ void CurveWindow::drawFrame(plugin::RenderTargetI* rt, plugin::Color color) {
     rt->drawLine({position.x, position.y + size.y}, {position.x + size.x, position.y + size.y}, color);
 }
 
+void CurveWindow::createDownPanel() {
+    
+}
+
 void CurveWindow::createTopPanel() {
     // panel with close button
     TopPanel* top_panel = new TopPanel(app, LIGHT_BLUE, position, size.x);
