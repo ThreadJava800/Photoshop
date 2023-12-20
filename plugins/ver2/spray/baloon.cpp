@@ -30,7 +30,7 @@ BalloonTool::BalloonTool() {
 }
 
 const plugin::Texture *BalloonTool::getIcon() const {
-    return nullptr;
+    return icon_texture;
 }
 
 plugin::Array<const char *> BalloonTool::getParamNames() const {
@@ -116,6 +116,9 @@ BaloonToolPlugin::BaloonToolPlugin(plugin::App* _app) : app(_app) {
     tool = new BalloonTool();
 
     app->event_manager->registerObject(tool);
+
+    icon_texture = _app->root->loadTextureFromFile("assets/balloon/spray.jpg");
+    atexit(freeTexture);
 }
 
 plugin::Interface* BaloonToolPlugin::getInterface() const {

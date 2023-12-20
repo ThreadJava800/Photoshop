@@ -14,11 +14,13 @@ static const char*     LEFT_ARROW         = "assets/left.png";
 static const char*     RIGHT_ARROW        = "assets/right.png";
 static const char*     DOWN_ARROW         = "assets/down.png";
 static const char*     UP_ARROW           = "assets/up.png";
+static const char*     DEFAULT_LOGO       = "assets/default.jpg";
 
 static const char*     MAIN_WINDOW_NAME   = "Photoshop";
 static const int       ACTION_BTN_LEN     = 100;
 static const int       ACTION_BTN_HEIGHT  = 30;
 static const int       PICKER_BTN_SIZE    = 50;
+static const int       PICKER_EDGE_SHIFT  = 10;
 
 static const int       LINE_DIAM          = 1;
 static const int       SUB_MENU_LEN       = 300;

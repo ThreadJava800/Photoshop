@@ -68,7 +68,7 @@ void OnTabChangeClick::operator()() {
         green_plane->setVisible(false);
         blue_plane ->setVisible(false);
 
-        red_tab  ->setColor(LIGHT_BLUE);
+        red_tab  ->setColor(LIGHT_GRAY);
         green_tab->setColor(WHITE);
         blue_tab ->setColor(WHITE);
         break;
@@ -78,7 +78,7 @@ void OnTabChangeClick::operator()() {
         blue_plane ->setVisible(false);
 
         red_tab  ->setColor(WHITE);
-        green_tab->setColor(LIGHT_BLUE);
+        green_tab->setColor(LIGHT_GRAY);
         blue_tab ->setColor(WHITE);
         break;
     case CurveWindow::ACTIVE_SUB_WIN::BLUE_WIN:
@@ -88,7 +88,7 @@ void OnTabChangeClick::operator()() {
 
         red_tab  ->setColor(WHITE);
         green_tab->setColor(WHITE);
-        blue_tab ->setColor(LIGHT_BLUE);
+        blue_tab ->setColor(LIGHT_GRAY);
         break;
     default:
         break;
@@ -682,6 +682,10 @@ CurveWindow::CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const 
 
     size     = {root_size.x / 2, root_size.y / 2};
     position = {root_size.x / 4, root_size.y / 4};
+}
+
+bool CurveWindow::onMousePress(plugin::MouseContext context) {
+    return isInside(context.position);
 }
 
 void CurveWindow::render(plugin::RenderTargetI* rt) {

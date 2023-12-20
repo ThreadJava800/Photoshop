@@ -28,7 +28,11 @@ static const char* PLUGINS[] = {
     "/home/vladimir/Projects/Photoshop/plugins/ver2/curves.so",
     "/home/vladimir/Projects/Photoshop/plugins/ver2/balloon.so",
     "/home/vladimir/Projects/Photoshop/plugins/ver2/monochrome.so",
-    "/home/vladimir/Projects/Photoshop/plugins/ver2/monoParam.so"
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/monoParam.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/bwplug.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/rect_tool.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/spline_tool.so",
+    "/home/vladimir/Projects/Photoshop/plugins/ver2/ars_curves.so"
 };
 
 typedef plugin::Plugin* (*getInstFunc)(plugin::App*);
@@ -249,33 +253,47 @@ void chooseColor(void* arg) {
     modWinArgs->subMenu->changeActivity();
 }
 
-SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
+SubMenu* createToolPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, ChooseToolWindow* tool_win) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     SubMenu* toolMenu = new SubMenu(start + MPoint(ACTION_BTN_LEN    , 2 * TOP_PANE_SIZE), MPoint(ACTION_BTN_LEN * 2, 12 * TOP_PANE_SIZE), arg.drawZone);
 
-    ModalWindowArgs* brushArgs   = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager,new Brush());
+    plugin::ToolI*   brush_tool  = new Brush();
+    ModalWindowArgs* brushArgs   = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, brush_tool);
     TextButton* brushBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN, 2 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Brush", toolMenu, chooseTool, brushArgs);
+    tool_win->addTool(brush_tool);
   
-    ModalWindowArgs* lineArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new LineTool());
+    plugin::ToolI*   line_tool   = new LineTool();
+    ModalWindowArgs* lineArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, line_tool);
     TextButton* lineBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 3 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Line", toolMenu, chooseTool, lineArgs);
-  
-    ModalWindowArgs* rectArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new SquareTool());
+    tool_win->addTool(line_tool);
+
+    plugin::ToolI*   square_tool = new SquareTool();
+    ModalWindowArgs* rectArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, square_tool);
     TextButton* rectBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 4 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Rectangle", toolMenu, chooseTool, rectArgs);
+    tool_win->addTool(square_tool);
 
-    ModalWindowArgs* ellipseArgs = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new EllipseTool());
-    TextButton* ellipseBtn       = new TextButton(start + MPoint(ACTION_BTN_LEN, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Ellipse", toolMenu, chooseTool, ellipseArgs);
+    plugin::ToolI*   ellipse_tool = new EllipseTool();
+    ModalWindowArgs* ellipseArgs  = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, ellipse_tool);
+    TextButton* ellipseBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN, 5 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Ellipse", toolMenu, chooseTool, ellipseArgs);
+    tool_win->addTool(ellipse_tool);
 
-    ModalWindowArgs* curveArgs   = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new CurveTool());
-    TextButton* curveBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
-
-    ModalWindowArgs* splineArgs  = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new Spline());
-    TextButton* splineBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
-
-    ModalWindowArgs* fillArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, new FillTool());
+    plugin::ToolI*   fill_tool   = new FillTool();
+    ModalWindowArgs* fillArgs    = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, fill_tool);
     TextButton* fillBtn          = new TextButton(start + MPoint(ACTION_BTN_LEN, 8 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Fill", toolMenu, chooseTool, fillArgs);
+    tool_win->addTool(fill_tool);
+
+    plugin::ToolI*   curve_tool  = new CurveTool();
+    ModalWindowArgs* curveArgs   = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, curve_tool);
+    TextButton* curveBtn         = new TextButton(start + MPoint(ACTION_BTN_LEN, 6 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Curve", toolMenu, chooseTool, curveArgs);
+    tool_win->addTool(curve_tool);
+
+    plugin::ToolI*   spline_tool = new Spline();
+    ModalWindowArgs* splineArgs  = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, spline_tool);
+    TextButton* splineBtn        = new TextButton(start + MPoint(ACTION_BTN_LEN, 7 * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Spline", toolMenu, chooseTool, splineArgs);
+    tool_win->addTool(spline_tool);
 
     modArgs.pushBack(brushArgs);
     modArgs.pushBack(lineArgs);
@@ -343,17 +361,17 @@ SubMenu* createColorPicker(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs
     return colMenu;
 }
 
-void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app, MPoint start_ind, MPoint start, MPoint size, MColor color) {
+void loadPlugins(ChooseToolWindow* tool_win, SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app, MPoint start_ind, MPoint start, MPoint size, MColor color) {
     int tool_cnt = 0, filter_cnt = 0;
 
     for (int i = 0; i < sizeof(PLUGINS) / sizeof(const char*); i++) {
 
         void* filt_lib            = dlopen(PLUGINS[i], RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE);
-        fprintf(stderr, "OPEN: %s\n", dlerror());
+        // fprintf(stderr, "OPEN: %s\n", dlerror());
         getInstFunc get_inst_func = (getInstFunc)(dlsym(filt_lib, "getInstance"));
-        fprintf(stderr, "OPEN: %s\n", dlerror());
+        // fprintf(stderr, "OPEN: %s\n", dlerror());
         plugin::Plugin* plugin    = get_inst_func(_app);
-        fprintf(stderr, "OPEN: %s\n", dlerror());
+        // fprintf(stderr, "OPEN: %s\n", dlerror());
         dlclose(filt_lib);
 
         plugins.pushBack(plugin);
@@ -375,6 +393,8 @@ void loadPlugins(SubMenu* filtMenu, SubMenu* toolMenu, ModalWindowArgs& arg, Lis
             ModalWindowArgs* modWinArg2 = new ModalWindowArgs(nullptr, toolMenu, nullptr, arg.filtManager, nullptr, arg.toolManager, plugin->getInterface());
             modWinArg2->plugin_instance = plugin;
             
+            tool_win->addTool((plugin::ToolI*)plugin->getInterface());
+
             TextButton* text_label = new TextButton(start + MPoint(ACTION_BTN_LEN, (start_ind.x + tool_cnt) * TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), plugin->name, toolMenu, chooseTool, modWinArg2);
             toolMenu->registerObject(text_label);
 
@@ -454,18 +474,18 @@ SubMenu* createFileMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs) {
     return fileMenu;
 }
 
-Menu* createActionMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app) {
+Menu* createActionMenu(ModalWindowArgs& arg, List<ModalWindowArgs*>& modArgs, plugin::App* _app, ChooseToolWindow* tool_win) {
     MPoint start = MPoint(MAIN_WIN_BRD_SHIFT, MAIN_WIN_BRD_SHIFT);
     MPoint size  = MPoint(ACTION_BTN_LEN, ACTION_BTN_HEIGHT);
     MColor color = MColor(DEFAULT_BACK_COL);
 
     Menu*    actionMenu = new Menu(start + MPoint(0, TOP_PANE_SIZE), MPoint(4 * ACTION_BTN_LEN, TOP_PANE_SIZE), arg.drawZone);
     SubMenu* fileMenu   = createFileMenu   (arg, modArgs);
-    SubMenu* toolMenu   = createToolPicker (arg, modArgs);
+    SubMenu* toolMenu   = createToolPicker (arg, modArgs, tool_win);
     SubMenu* colMenu    = createColorPicker(arg, modArgs);
     SubMenu* filtMenu   = createFilterMenu (arg, modArgs, _app);
 
-    loadPlugins(filtMenu, toolMenu, arg, modArgs, _app, MPoint(9, 7), start, size, color);
+    loadPlugins(tool_win, filtMenu, toolMenu, arg, modArgs, _app, MPoint(9, 7), start, size, color);
 
     TextButton* fileBtn   = new TextButton(start + MPoint(0,                  TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "File",   actionMenu, openToolMenu, fileMenu);
     TextButton* toolBtn   = new TextButton(start + MPoint(ACTION_BTN_LEN,     TOP_PANE_SIZE), size, color, new MFont (DEFAULT_FONT), "Tools",  actionMenu, openToolMenu, toolMenu);
@@ -534,10 +554,13 @@ void runMainCycle() {
     app_instance.root           = &gui_i;
     app_instance.event_manager  = &eventBoy;
 
+    ChooseToolWindow* tool_win = new ChooseToolWindow(MPoint(1920 - 2 * PICKER_EDGE_SHIFT - 2 * PICKER_BTN_SIZE - 3* PICKER_EDGE_SHIFT, 100), MPoint(3 * PICKER_EDGE_SHIFT + 2 * PICKER_BTN_SIZE, 700), mainWindow, &filtManager, &manager);
+    mainWindow->registerSubWidget(tool_win);
+
     // create bar with tool picker, color picker, and new window creator
     List<ModalWindowArgs*> modArgs;
     ModalWindowArgs window_arg = ModalWindowArgs(&drawWidget, nullptr, &eventBoy, &filtManager, &winManager, &manager);
-    Menu* actions = createActionMenu(window_arg, modArgs, &app_instance);
+    Menu* actions = createActionMenu(window_arg, modArgs, &app_instance, tool_win);
     mainWindow->setActions(actions);
 
     renderTarget.clearAll();

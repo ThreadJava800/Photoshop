@@ -17,6 +17,7 @@ static plugin::Color GREEN       = {0, 255, 0, 255};
 static plugin::Color BLUE        = {0, 0, 255, 255};
 static plugin::Color WHITE       = {255, 255, 255, 255};
 static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
+static plugin::Color LIGHT_GRAY  = {211, 211, 211, 255};
 
 static const int    TOP_PANE_SIZE = 30;
 static const int    BTN_TXT_PT    = 23;
@@ -137,7 +138,8 @@ private:
 public:
     explicit CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name);
 
-    void render        (plugin::RenderTargetI*) override;
+    bool onMousePress  (plugin::MouseContext context) override;
+    void render        (plugin::RenderTargetI*)       override;
     void createTopPanel();
 
     ~CurveWindow();

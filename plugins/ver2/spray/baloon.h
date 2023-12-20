@@ -7,6 +7,11 @@
 
 #include "../plugin.h"
 
+plugin::Texture* icon_texture = nullptr;
+void freeTexture() {
+    delete icon_texture;
+}
+
 struct Polar {
     double r;
     double phi;
