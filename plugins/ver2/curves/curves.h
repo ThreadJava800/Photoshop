@@ -19,11 +19,13 @@ static plugin::Color WHITE       = {255, 255, 255, 255};
 static plugin::Color LIGHT_BLUE  = {161, 200, 241, 255};
 static plugin::Color LIGHT_GRAY  = {211, 211, 211, 255};
 
-static const int    TOP_PANE_SIZE = 30;
-static const int    BTN_TXT_PT    = 23;
-static const double LINE_SHIFT    = 20;
-static const int    LINE_DIAM     = 1;
-static const double CATMULL_ALPHA = 0.5;
+static const int    TOP_PANE_SIZE  = 30;
+static const int    BTN_TXT_PT     = 23;
+static const double LINE_SHIFT     = 20;
+static const int    LINE_DIAM      = 1;
+static const double CATMULL_ALPHA  = 0.5;
+static const int    ACTION_BTN_LEN = 95;
+static const int    ACTION_BTN_H   = 45;
 
 
 class DefaultWidget : public plugin::PluginWidgetI {
@@ -85,6 +87,18 @@ public:
     ~Button();
 };
 
+class ImageTextButton : public Button {
+private:
+    const char* text       = nullptr;
+    plugin::Texture* image = nullptr;
+
+public:
+    explicit ImageTextButton(plugin::App* _app, plugin::Vec2 pos, plugin::Vec2 size, OnClick* _on_click, const char* _text, const char* _image_path);
+    ~ImageTextButton();
+
+    void render(plugin::RenderTargetI*) override;
+};
+
 class TextButton : public Button {
 private:
     plugin::Color color = WHITE;
@@ -116,6 +130,7 @@ public:
     bool onMouseMove   (plugin::MouseContext context) override;
 };
 
+class CurvePolyLine;
 class CurveWindow : public DefaultWidget {
 public:
     enum class ACTIVE_SUB_WIN {
@@ -133,8 +148,11 @@ private:
     TextButton* green_tab = nullptr;
     TextButton* blue_tab  = nullptr;
 
+    CurvePolyLine* red_line   = nullptr;
+    CurvePolyLine* green_line = nullptr;
+    CurvePolyLine* blue_line  = nullptr;
+
     void drawFrame(plugin::RenderTargetI*, plugin::Color);
-    void createDownPanel();
 
 public:
     explicit CurveWindow(plugin::RenderTargetI* _data, plugin::App* _app, const char* _window_name);
@@ -142,6 +160,7 @@ public:
     bool onMousePress  (plugin::MouseContext context) override;
     void render        (plugin::RenderTargetI*)       override;
     void createTopPanel();
+    void createDownPanel();
 
     ~CurveWindow();
 };
@@ -197,6 +216,9 @@ public:
     bool onMouseMove   (plugin::MouseContext context) override;
     void render        (plugin::RenderTargetI*)       override;
 
+    plugin::Texture* getStartTexture() const;
+    void reset();
+
     ~CurvePolyLine();
 
     bool isInside(plugin::Vec2 pos) override;
@@ -238,13 +260,37 @@ struct OnClick {
     virtual ~OnClick()        = default;
 };
 
-struct OnCloseClick : OnClick {
+struct OnOkClick : OnClick {
 private:
-    DefaultWidget* widget = nullptr;
-    plugin::App*   app    = nullptr;
+    DefaultWidget* widget    = nullptr;
 
 public:
-    explicit OnCloseClick(DefaultWidget* _widget);
+    explicit OnOkClick(DefaultWidget* _widget);
+    void operator()() override;
+};
+
+struct OnResetClick : OnClick {
+private:
+    plugin::RenderTargetI* data      = nullptr;
+    plugin::Texture*       draw_text = nullptr;
+
+    CurvePolyLine* red_line   = nullptr;
+    CurvePolyLine* green_line = nullptr;
+    CurvePolyLine* blue_line  = nullptr;
+
+public:
+    explicit OnResetClick(plugin::RenderTargetI* _data, plugin::Texture* _draw_text, CurvePolyLine* _red_line, CurvePolyLine* _green_line, CurvePolyLine* _blue_line);
+    void operator()() override;
+};
+
+struct OnCloseClick : OnClick {
+private:
+    DefaultWidget*         widget    = nullptr;
+    plugin::RenderTargetI* data      = nullptr;
+    plugin::Texture*       draw_text = nullptr;
+
+public:
+    explicit OnCloseClick(DefaultWidget* _widget, plugin::RenderTargetI* _data, plugin::Texture* _draw_text);
     void operator()() override;
 };
 

@@ -48,10 +48,27 @@ DefaultWidget::~DefaultWidget() {
     // delete children;
 }
 
-OnCloseClick::OnCloseClick(DefaultWidget* _widget) : widget(_widget) {}
+OnOkClick::OnOkClick(DefaultWidget* _widget) : widget(_widget) {}
+
+void OnOkClick::operator()()  {
+    widget->host->setAvailable(false);
+}
+
+OnResetClick::OnResetClick(plugin::RenderTargetI* _data, plugin::Texture* _draw_text, CurvePolyLine* _red_line, CurvePolyLine* _green_line, CurvePolyLine* _blue_line) :
+    data(_data), draw_text(_draw_text), red_line(_red_line), green_line(_green_line), blue_line(_blue_line) {}
+
+void OnResetClick::operator()() {
+    data->drawTexture({0, 0}, {(double)draw_text->width, (double)draw_text->height}, draw_text);
+    red_line  ->reset();
+    blue_line ->reset();
+    green_line->reset();
+}
+
+OnCloseClick::OnCloseClick(DefaultWidget* _widget, plugin::RenderTargetI* _data, plugin::Texture* _draw_text) : widget(_widget), data(_data), draw_text(_draw_text) {}
 
 void OnCloseClick::operator()() {
     widget->host->setAvailable(false);
+    data->drawTexture({0, 0}, {(double)draw_text->width, (double)draw_text->height}, draw_text);
 }
 
 OnTabChangeClick::OnTabChangeClick(CurveCoordPlane* _red_plane, TextButton* _red_tab, CurveCoordPlane* _green_plane, TextButton* _green_tab, CurveCoordPlane* _blue_plane, TextButton* _blue_tab, CurveWindow::ACTIVE_SUB_WIN _this_win) : 
@@ -110,6 +127,23 @@ bool Button::onMousePress(plugin::MouseContext context) {
 
 Button::~Button() {
     if(on_click) delete on_click;
+}
+
+ImageTextButton::ImageTextButton(plugin::App* _app, plugin::Vec2 pos, plugin::Vec2 size, OnClick* _on_click, const char* _text, const char* _image_path) :
+    Button(_app, pos, size, _on_click), text(_text) {
+
+    image = _app->root->loadTextureFromFile(_image_path);
+}
+
+ImageTextButton::~ImageTextButton() {
+    delete image;
+}
+
+void ImageTextButton::render(plugin::RenderTargetI* rt) {
+    position = host->getPos();
+    rt->drawRect   (position, size, TRANSPARENT);
+    rt->drawTexture(position, size, image);
+    rt->drawText   (position, text, BTN_TXT_PT, BLACK);
 }
 
 TextButton::TextButton(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, OnClick* _on_click, const char* _text) : 
@@ -577,6 +611,24 @@ void CurvePolyLine::render(plugin::RenderTargetI* rt) {
     }
 }
 
+plugin::Texture* CurvePolyLine::getStartTexture() const {
+    return start_texture;
+}
+
+void CurvePolyLine::reset() {
+    points.clear();
+    curve_points.clear();
+
+    points.pushBack({position.x, position.y + size.y});
+    points.pushBack({position.x + size.x, position.y});
+
+    curve_points.pushBack({position.x, position.y + size.y});
+    curve_points.pushBack({position.x + size.x, position.y});
+
+    draw_curve_points[0]   = 0;
+    draw_curve_points[255] = 255;
+}
+
 bool CurvePolyLine::isInside(plugin::Vec2 pos) {
     for (size_t i = 0; i < curve_points.getSize() - 1; i++) {
         if (isPointOnLine(curve_points[i], curve_points[i + 1], pos)) return true;
@@ -587,7 +639,7 @@ bool CurvePolyLine::isInside(plugin::Vec2 pos) {
 
 CurveCoordPlane::CurveCoordPlane(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, plugin::Vec2 _unit, plugin::Vec2 _max_unit) :
     DefaultWidget(_app, _pos, _size), unit(_unit), max_unit(_max_unit) {
-
+    
 }
 
 void CurveCoordPlane::render(plugin::RenderTargetI* rt) {
@@ -629,7 +681,17 @@ void CurveWindow::drawFrame(plugin::RenderTargetI* rt, plugin::Color color) {
 }
 
 void CurveWindow::createDownPanel() {
-    
+    OnOkClick* on_ok = new OnOkClick(this);
+    ImageTextButton* ok = new ImageTextButton(app, {position.x + size.x - ACTION_BTN_LEN, position.y + 2 * ACTION_BTN_H}, {ACTION_BTN_LEN, ACTION_BTN_H}, on_ok, "OK", "assets/curves/btn_frame.png");
+    registerNewWidget(this, ok);
+
+    OnResetClick* on_reset = new OnResetClick(data, red_line->getStartTexture(), red_line, green_line, blue_line);
+    ImageTextButton* reset = new ImageTextButton(app, {position.x + size.x - ACTION_BTN_LEN, position.y + 4 * ACTION_BTN_H}, {ACTION_BTN_LEN, ACTION_BTN_H}, on_reset, "Reset", "assets/curves/btn_frame.png");
+    registerNewWidget(this, reset);
+
+    OnCloseClick*  on_close = new OnCloseClick(this, data, red_line->getStartTexture());
+    ImageTextButton* cancel = new ImageTextButton(app, {position.x + size.x - ACTION_BTN_LEN, position.y + 6 * ACTION_BTN_H}, {ACTION_BTN_LEN, ACTION_BTN_H}, on_close, "Cancel", "assets/curves/btn_frame.png");
+    registerNewWidget(this, cancel);
 }
 
 void CurveWindow::createTopPanel() {
@@ -638,7 +700,7 @@ void CurveWindow::createTopPanel() {
     top_panel->setParent(this);
     registerNewWidget(this, top_panel);
 
-    TextButton* on_close = new TextButton(app, position, {TOP_PANE_SIZE, TOP_PANE_SIZE}, new OnCloseClick(this), "X");
+    TextButton* on_close = new TextButton(app, position, {TOP_PANE_SIZE, TOP_PANE_SIZE}, new OnOkClick(this), "X");
     registerNewWidget(top_panel, on_close);
 
     // tab section
@@ -673,6 +735,10 @@ void CurveWindow::createTopPanel() {
     registerNewWidget(this, blue_plane);
     registerNewWidget(blue_plane, blue_line);
     blue_plane->setVisible(false);
+
+    this->red_line   = red_line;
+    this->green_line = green_line;
+    this->blue_line  = blue_line;
 
     red_tab  ->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::RED_WIN));
     green_tab->setOnClick(new OnTabChangeClick(red_plane, red_tab, green_plane, green_tab, blue_plane, blue_tab, CurveWindow::ACTIVE_SUB_WIN::GREEN_WIN));
@@ -720,7 +786,8 @@ void CurveFilter::apply(plugin::RenderTargetI *data) {
     _win->host->setPos (_win->getPos());
     app->root->getRoot()->registerSubWidget(_win->host);
 
-    _win->createTopPanel();
+    _win->createTopPanel ();
+    _win->createDownPanel();
 }
 
 plugin::Array<const char *> CurveFilter::getParamNames() const {
