@@ -104,8 +104,11 @@ bool EditBox::onMousePress(plugin::MouseContext context) {
 }
 
 bool EditBox::onMouseRelease(plugin::MouseContext context) {
-    if (!isInside(MPoint(context.position))) is_active = false;
-    return true;
+    if (!isInside(MPoint(context.position))) {
+        is_active = false;
+        return true;
+    }
+    return false;
 }
 
 bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
@@ -156,8 +159,11 @@ bool EditBox::onKeyboardPress(plugin::KeyboardContext context) {
 }
 
 bool EditBox::onClock(uint64_t delta) {
-    if (is_active) cursorState = !cursorState;
-    else           cursorState = false;
+    if (is_active) {
+        cursorState = !cursorState;
+        return true;
+    }
 
-    return true;
+    cursorState = false;
+    return false;
 }

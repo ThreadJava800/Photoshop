@@ -17,8 +17,8 @@ public:
     explicit BrightnessFilter(bool _need_argument);
 
     void                        apply        (plugin::RenderTargetI *data)  override;
-    plugin::Array<const char *> getParamNames()                             override;
-    plugin::Array<double>       getParams    ()                             override;
+    plugin::Array<const char *> getParamNames() const                       override;
+    plugin::Array<double>       getParams    () const                       override;
     void                        setParams    (plugin::Array<double> params) override;
 };
 
@@ -39,12 +39,12 @@ public:
     explicit ColorfulnessFilter(double _satur_coeff);
 
     void                        apply        (plugin::RenderTargetI *data)  override;
-    plugin::Array<const char *> getParamNames()                             override;
-    plugin::Array<double>       getParams    ()                             override;
+    plugin::Array<const char *> getParamNames() const                       override;
+    plugin::Array<double>       getParams    () const                       override;
     void                        setParams    (plugin::Array<double> params) override;
 };
 
-class FilterManager : public plugin::FilterManagerI {
+class FilterManager {
 private:
     bool                   need_free  = false;
     bool                   active     = false;
@@ -62,9 +62,9 @@ public:
     plugin::FilterI*       getLast    ();
     bool                   getActive  ();
 
-    void setRenderTarget(plugin::RenderTargetI *target) override;
-    void setFilter      (plugin::FilterI *filter)       override;
-    void applyFilter    ()                              override;
+    void setRenderTarget(plugin::RenderTargetI *target);
+    void setFilter      (plugin::FilterI *filter);
+    void applyFilter    ();
 };
 
 #endif

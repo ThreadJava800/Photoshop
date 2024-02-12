@@ -21,12 +21,12 @@ protected:
     char* windowName = nullptr;
     MFont     * textFont   = nullptr;
     
-    void createTopPanel  ();
+    void createTopPanel  (bool need_btn);
     void createTestWindow();
     
 public:
-    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority = 0);
-    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority = 0);
+    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority = 0, bool need_btn = true);
+    explicit Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority = 0, bool need_btn = true);
     ~Window();
 
     const char* getName  ();
@@ -93,6 +93,27 @@ public:
     explicit PluginParamWindow(EventManager* _ev_man, Widget* parent, plugin::Array<const char *> param_names, plugin::Interface * _self);
 
     ~PluginParamWindow();
+};
+
+struct ChooseToolArgs {
+    plugin::ToolI* tool;
+    FilterManager* filt_manager;
+    ToolManager*   tool_manager;
+};
+struct ChooseColorArgs {
+    MColor       color;
+    ToolManager* tool_manager;
+};
+class ChooseToolWindow : public Window {
+private:
+    int tool_local_x = PICKER_EDGE_SHIFT, tool_local_y = TOP_PANE_SIZE + PICKER_EDGE_SHIFT, tool_cnt = 0;
+    int col_local_x  = PICKER_EDGE_SHIFT, col_local_y  = TOP_PANE_SIZE, col_cnt  = 0;
+
+public:
+    explicit ChooseToolWindow(MPoint _position, MPoint _size, Widget* _parent, FilterManager* _filt_manager, ToolManager* _tool_manager);
+
+    void addTool (plugin::ToolI* tool);
+    void addColor(MColor color);
 };
 
 class WindowManager {

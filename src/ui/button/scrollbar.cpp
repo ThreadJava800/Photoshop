@@ -74,8 +74,11 @@ bool ScrollBar::onMousePress(plugin::MouseContext context) {
 }
 
 bool ScrollBar::onMouseRelease(plugin::MouseContext context) {
-    isMoving = false;
-    return true;
+    if (isMoving) {
+        isMoving = false;
+        return true;
+    }
+    return false;
 }
 
 bool ScrollBar::onMouseMove(plugin::MouseContext context) {
@@ -143,10 +146,10 @@ HorizontalScrollBar::HorizontalScrollBar(MPoint _position, MPoint _size, MPoint 
 
 void HorizontalScrollBar::addButtons() {
     ScrollBtnArgs* rightArgs = new ScrollBtnArgs(this, MPoint(-CANV_SHIFT * delta.x, 0), MPoint(-CANV_SHIFT, 0));
-    ImageButton*   rightBtn  = new ImageButton(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_H, TOP_PANE_SIZE), new MImage(LEFT_ARROW), this, onBtnScrollClick, rightArgs, true);
+    ImageButton*   rightBtn  = new ImageButton(MPoint(position.x, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_W, SCROLLBAR_BTN_H), new MImage(LEFT_ARROW), this, onBtnScrollClick, rightArgs, true);
 
     ScrollBtnArgs* leftArgs = new ScrollBtnArgs(this, MPoint(CANV_SHIFT * delta.x, 0), MPoint(CANV_SHIFT, 0));
-    ImageButton*   leftBtn  = new ImageButton(MPoint(position.x + size.x - SCROLLBAR_BTN_H, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_H, TOP_PANE_SIZE), new MImage(RIGHT_ARROW), this, onBtnScrollClick, leftArgs, true);
+    ImageButton*   leftBtn  = new ImageButton(MPoint(position.x + size.x - SCROLLBAR_BTN_W, position.y + size.y - TOP_PANE_SIZE), MPoint(SCROLLBAR_BTN_W, SCROLLBAR_BTN_H), new MImage(RIGHT_ARROW), this, onBtnScrollClick, leftArgs, true);
     
     registerObject(rightBtn);
     registerObject(leftBtn);

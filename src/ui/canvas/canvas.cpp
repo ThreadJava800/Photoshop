@@ -127,20 +127,20 @@ void Brush::copyTmpToPerm(plugin::RenderTargetI* temp, plugin::RenderTargetI* pe
     drawCatmullOf3(perm, color, (*points)[1], (*points)[2], (*points)[3]);
 }
 
-plugin::Array<const char *> Brush::getParamNames() {
-    return {};
+plugin::Array<const char *> Brush::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> Brush::getParams() {
-    return {};
+plugin::Array<double> Brush::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void Brush::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *Brush::getIcon() {
-    return nullptr;
+const plugin::Texture *Brush::getIcon() const {
+    return MImage("assets/brush_logo.png").toPluginTexture();
 }
 
 void Brush::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
@@ -181,20 +181,20 @@ Spline::Spline() :
 Spline::Spline(MPoint _start, MPoint _end) :
     Brush(_start, _end) {}
 
-plugin::Array<const char *> Spline::getParamNames() {
-    return {};
+plugin::Array<const char *> Spline::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> Spline::getParams() {
-    return {};
+plugin::Array<double> Spline::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void Spline::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *Spline::getIcon() {
-    return nullptr;
+const plugin::Texture *Spline::getIcon() const {
+    return MImage("assets/mcurve.png").toPluginTexture();
 }
 
 void Spline::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
@@ -234,20 +234,20 @@ FillTool::FillTool() :
 FillTool::FillTool(MPoint _start, MPoint _end) :
     Tool(_start, _end)  {}
 
-plugin::Array<const char *> FillTool::getParamNames() {
-    return {};
+plugin::Array<const char *> FillTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> FillTool::getParams() {
-    return {};
+plugin::Array<double> FillTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void FillTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *FillTool::getIcon() {
-    return nullptr;
+const plugin::Texture *FillTool::getIcon() const {
+    return MImage("assets/fill_logo.png").toPluginTexture();
 }
 
 void FillTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
@@ -347,20 +347,20 @@ StraightTool::StraightTool(MPoint _start, MPoint _end) :
     Tool(_start, _end),
     rectStart(MPoint()) {}
 
-plugin::Array<const char *> StraightTool::getParamNames() {
-    return {};
+plugin::Array<const char *> StraightTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> StraightTool::getParams() {
-    return {};
+plugin::Array<double> StraightTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void StraightTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *StraightTool::getIcon() {
-    return nullptr;
+const plugin::Texture *StraightTool::getIcon() const {
+    return MImage("assets/polyline.png").toPluginTexture();
 }
 
 void StraightTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
@@ -388,20 +388,18 @@ SquareTool::SquareTool() :
 SquareTool::SquareTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end) {}
 
-plugin::Array<const char *> SquareTool::getParamNames() {
-    return {};
+plugin::Array<const char *> SquareTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> SquareTool::getParams() {
-    return {};
+plugin::Array<double> SquareTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
-void SquareTool::setParams(plugin::Array<double> params) {
+void SquareTool::setParams(plugin::Array<double> params) {}
 
-}
-
-const plugin::Texture *SquareTool::getIcon() {
-    return nullptr;
+const plugin::Texture *SquareTool::getIcon() const {
+    return MImage("assets/rect_tool.png").toPluginTexture();
 }
 
 void SquareTool::drawSquare(MPoint lu, MPoint cur, MColor color, plugin::RenderTargetI *drawTarget) {
@@ -439,20 +437,20 @@ EllipseTool::EllipseTool() :
 EllipseTool::EllipseTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
-plugin::Array<const char *> EllipseTool::getParamNames() {
-    return {};
+plugin::Array<const char *> EllipseTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> EllipseTool::getParams() {
-    return {};
+plugin::Array<double> EllipseTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void EllipseTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *EllipseTool::getIcon() {
-    return nullptr;
+const plugin::Texture *EllipseTool::getIcon() const {
+    return MImage("assets/circle_tool.png").toPluginTexture();
 }
 
 void EllipseTool::drawEllipse(MPoint lu, MPoint cur, MColor color, plugin::RenderTargetI *drawTarget) {
@@ -493,20 +491,20 @@ LineTool::LineTool() :
 LineTool::LineTool(MPoint _start, MPoint _end) :
     StraightTool(_start, _end)  {}
 
-plugin::Array<const char *> LineTool::getParamNames() {
-    return {};
+plugin::Array<const char *> LineTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> LineTool::getParams() {
-    return {};
+plugin::Array<double> LineTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void LineTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *LineTool::getIcon() {
-    return nullptr;
+const plugin::Texture *LineTool::getIcon() const {
+    return MImage("assets/line_logo.png").toPluginTexture();
 }
 
 void LineTool::paintOnRelease(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {
@@ -555,20 +553,20 @@ void CurveTool::drawCurve(MColor color, plugin::RenderTargetI *drawTarget) {
     }
 }
 
-plugin::Array<const char *> CurveTool::getParamNames() {
-    return {};
+plugin::Array<const char *> CurveTool::getParamNames() const {
+    return plugin::Array<const char*>(0, nullptr);
 }
 
-plugin::Array<double> CurveTool::getParams() {
-    return {};
+plugin::Array<double> CurveTool::getParams() const {
+    return plugin::Array<double>(0, nullptr);
 }
 
 void CurveTool::setParams(plugin::Array<double> params) {
 
 }
 
-const plugin::Texture *CurveTool::getIcon() {
-    return nullptr;
+const plugin::Texture *CurveTool::getIcon() const {
+    return MImage("assets/polyline.png").toPluginTexture();
 }
 
 void CurveTool::paintOnPress(plugin::RenderTargetI *data, plugin::RenderTargetI *tmp, plugin::MouseContext context, plugin::Color color) {

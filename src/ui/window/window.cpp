@@ -2,28 +2,28 @@
 
 bool isCreated = false;
 
-Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority) :
+Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, uint8_t _priority, bool need_btn) :
     Widget     (_position, _size, _parent, _priority),
     manager    (_manager),
     filtManager(_filtManager),
     winManager (_winManager),
     actions    (nullptr),
     windowName (strdup(_windowName))   {
-        createTopPanel();
+        createTopPanel(need_btn);
         if (!isCreated) createTestWindow();
 
         if (isCanv && _winManager) _winManager->getCanvasWindows()->pushBack(this);
         textFont = new MFont(DEFAULT_FONT);
     }
 
-Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority) :
+Window::Window(MPoint _position, MPoint _size, const char* _windowName, ToolManager *_manager, FilterManager *_filtManager, WindowManager* _winManager, bool isCanv, Widget* _parent, Menu* _actions, uint8_t _priority, bool need_btn) :
     Widget     (_position, _size, _parent, _priority),
     manager    (_manager),
     filtManager(_filtManager),
     winManager (_winManager),
     actions    (_actions),
     windowName (strdup(_windowName))  {
-        createTopPanel();
+        createTopPanel(need_btn);
         registerObject(actions);
         if (!isCreated) createTestWindow();
 
@@ -94,9 +94,13 @@ void Window::createCanvas(int width, int height) {
     this->canvas = canvas;
 }
 
-void Window::createTopPanel() {
+void Window::createTopPanel(bool need_btn) {
     Menu* topPanel = new Menu(position, MPoint(size.x, TOP_PANE_SIZE), this, this, onMove);
     Rectangle*   topRect = new Rectangle(position, MPoint(size.x, TOP_PANE_SIZE), MColor::LIGHT_BLUE, MColor::BLACK, topPanel);
+    topPanel->registerObject(topRect);
+    registerObject(topPanel);
+
+    if (!need_btn) return;
 
     MImage* closeImg    = new MImage(CLOSE_BTN);
     MImage* minimizeImg = new MImage(MINIMIZE_BTN);
@@ -106,12 +110,10 @@ void Window::createTopPanel() {
     ImageButton* minimize = new ImageButton(position + MPoint(size.x - 2 * TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), minimizeImg, topPanel);
     ImageButton* restore  = new ImageButton(position + MPoint(size.x -     TOP_PANE_SIZE, 0), MPoint(TOP_PANE_SIZE, TOP_PANE_SIZE), restoreImg, topPanel);
 
-    topPanel->registerObject(topRect);
     topPanel->registerObject(close);
     topPanel->registerObject(minimize);
     topPanel->registerObject(restore);
 
-    registerObject(topPanel);
 }
 
 void Window::createTestWindow() {
@@ -191,17 +193,12 @@ EditBoxModal::EditBoxModal(EventManager* _eventMan, MPoint _position, MPoint _si
 EditBoxModal::~EditBoxModal() {
     if (onDestroyFunc) onDestroyFunc(onDestroyArgs);
 
-    delete   editBoxes;
-    // if (paramNames.data) delete[] paramNames.data;
+    delete editBoxes;
 }
 
 plugin::Array<double> EditBoxModal::getParams() {
-    plugin::Array<double> doubleArgs;
-
     size_t editBoxesCnt = editBoxes->getSize();
-
-    doubleArgs.size = editBoxesCnt;
-    doubleArgs.data = new double[editBoxesCnt];
+    plugin::Array<double> doubleArgs(editBoxesCnt);
 
     for (size_t i = 0; i < editBoxesCnt; i++) {
         double doubleArg = atof((*editBoxes)[i]->getText());
@@ -285,6 +282,69 @@ void closeFunc(void* window) {
     ON_ERROR(!window, "Window pointer was null!",);
 
     ((Window*)window)->setAvailable(false);
+}
+
+ChooseToolWindow::ChooseToolWindow(MPoint _position, MPoint _size, Widget* _parent, FilterManager* _filt_manager, ToolManager* _tool_manager) :
+    Window(_position, _size, "", _tool_manager, _filt_manager, nullptr, false, _parent, 0, false) {
+
+    col_local_y = size.y - 5 * PICKER_BTN_SIZE;
+
+    addColor(MColor::RED);
+    addColor(MColor::GREEN);
+    addColor(MColor::YELLOW);
+    addColor(MColor::BLUE);
+    addColor(MColor::BLACK);
+    addColor(MColor::CYAN);
+    addColor(MColor::MAGENTA);
+}
+
+void onToolBtnClick(void* args) {
+    ChooseToolArgs* tool_args = (ChooseToolArgs*) args;
+    tool_args->filt_manager->setActive(false);
+    tool_args->tool_manager->setTool(tool_args->tool);
+}
+
+void onColorBntClick(void* args) {
+    ChooseColorArgs* col_args = (ChooseColorArgs*) args;
+    col_args->tool_manager->setColor(col_args->color.toPlColor());
+}
+
+void ChooseToolWindow::addTool(plugin::ToolI* tool) {
+    const plugin::Texture* tool_logo = tool->getIcon();
+
+    ChooseToolArgs* tool_arg = new ChooseToolArgs();
+    tool_arg->tool = tool;
+    tool_arg->filt_manager = filtManager;
+    tool_arg->tool_manager = manager;
+
+    if (!tool_logo) {
+        registerSubWidget(new ImageButton(position + MPoint(tool_local_x, tool_local_y), MPoint(PICKER_BTN_SIZE, PICKER_BTN_SIZE), new MImage(DEFAULT_LOGO), this, onToolBtnClick, tool_arg, true));
+    }
+    else {
+        registerSubWidget(new ImageButton(position + MPoint(tool_local_x, tool_local_y), MPoint(PICKER_BTN_SIZE, PICKER_BTN_SIZE), new MImage(tool_logo), this, onToolBtnClick, tool_arg, true));
+    }
+
+    if (tool_cnt % 2 != 0) {
+        tool_local_y += (PICKER_BTN_SIZE + PICKER_EDGE_SHIFT);
+        tool_local_x =  PICKER_EDGE_SHIFT;
+    }
+    else tool_local_x += (PICKER_BTN_SIZE + PICKER_EDGE_SHIFT);
+    tool_cnt++;
+}
+
+void ChooseToolWindow::addColor(MColor color) {
+    ChooseColorArgs* col_args = new ChooseColorArgs();
+    col_args->color        = color;
+    col_args->tool_manager = manager;
+
+    registerSubWidget(new Button(position + MPoint(col_local_x, col_local_y), MPoint(PICKER_BTN_SIZE, PICKER_BTN_SIZE), color, this, onColorBntClick, col_args, true));
+
+    if (col_cnt % 2 != 0) {
+        col_local_y += (PICKER_BTN_SIZE + PICKER_EDGE_SHIFT);
+        col_local_x =  PICKER_EDGE_SHIFT;
+    }
+    else col_local_x += (PICKER_BTN_SIZE + PICKER_EDGE_SHIFT);
+    col_cnt++;
 }
 
 WindowManager::WindowManager() {

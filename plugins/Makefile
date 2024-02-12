@@ -12,11 +12,11 @@ CFLAGS  = -g -D _DEBUG -ggdb3 -std=c++17 -Ofast -w -Wall -Wextra -Weffc++ -Waggr
 -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 
 
-SOURCES=curves/curves.cpp
+SOURCES=ver2/curves/curves.cpp
 
 EXECUTABLE=curves.o
 
-EXECUTABLE_SO=curves.so
+EXECUTABLE_SO=ver2/curves.so
  
 all: compile_debug
 
@@ -26,13 +26,13 @@ erase:
 	clear
 
 compile_debug:
-	@${CC} ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
+	@${CC} -g -c -fPIC ${CFLAGS} $(SOURCES) -o $(EXECUTABLE) $(SFML_EXEC)
 
 compile_release_o:
 	${CC} -g -c -fPIC -O3 -o $(EXECUTABLE) $(SOURCES)
 
 compile_vec:
-	${CC} -g -c -fPIC -O3 -o vec.o vec.cpp
+	${CC} -g -c -fPIC -O3 -o vec.o ver2/vec.cpp
 
 compile_release_so:
 	gcc -shared -o ${EXECUTABLE_SO} ${EXECUTABLE}

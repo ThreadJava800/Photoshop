@@ -37,7 +37,7 @@ sf::Vector2f MPoint::toSfVector() {
     return sf::Vector2f(x, y);
 }
 
-plugin::Vec2 MPoint::toVec2() {
+plugin::Vec2 MPoint::toVec2() const {
     return {x, y};
 }
 
@@ -442,11 +442,15 @@ void RenderTarget::drawText(plugin::Vec2 pos, const char *content, uint16_t char
     drawText(MPoint(pos), content, MColor(color), font, char_size);
 }
 
-plugin::Texture* RenderTarget::getTexture() {
+plugin::Texture* RenderTarget::getTexture() const {
     sf::Texture* sfText = new sf::Texture(texture->getTexture());
     MImage mInterLayer = MImage(sfText); 
 
     return mInterLayer.toPluginTexture();
+}
+
+void RenderTarget::setTexture(plugin::Texture *_texture) {
+    drawTexture({0, 0}, getSize().toVec2(), _texture);
 }
 
 void RenderTarget::display() {
@@ -455,6 +459,10 @@ void RenderTarget::display() {
 
 void RenderTarget::clear() {
     texture->clear(sf::Color::Transparent);
+}
+
+void RenderTarget::clear(plugin::Color color) {
+    texture->clear(sf::Color(color.r, color.g, color.b, color.a));
 }
 
 void RenderTarget::_drawLine(MPoint start, MPoint end, MColor color) {
