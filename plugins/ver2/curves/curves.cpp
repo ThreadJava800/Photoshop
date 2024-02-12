@@ -143,7 +143,7 @@ void ImageTextButton::render(plugin::RenderTargetI* rt) {
     position = host->getPos();
     rt->drawRect   (position, size, TRANSPARENT);
     rt->drawTexture(position, size, image);
-    rt->drawText   (position, text, BTN_TXT_PT, BLACK);
+    rt->drawText   ({position.x + BTN_SHIFT, position.y + BTN_SHIFT}, text, BTN_TXT_PT, BLACK);
 }
 
 TextButton::TextButton(plugin::App* _app, plugin::Vec2 _pos, plugin::Vec2 _size, OnClick* _on_click, const char* _text) : 

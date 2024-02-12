@@ -26,7 +26,7 @@ static const int    LINE_DIAM      = 1;
 static const double CATMULL_ALPHA  = 0.5;
 static const int    ACTION_BTN_LEN = 95;
 static const int    ACTION_BTN_H   = 45;
-
+static const int    BTN_SHIFT      = 7;
 
 class DefaultWidget : public plugin::PluginWidgetI {
 protected:

@@ -30,7 +30,6 @@ pkg/
 *.pch
 
 # Compiled Dynamic libraries
-*.so
 *.dylib
 *.dll
 
@@ -88,7 +87,7 @@ logs.txt
 plugins/Lol.cpp
 plugins/Lol.h
 
-phshop
+
 hello.jpg
 forest.jpg
 apple.jpg
